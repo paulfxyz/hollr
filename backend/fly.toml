@@ -1,22 +1,20 @@
 # fly.toml — Fly.io deployment config for howlr.to API
-# App name: howlr-api
-# Docs: https://fly.io/docs/reference/configuration/
+# App name: howlr-api | Region: cdg (Paris)
 
 app = "howlr-api"
-primary_region = "cdg"   # Paris — close to Paul's SiteGround server in EU
+primary_region = "cdg"
 
 [build]
-  # Uses the auto-detected Node.js buildpack
 
 [env]
-  NODE_ENV    = "production"
-  PORT        = "3000"
-  DATA_DIR    = "/data"
+  NODE_ENV = "production"
+  PORT     = "3000"
+  DATA_DIR = "/data"
 
 [http_service]
-  internal_port = 3000
-  force_https   = true
-  auto_stop_machines  = false
+  internal_port       = 3000
+  force_https         = true
+  auto_stop_machines  = "stop"
   auto_start_machines = true
   min_machines_running = 1
 
@@ -30,5 +28,5 @@ primary_region = "cdg"   # Paris — close to Paul's SiteGround server in EU
   destination = "/data"
 
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "256mb"
+  size      = "shared-cpu-1x"
+  memory    = "256mb"
