@@ -3450,8 +3450,8 @@ a { color: inherit; }
         <p class="modal__success-eyebrow">Handle claimed.</p>
         <p class="modal__success-title" id="modal-success-handle">hollr.to/you</p>
         <p class="modal__success-body">Your link is live. Share it anywhere — bio, email footer, business card. Anyone who visits gets a timed canvas, encrypted to your inbox.</p>
-        <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener" class="btn btn--primary btn--full modal__success-btn">
-          Set up your inbox →
+        <a href="/auth/verify" class="btn btn--primary btn--full modal__success-btn">
+          Open my canvas →
         </a>
         <p class="modal__note">Hollrs arrive at <strong>yo@hollr.to</strong> by default. Add your own Resend key anytime in settings.</p>
       </div>
@@ -4392,6 +4392,7 @@ function applyLang(code) {
     });
     document.body.style.overflow = '';
   }
+  window.closeModal = closeModal; // expose globally for inline handlers
 
   document.querySelectorAll('[data-modal-open]').forEach(el => {
     el.addEventListener('click', openModal);
@@ -4416,37 +4417,88 @@ function applyLang(code) {
     }
   });
 
-  emailForm && emailForm.addEventListener('submit', e => {
+  emailForm && emailForm.addEventListener('submit', async e => {
     e.preventDefault();
-    const handle    = (emailForm.querySelector('[name="handle"]')?.value || '').trim();
-    const email     = (emailForm.querySelector('[name="email"]')?.value  || '').trim();
+    const handleVal = (emailForm.querySelector('[name="handle"]')?.value || '').trim();
+    const emailVal  = (emailForm.querySelector('[name="email"]')?.value  || '').trim();
     const submitBtn = emailForm.querySelector('button[type="submit"]');
 
-    if (!handle || !email) return;
+    // Clear any previous error
+    const prevErr = emailForm.querySelector('.modal__email-error');
+    if (prevErr) prevErr.textContent = '';
 
-    // Validate handle format inline
-    if (!/^[a-zA-Z0-9_-]{2,30}$/.test(handle)) {
-      let errEl = emailForm.querySelector('.email-form__error');
-      if (!errEl) {
-        errEl = document.createElement('p');
-        errEl.className = 'email-form__error';
-        errEl.style.cssText = 'color:#c0392b;font-size:0.8rem;margin-top:4px';
-        emailForm.appendChild(errEl);
-      }
-      errEl.textContent = 'Handle must be 2–30 characters (letters, numbers, _ or -)';
+    if (!handleVal || !emailVal) return;
+
+    // Validate handle format
+    if (!/^[a-zA-Z0-9_-]{2,30}$/.test(handleVal)) {
+      showEmailErr('Handle must be 2–30 characters (letters, numbers, _ or -)');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+      showEmailErr('Please enter a valid email address.');
       return;
     }
 
-    // Store desired handle so auth/verify can pre-fill it during onboarding
-    try { sessionStorage.setItem('hollr_pending_handle', handle); } catch {}
+    // Store desired handle so auth/verify pre-fills it during onboarding
+    try { sessionStorage.setItem('hollr_pending_handle', handleVal); } catch {}
 
-    // Send them to the dedicated sign-in page which handles the full flow:
-    // email → magic link → verify → onboarding → /handle
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Taking you there…'; }
-    setTimeout(() => {
-      window.location.href = '/auth/verify';
-    }, 200);
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending magic link…'; }
+
+    try {
+      const res  = await fetch('https://hollr-api.fly.dev/api/auth/magic-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailVal }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        // Show "check your inbox" inside the modal
+        showEmailSent(emailVal, handleVal);
+      } else {
+        showEmailErr(data.error || 'Something went wrong. Please try again.');
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Claim handle →'; }
+      }
+    } catch {
+      showEmailErr('Network error. Please try again.');
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Claim handle →'; }
+    }
+
+    function showEmailErr(msg) {
+      let errEl = emailForm.querySelector('.modal__email-error');
+      if (!errEl) {
+        errEl = document.createElement('p');
+        errEl.className = 'modal__email-error';
+        errEl.style.cssText = 'color:#c96a2a;font-size:0.82rem;margin-top:6px;line-height:1.4';
+        emailForm.appendChild(errEl);
+      }
+      errEl.textContent = msg;
+    }
   });
+
+  function showEmailSent(email, handle) {
+    // Replace modal content with inbox-check state
+    if (connectEl) {
+      connectEl.innerHTML = `
+        <div style="text-align:center;padding:8px 0">
+          <div style="font-size:48px;margin-bottom:16px">📬</div>
+          <h2 style="font-family:var(--serif);font-size:1.5rem;font-weight:600;margin-bottom:10px;letter-spacing:-.02em">Check your inbox</h2>
+          <p style="color:var(--text-2);font-size:0.9rem;line-height:1.6;margin-bottom:24px">
+            We sent a magic link to <strong style="color:var(--text)">${email}</strong>.<br>
+            Click it to sign in and claim <strong style="color:var(--text)">hollr.to/${handle}</strong>.<br>
+            Link expires in 15 minutes.
+          </p>
+          <button onclick="window.closeModal&&closeModal()" style="
+            display:inline-flex;align-items:center;justify-content:center;
+            padding:11px 24px;border-radius:99px;background:var(--accent);color:var(--text-inv);
+            font-family:var(--sans);font-size:0.875rem;font-weight:600;
+            border:none;cursor:pointer;width:100%
+          ">Close</button>
+          <p style="font-size:0.78rem;color:var(--text-3);margin-top:12px">
+            Wrong address? <button onclick="location.reload()" style="background:none;border:none;color:var(--amber);cursor:pointer;font-family:var(--sans);font-size:inherit;text-decoration:underline">Try again</button>
+          </p>
+        </div>`;
+    }
+  }
 
   /* ── Reset email form on modal close ── */
   const origClose = closeModal;
@@ -4468,7 +4520,7 @@ function applyLang(code) {
       Connecting to X…
     `;
     setTimeout(() => {
-      window.location.href = 'https://api.hollr.to/api/auth/x';
+      window.location.href = 'https://hollr-api.fly.dev/api/auth/x';
     }, 400);
   });
 

@@ -9,7 +9,7 @@
   <script>
     // Determine handle from URL path: /paulfxyz → 'paulfxyz'
     var HANDLE   = location.pathname.replace(/^\/+/, '').split('/')[0] || 'unknown';
-    var API_BASE = 'https://api.hollr.to';
+    var API_BASE = 'https://hollr-api.fly.dev';
 
     // Inject handle into page title immediately (before fonts/styles load)
     document.addEventListener('DOMContentLoaded', function() {
@@ -1128,9 +1128,13 @@
           </div>
         </div>
         <div id="tab-pin" style="display:none">
+          <!-- Banner shown when user still has the default PIN -->
+          <div id="default-pin-banner" style="display:none;background:rgba(201,106,42,.12);border:1px solid rgba(201,106,42,.3);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--fg);line-height:1.5;margin-bottom:14px">
+            Your PIN is still the default <strong>1234</strong>. Choose something only you know.
+          </div>
           <div class="s-field">
             <label data-i18n="new_pin_label">New PIN</label>
-            <input type="password" id="s-new-pin" data-i18n-placeholder="new_pin_placeholder" placeholder="New PIN (min 4 chars)" maxlength="20" autocomplete="new-password" />
+            <input type="password" id="s-new-pin" data-i18n-placeholder="new_pin_placeholder" placeholder="New PIN (4–8 digits)" maxlength="8" pattern="[0-9]{4,8}" inputmode="numeric" autocomplete="new-password" />
             <div class="s-error" id="s-pin-change-error"></div>
           </div>
           <div class="s-actions">
@@ -2366,16 +2370,24 @@
   const showPanel = (id) => document.querySelectorAll('.s-panel').forEach(el => el.classList.toggle('active', el.id === id));
 
   const openSettings = async () => {
-    ['s-pin-error','s-setup-error','s-manage-error','s-pin-change-error'].forEach(id => { const el = $(id); if (el) { el.classList.remove('show'); el.textContent = ''; } });
-    ['s-pin-input','s-apikey-setup','s-pin-setup','s-apikey-manage','s-new-pin'].forEach(id => { const el = $(id); if (el) el.value = ''; });
-    try {
-      const tok = getSessionToken();
-      if (!tok) { showPanel('panel-setup'); return; }
-      const resp = await fetch(`${API_BASE}/api/me`, { headers:{ 'Authorization': 'Bearer ' + tok } });
-      const data = await resp.json();
-      showPanel(data.has_api_key ? (settingsPinCache ? 'panel-manage' : 'panel-pin') : 'panel-setup');
-    } catch { showPanel('panel-setup'); }
+    // Reset errors and inputs
+    ['s-pin-error','s-manage-error','s-pin-change-error','s-pgp-error'].forEach(id => {
+      const el = $(id); if (el) { el.classList.remove('show'); el.textContent = ''; }
+    });
+    ['s-pin-input','s-apikey-manage','s-new-pin'].forEach(id => {
+      const el = $(id); if (el) el.value = '';
+    });
+
+    // Always show PIN gate unless already verified this session
+    if (settingsPinCache) {
+      showPanel('panel-manage');
+    } else {
+      showPanel('panel-pin');
+    }
     $('settings-overlay').classList.add('open');
+    if (!settingsPinCache) {
+      setTimeout(() => { const el = $('s-pin-input'); if (el) el.focus(); }, 120);
+    }
   };
 
   const closeSettings = () => $('settings-overlay').classList.remove('open');
@@ -2389,19 +2401,40 @@
   });
 
   $('s-pin-verify').addEventListener('click', async () => {
-    const pin = $('s-pin-input').value.trim(); const el = $('s-pin-error'); el.classList.remove('show');
-    if (!pin) return;
+    const pin = $('s-pin-input').value.trim();
+    const el  = $('s-pin-error');
+    el.classList.remove('show');
+    if (!pin) { el.textContent = 'Please enter your PIN.'; el.classList.add('show'); return; }
     try {
       const tok = getSessionToken();
-      if (!tok) { el.textContent = 'Not logged in.'; el.classList.add('show'); return; }
-      const resp = await fetch(`${API_BASE}/api/settings`, { method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
-        body: JSON.stringify({ pin }) });
+      if (!tok) { el.textContent = 'Please sign in first.'; el.classList.add('show'); return; }
+      const resp = await fetch(`${API_BASE}/api/settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+        body: JSON.stringify({ pin }),
+      });
       const data = await resp.json();
       if (data.ok) {
         settingsPinCache = pin;
         showPanel('panel-manage');
-      } else { el.textContent = t('pin_error'); el.classList.add('show'); }
+      } else if (data.error === 'must_change_pin') {
+        // Default PIN 1234 — force change
+        settingsPinCache = pin;
+        showPanel('panel-manage');
+        // Auto-switch to PIN tab and show banner
+        document.querySelectorAll('.s-tab').forEach(t => t.classList.remove('active'));
+        const pinTab = document.querySelector('.s-tab[data-tab="pin"]');
+        if (pinTab) pinTab.classList.add('active');
+        $('tab-key').style.display = 'none';
+        $('tab-pgp').style.display = 'none';
+        $('tab-pin').style.display = '';
+        // Show banner inside pin tab
+        const banner = document.getElementById('default-pin-banner');
+        if (banner) banner.style.display = '';
+      } else {
+        el.textContent = t('pin_error');
+        el.classList.add('show');
+      }
     } catch { el.textContent = 'Server error.'; el.classList.add('show'); }
   });
   $('s-pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') $('s-pin-verify').click(); });
@@ -2424,7 +2457,6 @@
 
   $('s-manage-save').addEventListener('click', async () => {
     const apiKey = $('s-apikey-manage').value.trim(), el = $('s-manage-error'); el.classList.remove('show');
-    if (!apiKey) { el.textContent = 'API key is required.'; el.classList.add('show'); return; }
     const pin = settingsPinCache;
     if (!pin) { el.textContent = 'Session expired.'; el.classList.add('show'); return; }
     try {
@@ -2441,7 +2473,8 @@
 
   $('s-change-pin-btn').addEventListener('click', async () => {
     const newPin = $('s-new-pin').value.trim(), el = $('s-pin-change-error'); el.classList.remove('show');
-    if (!newPin || newPin.length < 4) { el.textContent = 'PIN must be at least 4 characters.'; el.classList.add('show'); return; }
+    if (!newPin || !/^\d{4,8}$/.test(newPin)) { el.textContent = 'PIN must be 4–8 digits.'; el.classList.add('show'); return; }
+    if (newPin === '1234') { el.textContent = 'Please choose something other than 1234.'; el.classList.add('show'); return; }
     const currentPin = settingsPinCache;
     if (!currentPin) { el.textContent = 'Session expired.'; el.classList.add('show'); return; }
     try {
@@ -2451,7 +2484,7 @@
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
         body: JSON.stringify({ current_pin: currentPin, new_pin: newPin }) });
       const data = await resp.json();
-      if (data.ok) { settingsPinCache = newPin; closeSettings(); toast(t('toast_pin_updated')); }
+      if (data.ok) { settingsPinCache = newPin; const b = document.getElementById('default-pin-banner'); if (b) b.style.display='none'; closeSettings(); toast(t('toast_pin_updated')); }
       else { el.textContent = data.error || 'Update failed.'; el.classList.add('show'); }
     } catch { el.textContent = 'Server error.'; el.classList.add('show'); }
   });
@@ -2625,7 +2658,31 @@
   // (already done via sed at file generation time)
 
   // Load profile (async — non-blocking for initial render)
-  loadHollrProfile();
+  loadHollrProfile().then(() => {
+    // Auto-open settings if:
+    // 1. User is logged in (has session token)
+    // 2. URL has ?setup=1 or ?pin_reset=1 (coming from auth/verify)
+    // 3. API says pin_is_default
+    const tok = getSessionToken();
+    if (!tok) return;
+    const urlP = new URLSearchParams(location.search);
+    if (urlP.get('setup') === '1' || urlP.get('pin_reset') === '1') {
+      // Clean up URL without reload
+      history.replaceState({}, '', location.pathname);
+      // Brief delay so canvas renders first
+      setTimeout(() => openSettings(), 800);
+      return;
+    }
+    // Check if default PIN via API
+    fetch(`${API_BASE}/api/me`, { headers: { Authorization: 'Bearer ' + tok } })
+      .then(r => r.json())
+      .then(data => {
+        if (data.pin_is_default) {
+          setTimeout(() => openSettings(), 800);
+        }
+      })
+      .catch(() => {});
+  });
 
   applyTheme();
   applyTranslations();

@@ -363,7 +363,7 @@
    └─────────────────────────────────────────────────────────────┘
 ════════════════════════════════════════════════════════════════ */
 
-const API = 'https://api.hollr.to';
+const API = 'https://hollr-api.fly.dev';
 const $ = id => document.getElementById(id);
 
 // ── Theme (match landing page) ────────────────────────────────
@@ -415,6 +415,11 @@ if (params.get('token')) {
   $('errorMsg').textContent = 'X sign-in was cancelled or failed. Please try again.';
 } else {
   showState('stateChoose');
+  // If they came from the landing email form, auto-expand the email input
+  // (they already chose email — don't make them click again)
+  if (_pendingHandle) {
+    showEmailForm();
+  }
 }
 
 // ── Magic link verification ────────────────────────────────────
@@ -699,17 +704,10 @@ function setupOnboarding(sessionToken) {
       const data = await res.json();
 
       if (res.ok && data.ok) {
-        // If user left PIN blank → default 1234 → prompt change before canvas
-        if (data.pin_is_default) {
-          btn.textContent = '🎉 Almost there…';
-          showState('statePinChange');
-          $('newPinInput').focus();
-          // Store handle so PIN change step can redirect after
-          window.__pendingRedirectHandle = handle;
-        } else {
-          btn.textContent = '🎉 Launching…';
-          setTimeout(() => { location.href = `/${handle}`; }, 500);
-        }
+        btn.textContent = '🎉 Launching…';
+        // Always redirect to canvas with ?setup=1 so it auto-opens settings
+        // If they set a custom PIN it won't force-change; if default it will
+        setTimeout(() => { location.href = `/${handle}?setup=1`; }, 500);
       } else {
         showFormErr(data.error || 'Something went wrong.');
         btn.disabled    = false;
