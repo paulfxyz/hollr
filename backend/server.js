@@ -510,15 +510,31 @@ app.post('/api/handle/claim', requireAuth, async (req, res) => {
 // ── Settings ─────────────────────────────────────────────────────────────────
 
 /**
+ * GET /api/settings
+ * Returns current (non-secret) settings values for pre-filling the UI.
+ */
+app.get('/api/settings', requireAuth, (req, res) => {
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.user_id);
+  res.json({
+    ok:             true,
+    email:          user.email          || null,  // notification destination
+    from_email:     user.from_email     || null,  // Resend sender address
+    has_resend_key: !!user.resend_key,
+    pgp_public_key: user.pgp_public_key || null,
+    pin_is_default: !!user.pin_is_default,
+  });
+});
+
+/**
  * POST /api/settings
- * Body: { pin, resend_key?, from_email?, pgp_public_key? }
+ * Body: { pin, resend_key?, from_email?, pgp_public_key?, notification_email? }
  *
  * Settings are always locked by PIN.
  * If pin_is_default is set, returns { error: 'must_change_pin' } so the
  * frontend can redirect to the PIN-change step before allowing other changes.
  */
 app.post('/api/settings', requireAuth, (req, res) => {
-  const { pin, resend_key, from_email, pgp_public_key } = req.body;
+  const { pin, resend_key, from_email, pgp_public_key, notification_email } = req.body;
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.user_id);
 
   // PIN is required and must match
@@ -556,6 +572,19 @@ app.post('/api/settings', requireAuth, (req, res) => {
   if (pgp_public_key !== undefined) {
     updates.push('pgp_public_key = ?');
     params.push(pgp_public_key || null);
+  }
+  if (notification_email !== undefined) {
+    // Validate email if provided
+    if (notification_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notification_email)) {
+      return res.status(400).json({ error: 'Invalid notification email' });
+    }
+    // Check not taken by another user
+    if (notification_email) {
+      const taken = db.prepare('SELECT id FROM users WHERE email = ? AND id != ?').get(notification_email, req.user.user_id);
+      if (taken) return res.status(409).json({ error: 'That email is already used by another account' });
+    }
+    updates.push('email = ?');
+    params.push(notification_email || null);
   }
 
   if (updates.length) {

@@ -687,9 +687,31 @@
       overflow: hidden; position: relative; font-family: var(--body);
       transition: background 200ms, border-color 200ms;
     }
-    #settings-box .s-head { padding: 24px 24px 18px; border-bottom: 1px solid var(--border); transition: border-color 200ms; }
-    #settings-box .s-head h2 { font-family: var(--heading); font-size: 20px; font-weight: 700; color: var(--fg); letter-spacing: -.02em; margin-bottom: 4px; }
-    #settings-box .s-head p { font-size: 12.5px; color: var(--fg-2); line-height: 1.5; }
+    #settings-box .s-head { padding: 24px 24px 16px; border-bottom: 1px solid var(--border); transition: border-color 200ms; }
+    #settings-box .s-head h2 { font-family: var(--heading); font-size: 20px; font-weight: 700; color: var(--fg); letter-spacing: -.02em; margin-bottom: 2px; }
+    .s-handle-badge { font-size: 12px; color: var(--fg-3); font-family: var(--mono); }
+    .s-section-label {
+      font-size: 10.5px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--fg-2);
+      margin-bottom: 12px; padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .s-notif-block { background: var(--bg-0); border-radius: 10px; padding: 14px; margin-bottom: 0; }
+    .s-opt-tag {
+      display: inline-block; font-size: 9.5px; font-weight: 700;
+      background: var(--bg-0); color: var(--fg-2); border-radius: 4px;
+      padding: 1px 5px; margin-left: 6px; letter-spacing: .04em;
+      text-transform: uppercase; vertical-align: middle;
+    }
+    textarea#s-pgp-key {
+      width: 100%; border: 1px solid var(--border-md); border-radius: 6px;
+      padding: 10px; font-family: var(--mono); font-size: 11px;
+      color: var(--fg); background: var(--bg-1); resize: vertical;
+      outline: none; transition: border-color 120ms, background 200ms;
+      min-height: 120px; line-height: 1.5;
+    }
+    textarea#s-pgp-key:focus { border-color: var(--accent); }
+    .s-btn-sm { padding: 7px 14px; font-size: 12.5px; }
     .s-close { position: absolute; top: 16px; right: 16px; background: var(--bg-0); border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: var(--fg-2); font-size: 13px; transition: background 80ms; }
     .s-close:hover { background: var(--bg-1); }
     #settings-body { padding: 20px 24px 24px; }
@@ -1060,91 +1082,129 @@
   <div id="settings-box">
     <div class="s-head">
       <h2 data-i18n="settings_title">Settings</h2>
-      <p data-i18n="settings_sub">Configure the Resend API key used to deliver messages to Paul.</p>
+      <p id="settings-handle-sub" class="s-handle-badge"></p>
     </div>
     <button class="s-close" id="settings-close">✕</button>
     <div id="settings-body">
+
+      <!-- ── PIN gate panel ─────────────────────────────────────────────── -->
       <div class="s-panel" id="panel-pin">
-        <div class="s-info"><div class="s-dot-ok"></div><p data-i18n="pin_info">An API key is configured. Enter your PIN to access or modify settings.</p></div>
         <div class="s-field">
           <label data-i18n="pin_label">PIN</label>
-          <input type="password" id="s-pin-input" data-i18n-placeholder="pin_placeholder" placeholder="Enter PIN" maxlength="20" autocomplete="off" />
-          <div class="hint" data-i18n="pin_hint">Default PIN is <strong>1234</strong></div>
-          <div class="s-error" id="s-pin-error" data-i18n="pin_error">Incorrect PIN.</div>
+          <input type="password" id="s-pin-input" placeholder="Enter your PIN"
+                 maxlength="8" inputmode="numeric" autocomplete="off" />
+          <div class="hint">Enter your PIN to access settings. Default is <strong>1234</strong>.</div>
+          <div class="s-error" id="s-pin-error"></div>
         </div>
         <div class="s-actions">
-          <button class="s-btn-secondary" id="s-pin-cancel" data-i18n="cancel">Cancel</button>
-          <button class="s-btn-primary" id="s-pin-verify" data-i18n="unlock">Unlock →</button>
+          <button class="s-btn-secondary" id="s-pin-cancel">Cancel</button>
+          <button class="s-btn-primary" id="s-pin-verify">Unlock →</button>
+        </div>
+        <div style="text-align:center;margin-top:12px">
+          <button id="s-forgot-pin" style="background:none;border:none;font-size:12px;color:var(--fg-2);cursor:pointer;font-family:var(--body);text-decoration:underline">
+            Forgot PIN?
+          </button>
         </div>
       </div>
-      <div class="s-panel" id="panel-setup">
-        <div class="s-info"><div class="s-dot-no"></div><p data-i18n="setup_info">No API key configured yet. Add your Resend key to enable email delivery.</p></div>
-        <div class="s-field">
-          <label data-i18n="api_key_label">Resend API Key</label>
-          <input type="password" id="s-apikey-setup" placeholder="re_xxxxxxxxxxxxxxxx" autocomplete="off" />
-          <div class="hint" data-i18n="api_key_hint">Get yours at <a href="https://resend.com" target="_blank" rel="noopener" style="color:inherit;">resend.com</a></div>
-        </div>
-        <div class="s-field">
-          <label data-i18n="set_pin_label">Set PIN</label>
-          <input type="password" id="s-pin-setup" data-i18n-placeholder="set_pin_placeholder" placeholder="Choose a PIN (min 4 chars)" maxlength="20" autocomplete="new-password" />
-          <div class="hint" data-i18n="set_pin_hint">You'll need this to update settings later.</div>
-          <div class="s-error" id="s-setup-error"></div>
-        </div>
-        <div class="s-actions">
-          <button class="s-btn-secondary" id="s-setup-cancel" data-i18n="cancel">Cancel</button>
-          <button class="s-btn-primary" id="s-setup-save" data-i18n="save_enable">Save & Enable</button>
-        </div>
-      </div>
+
+      <!-- ── Main settings panel ────────────────────────────────────────── -->
       <div class="s-panel" id="panel-manage">
+
+        <!-- ── Notification email — always visible above tabs ── -->
+        <div class="s-section-label">Where your messages go</div>
+        <div class="s-field s-notif-block">
+          <label>Notification email</label>
+          <input type="email" id="s-notif-email" placeholder="you@email.com"
+                 autocomplete="email" />
+          <div class="hint">
+            Messages from your hollr page are sent here. Currently: <strong id="s-notif-current">yo@hollr.to (default)</strong>
+          </div>
+          <div class="s-error" id="s-notif-error"></div>
+          <div class="s-actions" style="margin-top:10px">
+            <button class="s-btn-primary s-btn-sm" id="s-notif-save">Save email</button>
+          </div>
+        </div>
+
+        <!-- ── Tabs ── -->
+        <div class="s-section-label" style="margin-top:20px">Advanced</div>
         <div class="s-tabs">
-          <button class="s-tab active" data-tab="key" data-i18n="tab_api_key">API Key</button>
-          <button class="s-tab" data-tab="pgp">PGP Key</button>
-          <button class="s-tab" data-tab="pin" data-i18n="tab_change_pin">Change PIN</button>
+          <button class="s-tab active" data-tab="resend">Resend</button>
+          <button class="s-tab" data-tab="pgp">PGP</button>
+          <button class="s-tab" data-tab="pin">Change PIN</button>
         </div>
-        <div id="tab-key">
+
+        <!-- Tab: Resend API -->
+        <div id="tab-resend">
           <div class="s-field">
-            <label data-i18n="api_key_label">Resend API Key</label>
-            <input type="password" id="s-apikey-manage" placeholder="re_xxxxxxxxxxxxxxxx" autocomplete="off" />
-            <div class="hint" data-i18n="manage_key_hint">Leave blank to keep the current key. Without it, platform email (yo@hollr.to) is used.</div>
-            <div class="s-error" id="s-manage-error"></div>
+            <label>Resend API key
+              <span class="s-opt-tag">optional</span>
+            </label>
+            <input type="password" id="s-apikey-manage" placeholder="re_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
+            <div class="hint">
+              Leave blank to use the platform key (<strong>yo@hollr.to</strong>). 
+              Get your own free key at <a href="https://resend.com" target="_blank" rel="noopener" style="color:inherit">resend.com</a>.
+              Leave blank to keep the current key.
+            </div>
           </div>
+          <div class="s-field" style="margin-top:14px">
+            <label>Sender email address
+              <span class="s-opt-tag">optional</span>
+            </label>
+            <input type="email" id="s-from-email" placeholder="hollr@yourdomain.com" autocomplete="email" />
+            <div class="hint">
+              The <em>From:</em> address used when sending messages to your inbox. 
+              Must be a domain <strong>verified in your Resend account</strong>. 
+              Leave blank to use <strong>yo@hollr.to</strong>.
+            </div>
+          </div>
+          <div class="s-error" id="s-manage-error"></div>
           <div class="s-actions">
-            <button class="s-btn-secondary" id="s-manage-close" data-i18n="close">Close</button>
-            <button class="s-btn-primary" id="s-manage-save" data-i18n="save_key">Save Key</button>
+            <button class="s-btn-secondary" id="s-manage-close">Close</button>
+            <button class="s-btn-primary" id="s-manage-save">Save</button>
           </div>
         </div>
+
+        <!-- Tab: PGP -->
         <div id="tab-pgp" style="display:none">
           <div class="s-field">
-            <label>PGP Public Key</label>
-            <textarea id="s-pgp-key" rows="6"
-              style="width:100%;border:1px solid var(--border-md);border-radius:6px;padding:8px;font-family:var(--mono);font-size:11px;color:var(--fg);background:var(--bg-1);resize:vertical;outline:none;transition:border-color 120ms,background 200ms,color 200ms"
-              placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----&#10;...&#10;-----END PGP PUBLIC KEY BLOCK-----"></textarea>
-            <div class="hint" style="margin-top:6px">When set, senders can encrypt messages end-to-end with your PGP key — only you can decrypt them. Leave blank to clear.</div>
+            <label>PGP public key
+              <span class="s-opt-tag">optional</span>
+            </label>
+            <textarea id="s-pgp-key" rows="7"
+              placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----&#10;&#10;...&#10;&#10;-----END PGP PUBLIC KEY BLOCK-----"></textarea>
+            <div class="hint" style="margin-top:6px">
+              When set, senders encrypt their message with your key in-browser before it ever leaves their screen.
+              Only you can decrypt it. Leave blank to clear.
+              <br><a href="https://keys.openpgp.org" target="_blank" rel="noopener" style="color:inherit">Find your key on keys.openpgp.org →</a>
+            </div>
             <div class="s-error" id="s-pgp-error"></div>
           </div>
           <div class="s-actions">
             <button class="s-btn-secondary" id="s-pgp-cancel">Close</button>
-            <button class="s-btn-primary" id="s-pgp-save">Save PGP Key</button>
+            <button class="s-btn-primary" id="s-pgp-save">Save PGP key</button>
           </div>
         </div>
+
+        <!-- Tab: Change PIN -->
         <div id="tab-pin" style="display:none">
-          <!-- Banner shown when user still has the default PIN -->
           <div id="default-pin-banner" style="display:none;background:rgba(201,106,42,.12);border:1px solid rgba(201,106,42,.3);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--fg);line-height:1.5;margin-bottom:14px">
             Your PIN is still the default <strong>1234</strong>. Choose something only you know.
           </div>
           <div class="s-field">
-            <label data-i18n="new_pin_label">New PIN</label>
-            <input type="password" id="s-new-pin" data-i18n-placeholder="new_pin_placeholder" placeholder="New PIN (4–8 digits)" maxlength="8" pattern="[0-9]{4,8}" inputmode="numeric" autocomplete="new-password" />
+            <label>New PIN <span style="font-weight:400;font-size:11px;color:var(--fg-2)">(4–8 digits)</span></label>
+            <input type="password" id="s-new-pin" placeholder="New PIN"
+                   maxlength="8" pattern="[0-9]{4,8}" inputmode="numeric" autocomplete="new-password" />
             <div class="s-error" id="s-pin-change-error"></div>
           </div>
           <div class="s-actions">
-            <button class="s-btn-secondary" id="s-pin-tab-cancel" data-i18n="cancel">Cancel</button>
-            <button class="s-btn-primary" id="s-change-pin-btn" data-i18n="update_pin">Update PIN</button>
+            <button class="s-btn-secondary" id="s-pin-tab-cancel">Cancel</button>
+            <button class="s-btn-primary" id="s-change-pin-btn">Update PIN</button>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
+
+      </div><!-- /panel-manage -->
+    </div><!-- /settings-body -->
+  </div><!-- /settings-box -->
 </div>
 
 <!-- ── Toast ──────────────────────────────────────────────────────────────── -->
@@ -2365,136 +2425,311 @@
   });
 
   /* ════════════════════════════════════════════════════════════════════════
-   * SETTINGS MODAL
+   * SETTINGS MODAL — v4.2.0
+   *   panel-pin    → PIN gate
+   *   panel-manage → tabs: Resend | PGP | Change PIN
+   *                  + notification email section above tabs
    * ════════════════════════════════════════════════════════════════════════ */
-  const showPanel = (id) => document.querySelectorAll('.s-panel').forEach(el => el.classList.toggle('active', el.id === id));
 
+  const showPanel = (id) =>
+    document.querySelectorAll('.s-panel').forEach(el =>
+      el.classList.toggle('active', el.id === id));
+
+  function switchTab(tabName) {
+    document.querySelectorAll('.s-tab').forEach(t => t.classList.remove('active'));
+    const active = document.querySelector(`.s-tab[data-tab="${tabName}"]`);
+    if (active) active.classList.add('active');
+    $('tab-resend').style.display = tabName === 'resend' ? '' : 'none';
+    $('tab-pgp').style.display    = tabName === 'pgp'    ? '' : 'none';
+    $('tab-pin').style.display    = tabName === 'pin'    ? '' : 'none';
+  }
+
+  // ── Load current settings from API and pre-fill form ─────────────────
+  async function loadSettingsValues() {
+    const tok = getSessionToken();
+    if (!tok) return;
+    try {
+      const res  = await fetch(`${API_BASE}/api/settings`, {
+        headers: { Authorization: 'Bearer ' + tok }
+      });
+      const data = await res.json();
+      if (!res.ok) return;
+
+      // Notification email
+      const notifEl = $('s-notif-email');
+      const notifCur = $('s-notif-current');
+      if (notifEl) notifEl.value = data.email || '';
+      if (notifCur) {
+        notifCur.textContent = data.email
+          ? data.email
+          : 'yo@hollr.to (default — add your email above)';
+      }
+
+      // From email (Resend sender)
+      const fromEl = $('s-from-email');
+      if (fromEl) fromEl.value = data.from_email || '';
+
+      // PGP key
+      const pgpEl = $('s-pgp-key');
+      if (pgpEl) pgpEl.value = data.pgp_public_key || '';
+
+      // Default PIN banner
+      const banner = $('default-pin-banner');
+      if (banner && data.pin_is_default) banner.style.display = '';
+
+    } catch {}
+  }
+
+  // ── Open / close ──────────────────────────────────────────────────────
   const openSettings = async () => {
-    // Reset errors and inputs
-    ['s-pin-error','s-manage-error','s-pin-change-error','s-pgp-error'].forEach(id => {
+    // Clear errors
+    ['s-pin-error','s-manage-error','s-pin-change-error','s-pgp-error','s-notif-error'].forEach(id => {
       const el = $(id); if (el) { el.classList.remove('show'); el.textContent = ''; }
     });
-    ['s-pin-input','s-apikey-manage','s-new-pin'].forEach(id => {
-      const el = $(id); if (el) el.value = '';
-    });
+    $('s-pin-input').value = '';
 
-    // Always show PIN gate unless already verified this session
     if (settingsPinCache) {
       showPanel('panel-manage');
+      switchTab('resend');
+      loadSettingsValues();
     } else {
       showPanel('panel-pin');
+      setTimeout(() => $('s-pin-input')?.focus(), 100);
     }
     $('settings-overlay').classList.add('open');
-    if (!settingsPinCache) {
-      setTimeout(() => { const el = $('s-pin-input'); if (el) el.focus(); }, 120);
-    }
   };
 
   const closeSettings = () => $('settings-overlay').classList.remove('open');
 
+  // ── Tab switching ─────────────────────────────────────────────────────
   document.querySelectorAll('.s-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.s-tab').forEach(t => t.classList.remove('active')); tab.classList.add('active');
-      $('tab-key').style.display = tab.dataset.tab === 'key' ? '' : 'none';
-      $('tab-pin').style.display = tab.dataset.tab === 'pin' ? '' : 'none';
-    });
+    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
   });
 
+  // ── PIN gate — verify ─────────────────────────────────────────────────
   $('s-pin-verify').addEventListener('click', async () => {
     const pin = $('s-pin-input').value.trim();
     const el  = $('s-pin-error');
     el.classList.remove('show');
-    if (!pin) { el.textContent = 'Please enter your PIN.'; el.classList.add('show'); return; }
+    if (!pin) { el.textContent = 'Enter your PIN to continue.'; el.classList.add('show'); return; }
+
+    const tok = getSessionToken();
+    if (!tok) { el.textContent = 'Not signed in.'; el.classList.add('show'); return; }
+
     try {
-      const tok = getSessionToken();
-      if (!tok) { el.textContent = 'Please sign in first.'; el.classList.add('show'); return; }
       const resp = await fetch(`${API_BASE}/api/settings`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
         body: JSON.stringify({ pin }),
       });
       const data = await resp.json();
-      if (data.ok) {
+
+      if (data.ok || data.error === 'must_change_pin') {
         settingsPinCache = pin;
         showPanel('panel-manage');
-      } else if (data.error === 'must_change_pin') {
-        // Default PIN 1234 — force change
-        settingsPinCache = pin;
-        showPanel('panel-manage');
-        // Auto-switch to PIN tab and show banner
-        document.querySelectorAll('.s-tab').forEach(t => t.classList.remove('active'));
-        const pinTab = document.querySelector('.s-tab[data-tab="pin"]');
-        if (pinTab) pinTab.classList.add('active');
-        $('tab-key').style.display = 'none';
-        $('tab-pgp').style.display = 'none';
-        $('tab-pin').style.display = '';
-        // Show banner inside pin tab
-        const banner = document.getElementById('default-pin-banner');
-        if (banner) banner.style.display = '';
+        loadSettingsValues();
+
+        if (data.error === 'must_change_pin') {
+          // Force PIN change — jump to PIN tab with banner
+          switchTab('pin');
+          const banner = $('default-pin-banner');
+          if (banner) banner.style.display = '';
+        } else {
+          switchTab('resend');
+        }
       } else {
-        el.textContent = t('pin_error');
+        el.textContent = 'Incorrect PIN. Try again.';
         el.classList.add('show');
+        $('s-pin-input').value = '';
+        $('s-pin-input').focus();
       }
-    } catch { el.textContent = 'Server error.'; el.classList.add('show'); }
+    } catch { el.textContent = 'Connection error. Please retry.'; el.classList.add('show'); }
   });
   $('s-pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') $('s-pin-verify').click(); });
 
-  $('s-setup-save').addEventListener('click', async () => {
-    const apiKey = $('s-apikey-setup').value.trim(), pin = $('s-pin-setup').value.trim(), el = $('s-setup-error'); el.classList.remove('show');
-    if (!apiKey) { el.textContent = 'API key is required.'; el.classList.add('show'); return; }
-    if (!pin || pin.length < 4) { el.textContent = 'PIN must be at least 4 characters.'; el.classList.add('show'); return; }
+  // ── Forgot PIN ────────────────────────────────────────────────────────
+  $('s-forgot-pin').addEventListener('click', async () => {
+    const btn = $('s-forgot-pin');
+    btn.textContent = 'Sending…'; btn.style.opacity = '0.5';
+    const tok = getSessionToken();
     try {
-      const tok = getSessionToken();
-      if (!tok) { el.textContent = 'Not logged in.'; el.classList.add('show'); return; }
-      const resp = await fetch(`${API_BASE}/api/settings`, { method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
-        body: JSON.stringify({ pin, resend_key: apiKey }) });
-      const data = await resp.json();
-      if (data.ok) { settingsPinCache = pin; closeSettings(); toast(t('toast_settings_saved')); }
-      else { el.textContent = data.error || 'Save failed.'; el.classList.add('show'); }
-    } catch { el.textContent = 'Server error.'; el.classList.add('show'); }
+      // Get email from api/me first
+      const me = await fetch(`${API_BASE}/api/me`, { headers: { Authorization: 'Bearer ' + tok } });
+      const meData = await me.json();
+      if (!meData.email) {
+        toast('No email on file — add one in settings first.');
+        btn.textContent = 'Forgot PIN?'; btn.style.opacity = '';
+        return;
+      }
+      await fetch(`${API_BASE}/api/auth/forgot-pin`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: meData.email }),
+      });
+      btn.textContent = '✓ Reset link sent to ' + meData.email;
+      btn.style.opacity = '0.6';
+    } catch {
+      btn.textContent = 'Forgot PIN?'; btn.style.opacity = '';
+    }
   });
 
+  // ── Notification email save ───────────────────────────────────────────
+  $('s-notif-save').addEventListener('click', async () => {
+    const email = $('s-notif-email').value.trim();
+    const el    = $('s-notif-error');
+    el.classList.remove('show');
+    const btn   = $('s-notif-save');
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      el.textContent = 'Enter a valid email address.';
+      el.classList.add('show'); return;
+    }
+    btn.disabled = true; btn.textContent = 'Saving…';
+    const tok = getSessionToken();
+    try {
+      const resp = await fetch(`${API_BASE}/api/settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
+        body: JSON.stringify({ pin: settingsPinCache, notification_email: email }),
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        const cur = $('s-notif-current');
+        if (cur) cur.textContent = email || 'yo@hollr.to (default)';
+        toast('Notification email saved.');
+      } else {
+        el.textContent = data.error || 'Save failed.';
+        el.classList.add('show');
+      }
+    } catch { el.textContent = 'Connection error.'; el.classList.add('show'); }
+    finally { btn.disabled = false; btn.textContent = 'Save email'; }
+  });
+
+  // ── Resend (API key + from email) save ────────────────────────────────
   $('s-manage-save').addEventListener('click', async () => {
-    const apiKey = $('s-apikey-manage').value.trim(), el = $('s-manage-error'); el.classList.remove('show');
-    const pin = settingsPinCache;
-    if (!pin) { el.textContent = 'Session expired.'; el.classList.add('show'); return; }
+    const apiKey   = $('s-apikey-manage').value.trim();
+    const fromEmail = $('s-from-email').value.trim();
+    const el       = $('s-manage-error');
+    el.classList.remove('show');
+    const btn = $('s-manage-save');
+
+    if (fromEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromEmail)) {
+      el.textContent = 'Enter a valid sender email address.';
+      el.classList.add('show'); return;
+    }
+    btn.disabled = true; btn.textContent = 'Saving…';
+    const tok = getSessionToken();
     try {
-      const tok = getSessionToken();
-      if (!tok) { el.textContent = 'Not logged in.'; el.classList.add('show'); return; }
-      const resp = await fetch(`${API_BASE}/api/settings`, { method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
-        body: JSON.stringify({ pin, resend_key: apiKey }) });
+      const body = { pin: settingsPinCache };
+      if (apiKey)    body.resend_key = apiKey;       // blank = keep existing
+      if (fromEmail !== undefined) body.from_email = fromEmail || null;
+
+      const resp = await fetch(`${API_BASE}/api/settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
+        body: JSON.stringify(body),
+      });
       const data = await resp.json();
-      if (data.ok) { closeSettings(); toast(t('toast_api_updated')); }
-      else { el.textContent = data.error || 'Save failed.'; el.classList.add('show'); }
-    } catch { el.textContent = 'Server error.'; el.classList.add('show'); }
+      if (data.ok) {
+        toast('Resend settings saved.');
+        $('s-apikey-manage').value = ''; // clear key field (never show it again)
+      } else {
+        el.textContent = data.error || 'Save failed.';
+        el.classList.add('show');
+      }
+    } catch { el.textContent = 'Connection error.'; el.classList.add('show'); }
+    finally { btn.disabled = false; btn.textContent = 'Save'; }
   });
 
+  // ── PGP save ──────────────────────────────────────────────────────────
+  $('s-pgp-save').addEventListener('click', async () => {
+    const pgpKey = $('s-pgp-key').value.trim();
+    const el     = $('s-pgp-error');
+    el.classList.remove('show');
+    const btn = $('s-pgp-save');
+
+    if (pgpKey && !pgpKey.includes('BEGIN PGP PUBLIC KEY')) {
+      el.textContent = 'Must be a valid armoured PGP public key block.';
+      el.classList.add('show'); return;
+    }
+    btn.disabled = true; btn.textContent = 'Saving…';
+    const tok = getSessionToken();
+    try {
+      const resp = await fetch(`${API_BASE}/api/settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
+        body: JSON.stringify({ pin: settingsPinCache, pgp_public_key: pgpKey }),
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        toast(pgpKey ? 'PGP key saved. Senders will now encrypt end-to-end.' : 'PGP key cleared.');
+        // Update the 🔐 badge on the topbar
+        const pill = document.getElementById('state-pill');
+        const existing = pill?.querySelector('.pgp-badge');
+        if (pgpKey && pill && !existing) {
+          const b = document.createElement('span');
+          b.className = 'pgp-badge';
+          b.textContent = '🔐'; b.title = 'PGP encryption active';
+          b.style.cssText = 'font-size:12px;margin-right:2px;cursor:default';
+          pill.prepend(b);
+        } else if (!pgpKey && existing) {
+          existing.remove();
+        }
+      } else {
+        el.textContent = data.error || 'Save failed.';
+        el.classList.add('show');
+      }
+    } catch { el.textContent = 'Connection error.'; el.classList.add('show'); }
+    finally { btn.disabled = false; btn.textContent = 'Save PGP key'; }
+  });
+
+  // ── Change PIN ────────────────────────────────────────────────────────
   $('s-change-pin-btn').addEventListener('click', async () => {
-    const newPin = $('s-new-pin').value.trim(), el = $('s-pin-change-error'); el.classList.remove('show');
-    if (!newPin || !/^\d{4,8}$/.test(newPin)) { el.textContent = 'PIN must be 4–8 digits.'; el.classList.add('show'); return; }
-    if (newPin === '1234') { el.textContent = 'Please choose something other than 1234.'; el.classList.add('show'); return; }
-    const currentPin = settingsPinCache;
-    if (!currentPin) { el.textContent = 'Session expired.'; el.classList.add('show'); return; }
+    const newPin = $('s-new-pin').value.trim();
+    const el     = $('s-pin-change-error');
+    el.classList.remove('show');
+    const btn = $('s-change-pin-btn');
+
+    if (!newPin || !/^\d{4,8}$/.test(newPin)) {
+      el.textContent = 'PIN must be 4–8 digits.'; el.classList.add('show'); return;
+    }
+    if (newPin === '1234') {
+      el.textContent = 'Choose something other than 1234.'; el.classList.add('show'); return;
+    }
+    if (!settingsPinCache) { el.textContent = 'Session expired.'; el.classList.add('show'); return; }
+
+    btn.disabled = true; btn.textContent = 'Saving…';
+    const tok = getSessionToken();
     try {
-      const tok = getSessionToken();
-      if (!tok) { el.textContent = 'Not logged in.'; el.classList.add('show'); return; }
-      const resp = await fetch(`${API_BASE}/api/settings/change-pin`, { method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
-        body: JSON.stringify({ current_pin: currentPin, new_pin: newPin }) });
+      const resp = await fetch(`${API_BASE}/api/settings/change-pin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
+        body: JSON.stringify({ current_pin: settingsPinCache, new_pin: newPin }),
+      });
       const data = await resp.json();
-      if (data.ok) { settingsPinCache = newPin; const b = document.getElementById('default-pin-banner'); if (b) b.style.display='none'; closeSettings(); toast(t('toast_pin_updated')); }
-      else { el.textContent = data.error || 'Update failed.'; el.classList.add('show'); }
-    } catch { el.textContent = 'Server error.'; el.classList.add('show'); }
+      if (data.ok) {
+        settingsPinCache = newPin;
+        const banner = $('default-pin-banner');
+        if (banner) banner.style.display = 'none';
+        $('s-new-pin').value = '';
+        closeSettings();
+        toast('PIN updated. Keep it safe!');
+      } else {
+        el.textContent = data.error || 'Update failed.';
+        el.classList.add('show');
+      }
+    } catch { el.textContent = 'Connection error.'; el.classList.add('show'); }
+    finally { btn.disabled = false; btn.textContent = 'Update PIN'; }
   });
 
+  // ── Close handlers ────────────────────────────────────────────────────
   $('s-pin-cancel').addEventListener('click', closeSettings);
-  $('s-setup-cancel').addEventListener('click', closeSettings);
   $('s-manage-close').addEventListener('click', closeSettings);
+  $('s-pgp-cancel').addEventListener('click', closeSettings);
   $('s-pin-tab-cancel').addEventListener('click', closeSettings);
   $('settings-close').addEventListener('click', closeSettings);
-  $('settings-overlay').addEventListener('click', e => { if (e.target === $('settings-overlay')) closeSettings(); });
+  $('settings-overlay').addEventListener('click', e => {
+    if (e.target === $('settings-overlay')) closeSettings();
+  });
 
   /* ════════════════════════════════════════════════════════════════════════
    * EVENT LISTENERS
@@ -2622,8 +2857,10 @@
         }
       }
 
-      // Update document title
+      // Update document title and settings badge
       document.title = `hollr.to/${profile.handle}`;
+      const hdgBadge = document.getElementById('settings-handle-sub');
+      if (hdgBadge) hdgBadge.textContent = `hollr.to/${profile.handle}`;
 
       // Patch the "go to" link in the sent screen
       const gotoEl = document.querySelector('.sent-goto');
