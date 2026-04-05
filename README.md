@@ -1,4 +1,4 @@
-# 📯 hollr
+# 🐺 hollr
 
 [![Version](https://img.shields.io/badge/version-4.0.0-ff6b35?style=flat-square)](https://github.com/paulfxyz/hollr/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-black?style=flat-square)](LICENSE)
