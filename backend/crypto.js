@@ -1,108 +1,203 @@
 /**
- * crypto.js — Encryption helpers for hollr.to (v4.0.0)
+ * crypto.js — Encryption helpers for hollr.to (v4.3.0)
+ * ──────────────────────────────────────────────────────
  *
- * Two responsibilities:
- *   1. AES-256-CBC + PBKDF2 for encrypting text secrets at rest
- *      (Resend API keys, OAuth tokens stored in the DB)
- *   2. AES-256-GCM for encrypting file/voice uploads at rest
- *      Key + IV are returned to the caller so the owner can decrypt in-browser.
+ * OVERVIEW
+ * ─────────
+ * Two encryption layers protect user data at rest:
  *
- * The server-side master secret lives in ENCRYPTION_SECRET env var.
+ *   1. AES-256-CBC + PBKDF2   →  text secrets  (Resend API keys, tokens)
+ *   2. AES-256-GCM            →  binary blobs  (file / voice uploads)
+ *
+ * WHY TWO ALGORITHMS?
+ * ───────────────────
+ *   CBC is simple and well-understood for short text values. We pair it
+ *   with PBKDF2 (100 000 iterations, SHA-256) so that brute-forcing the
+ *   master secret against the database is computationally prohibitive —
+ *   ~10 billion operations per guess on current hardware.
+ *
+ *   GCM provides authenticated encryption (confidentiality + integrity in
+ *   one pass) and is natively supported by the browser's Web Crypto API,
+ *   enabling pure client-side decryption of uploaded files without any
+ *   server round-trip.
+ *
+ * MASTER SECRET
+ * ─────────────
+ *   ENCRYPTION_SECRET is a 64-char hex string stored as a Fly.io secret.
+ *   Never commit it. If you need to rotate it, re-encrypt every stored
+ *   secret with the new key before swapping the env var.
+ *
+ * WIRE FORMATS
+ * ────────────
+ *   Text (CBC):
+ *     Stored string:  "saltHex:ivHex:ciphertextHex"   (colon-delimited)
+ *     Each segment is hex-encoded so it's safe in a TEXT column.
+ *     A fresh salt is generated per value — identical inputs produce
+ *     different ciphertexts (prevents frequency analysis on the DB).
+ *
+ *   Binary (GCM):
+ *     On-disk buffer: [16-byte authTag] [ciphertext bytes …]
+ *     Storing the tag first lets the browser viewer slice bytes 0-15
+ *     independently of ciphertext length.
+ *
+ * KEY LESSON — GCM authTag placement
+ * ───────────────────────────────────
+ *   Node's crypto API separates tag from ciphertext; SubtleCrypto expects
+ *   them concatenated as [ciphertext][authTag]. We store [authTag][cipher],
+ *   so the /decrypt viewer re-orders before calling SubtleCrypto.decrypt().
+ *   Always document your wire format — this tripped us up initially.
  */
+
+'use strict';
 
 const crypto = require('crypto');
 
-// ── Text encryption (AES-256-CBC + PBKDF2) ───────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// TEXT ENCRYPTION  (AES-256-CBC + PBKDF2)
+// Used for: Resend API keys, OAuth tokens stored in SQLite
+// ─────────────────────────────────────────────────────────────────────────────
 
-const ALGORITHM  = 'aes-256-cbc';
-const ITERATIONS = 100_000;
-const KEY_LENGTH = 32; // bytes → 256 bits
+const CBC_ALGORITHM  = 'aes-256-cbc';
+const PBKDF2_ITERS   = 100_000;   // OWASP 2023 recommended minimum
+const KEY_LEN_BYTES  = 32;        // 256 bits
 
 /**
- * Derives a 256-bit AES key from the server secret + a salt.
- * @param {string} salt — hex-encoded 16-byte salt
- * @returns {Buffer}
+ * deriveKey
+ * Stretches the master secret into a 256-bit AES key using PBKDF2-SHA256.
+ * A unique per-value salt prevents dictionary attacks on the database dump.
+ *
+ * @param  {string} saltHex  16 random bytes, hex-encoded (32 chars)
+ * @returns {Buffer}          32-byte key for AES-256
  */
-function deriveKey(salt) {
+function deriveKey(saltHex) {
   const secret = process.env.ENCRYPTION_SECRET;
-  if (!secret) throw new Error('ENCRYPTION_SECRET env var is not set');
-  return crypto.pbkdf2Sync(secret, Buffer.from(salt, 'hex'), ITERATIONS, KEY_LENGTH, 'sha256');
+  if (!secret) {
+    throw new Error(
+      'ENCRYPTION_SECRET env var is not set. ' +
+      'Run: flyctl secrets set ENCRYPTION_SECRET=$(openssl rand -hex 32)'
+    );
+  }
+  return crypto.pbkdf2Sync(
+    secret,
+    Buffer.from(saltHex, 'hex'),
+    PBKDF2_ITERS,
+    KEY_LEN_BYTES,
+    'sha256',
+  );
 }
 
 /**
- * Encrypts a plaintext string.
- * @param {string} plaintext
- * @returns {string} "salt:iv:ciphertext" — all hex-encoded
+ * encrypt
+ * Encrypts a UTF-8 string and returns a portable colon-delimited blob.
+ *
+ * Example:
+ *   const blob = encrypt('re_my_resend_key');
+ *   // → "a3f2...:9c1e...:ddb4..."
+ *   db.prepare('UPDATE users SET resend_key = ?').run(blob);
+ *
+ * @param  {string} plaintext
+ * @returns {string}  "saltHex:ivHex:ciphertextHex"
  */
 function encrypt(plaintext) {
-  const salt    = crypto.randomBytes(16).toString('hex');
-  const iv      = crypto.randomBytes(16);
-  const key     = deriveKey(salt);
-  const cipher  = crypto.createCipheriv(ALGORITHM, key, iv);
-  const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
-  return `${salt}:${iv.toString('hex')}:${encrypted.toString('hex')}`;
+  const saltHex  = crypto.randomBytes(16).toString('hex');
+  const iv       = crypto.randomBytes(16);  // AES block size = 128 bits
+  const key      = deriveKey(saltHex);
+  const cipher   = crypto.createCipheriv(CBC_ALGORITHM, key, iv);
+  const encrypted = Buffer.concat([
+    cipher.update(plaintext, 'utf8'),
+    cipher.final(),
+  ]);
+  return `${saltHex}:${iv.toString('hex')}:${encrypted.toString('hex')}`;
 }
 
 /**
- * Decrypts a string produced by encrypt().
- * @param {string} blob — "salt:iv:ciphertext"
- * @returns {string}
+ * decrypt
+ * Reverses encrypt(). Throws on wrong secret, malformed blob, or bad padding.
+ *
+ * Example:
+ *   const apiKey = decrypt(user.resend_key);
+ *
+ * @param  {string} blob  "saltHex:ivHex:ciphertextHex"
+ * @returns {string}       original plaintext
  */
 function decrypt(blob) {
-  const [salt, ivHex, cipherHex] = blob.split(':');
-  const key      = deriveKey(salt);
+  const [saltHex, ivHex, cipherHex] = blob.split(':');
+  if (!saltHex || !ivHex || !cipherHex) {
+    throw new Error('Invalid encrypted blob — expected "salt:iv:cipher"');
+  }
+  const key      = deriveKey(saltHex);
   const iv       = Buffer.from(ivHex, 'hex');
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
-  const decrypted = Buffer.concat([decipher.update(Buffer.from(cipherHex, 'hex')), decipher.final()]);
-  return decrypted.toString('utf8');
+  const decipher = crypto.createDecipheriv(CBC_ALGORITHM, key, iv);
+  return Buffer.concat([
+    decipher.update(Buffer.from(cipherHex, 'hex')),
+    decipher.final(),
+  ]).toString('utf8');
 }
 
-// ── File/binary encryption (AES-256-GCM) ─────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// BINARY ENCRYPTION  (AES-256-GCM)
+// Used for: file uploads and voice recordings stored on Fly.io volume
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Encrypts a Buffer using a freshly generated AES-256-GCM key.
- * The key and IV are returned in hex so the file owner can decrypt in-browser
- * using the Web Crypto API (AES-GCM is natively supported everywhere).
+ * encryptBuffer
+ * Encrypts arbitrary binary data with AES-256-GCM.
  *
- * Wire format written to disk:
- *   [16 bytes auth tag] [ciphertext...]
+ * Each file gets its own fresh key + IV, so compromising one file key
+ * reveals nothing about other files. The hex key and IV are returned to
+ * the caller and embedded in the notification email as URL hash parameters
+ * (#key=...&iv=...) — they never touch the server during playback.
  *
- * @param {Buffer} buf — raw file bytes
+ * On-disk layout:
+ *   Byte  0-15  →  GCM authentication tag (16 bytes, 128-bit)
+ *   Byte  16-…  →  ciphertext
+ *
+ * Browser decrypt flow (decrypt/index.html):
+ *   1. Fetch raw bytes from /api/decrypt/:handle/:filename
+ *   2. authTag  = bytes.slice(0, 16)
+ *   3. cipher   = bytes.slice(16)
+ *   4. SubtleCrypto.decrypt({ name:'AES-GCM', iv, tagLength:128 },
+ *                           key, concat(cipher, authTag))
+ *      ↑ SubtleCrypto expects [ciphertext][authTag] — we re-order here.
+ *
+ * @param  {Buffer} buf   raw file bytes (from multer memoryStorage)
  * @returns {{ encrypted: Buffer, keyHex: string, ivHex: string }}
  */
 function encryptBuffer(buf) {
-  const key    = crypto.randomBytes(32);          // 256-bit key
-  const iv     = crypto.randomBytes(12);          // 96-bit GCM IV (recommended)
+  const key    = crypto.randomBytes(32);  // 256-bit key — unique per file
+  const iv     = crypto.randomBytes(12);  // 96-bit nonce — GCM recommendation
   const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
 
   const ciphertext = Buffer.concat([cipher.update(buf), cipher.final()]);
-  const authTag    = cipher.getAuthTag(); // 16 bytes
-
-  // Store: authTag || ciphertext (so decryptor can extract the tag easily)
-  const encrypted = Buffer.concat([authTag, ciphertext]);
+  const authTag    = cipher.getAuthTag();  // 16 bytes (128-bit tag)
 
   return {
-    encrypted,
-    keyHex: key.toString('hex'),
-    ivHex:  iv.toString('hex'),
+    encrypted: Buffer.concat([authTag, ciphertext]),  // tag-first wire format
+    keyHex:    key.toString('hex'),  // 64 chars — goes in email decrypt link
+    ivHex:     iv.toString('hex'),   // 24 chars — goes in email decrypt link
   };
 }
 
 /**
- * Decrypts a Buffer produced by encryptBuffer().
- * @param {Buffer} buf    — [16-byte authTag][ciphertext...]
- * @param {string} keyHex — 32-byte key as hex
- * @param {string} ivHex  — 12-byte IV as hex
- * @returns {Buffer}
+ * decryptBuffer
+ * Reverses encryptBuffer() server-side.
+ *
+ * In the current architecture decryption happens client-side in the browser;
+ * this function exists for completeness and potential future inbox features.
+ *
+ * @param  {Buffer} buf     [16-byte authTag][ciphertext…]
+ * @param  {string} keyHex  64-char hex key
+ * @param  {string} ivHex   24-char hex IV
+ * @returns {Buffer}         original plaintext bytes
  */
 function decryptBuffer(buf, keyHex, ivHex) {
   const key      = Buffer.from(keyHex, 'hex');
   const iv       = Buffer.from(ivHex, 'hex');
   const authTag  = buf.slice(0, 16);
-  const cipher   = buf.slice(16);
+  const data     = buf.slice(16);
   const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
   decipher.setAuthTag(authTag);
-  return Buffer.concat([decipher.update(cipher), decipher.final()]);
+  return Buffer.concat([decipher.update(data), decipher.final()]);
 }
 
 module.exports = { encrypt, decrypt, encryptBuffer, decryptBuffer };

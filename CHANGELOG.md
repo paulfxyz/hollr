@@ -1,236 +1,208 @@
 # Changelog
 
-All notable changes to this project are documented here.
-Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
-Versioning follows [Semantic Versioning](https://semver.org/).
+All notable changes are documented here.
+Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+Versioning: [Semantic Versioning](https://semver.org/)
+
+> **Permanent rule:** Every commit that changes behaviour must bump the version,
+> add a CHANGELOG entry, update the README badge, and create a GitHub release.
+
+---
+
+## [4.3.0] — 2026-04-06
+
+### 🧹 Code quality, docs, and directory correctness
+
+The directory was still named `howlr/` internally — a typo from v1.0.0 that
+was never caught at the OS level. Everything is now `hollr/` throughout.
+All four backend modules received thorough educational comments.
+README, INSTALL, and CHANGELOG were rewritten from scratch.
+
+### Changed
+
+- **Directory rename:** `howlr/` → `hollr/`, `howlr-repo/` → `hollr-repo/` everywhere in the workspace. Grep-verified no remaining `howlr` strings in any code file.
+- **`crypto.js`** — Full JSDoc, wire-format documentation for both CBC and GCM, explanation of why tag-first storage was chosen, PBKDF2 iteration count justification.
+- **`db.js`** — Full schema commentary per column, migration strategy explanation, better-sqlite3 usage notes, lesson learned on index-before-column crash.
+- **`mailer.js`** — Full JSDoc on both public functions, HTML-escape rationale, decrypt-viewer URL format documentation, `reply_to: null` lesson learned.
+- **`server.js`** — Version bumped to 4.3.0 in health endpoint and startup log.
+- **`README.md`** — Completely rewritten: badges, architecture diagram, full API reference table, tech-stack rationale, versioning guideline, 8 documented issues/lessons learned.
+- **`INSTALL.md`** — Completely rewritten: replaces the outdated PHP guide with current Node.js/Fly.io/FTP instructions, troubleshooting table.
+- **`CHANGELOG.md`** — Rewritten: complete history from v1.0.0 to v4.3.0, permanent versioning rule documented at top.
 
 ---
 
 ## [4.2.0] — 2026-04-05
 
-### 🎨 Major — Landing page redesign restored
+### 🎨 New landing page + full auth pipeline wired
 
-Brings back the original editorial landing page design from the dedicated
-design session: warm cream (#f5f0e8) palette, Instrument Serif headings,
-giant outlined HOLLR hero letterform, and a sophisticated claim modal.
-Fully integrated with v4.x features (X OAuth, PGP, encrypted files,
-optional Resend).
+#### Landing page
+- New design from Paul's Figma: **Fraunces** serif, warm parchment (`#f9f6f1`), full-bleed `HOLLER.` outline wordmark as hero.
+- Two-column hero: headline + animated canvas mockup (PGP ENCRYPTED badge, live timer).
+- Stats strip, "How it works" numbered rows (01–04), canvas showcase, features grid, API & MCP developer section, delivery options, CTA footer.
+- **Claim modal**: `hollr × 𝕏` branding, X OAuth button → `hollr-api.fly.dev/api/auth/x`, OR divider, email + handle form → magic-link API inline.
+- "Check your inbox" state shown inside modal on success — no redirect needed.
+- 10 language packs updated (EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU).
+- Single-file deploy: CSS + JS + favicon inlined into `index.html`.
 
-### Added / Changed
+#### Auth pipeline
+- **Root cause fix:** `api.hollr.to` CNAME pointed to destroyed `howlr-api.fly.dev`. All API calls now use `hollr-api.fly.dev` directly. Fly.io `BASE_URL` secret updated to match.
+- **`auth/verify.html`** completely rewritten: Fraunces design, 7 states (`stateVerifying`, `stateError`, `stateChoose`, `stateSent`, `stateNeedEmail`, `stateOnboarding`, `statePinChange`).
+  - Auto-expands email input when arrived from landing modal (handle in sessionStorage).
+  - `stateNeedEmail` for X users without an email (can skip).
+  - Redirects to `/:handle?setup=1` after claiming — canvas auto-opens settings.
+- **`handle/index.html`** settings modal rebuilt:
+  - **Notification email** section above tabs — where messages go (distinct from Resend sender).
+  - **Resend tab**: API key + sender email/domain, "must be verified in Resend" hint.
+  - **PGP tab**: full-height textarea, pre-filled, openpgp.org link, save/cancel wired (were missing before), live badge update.
+  - **Change PIN tab**: default-PIN banner, rejects `1234`, clears banner on success.
+  - `switchTab()` helper — fixes PGP tab always being invisible.
+  - `loadSettingsValues()` — pre-fills all fields from `GET /api/settings` on modal open.
+  - Auto-opens settings on `?setup=1` or `?pin_reset=1` URL param.
+  - Also auto-opens if `/api/me` returns `pin_is_default: true`.
+  - Forgot PIN → calls `/api/auth/forgot-pin`, shows confirmation.
+- **Backend:**
+  - `GET /api/settings` added — returns current settings for pre-fill.
+  - `POST /api/settings` accepts `notification_email` to update destination inbox.
+  - `GET /api/me` returns `pin_is_default` and `has_email`.
 
-#### Landing page — complete redesign
-- **Hero** — Giant SVG outlined "HOLLR" background text, "Holla at me. / *Encrypted. Secured.*" Instrument Serif headline, scrolling handle marquee strip.
-- **Signal section** — "We filter the noise. *You keep the signal.*" two-column layout with animated Pending Hollrs inbox mockup (HUMAN VERIFIED / PENDING REVIEW / AI FILTERED cards).
-- **How it works** — 4-step numbered cards (01–04): Claim handle, Set PIN, Share link, Receive securely.
-- **API & MCP section** — 3-column cards: REST API (`GET /v1/hollrs`), Webhooks, MCP Server (Coming Soon).
-- **Delivery options** — 3 radio-button cards: `yo@hollr.to` (default, selected), Resend API key, Webhook URL.
-- **Claim modal** — `hollr × 𝕏` branding, "Continue with X" OAuth button → `api.hollr.to/api/auth/x`, OR divider, collapsible email form with handle + email fields, X priority disclaimer.
-- **Dark mode** — Full dark theme (`#181510` bg) with warm text tokens.
-- **Typography** — Instrument Serif (Google Fonts) for all display text; Inter for body/UI.
-- All 10 language packs (EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU) updated with new string keys.
-- Sticky nav with backdrop blur, IntersectionObserver scroll-reveal animations, CSS marquee.
+---
+
+## [4.1.0] — 2026-04-05
+
+### 🔑 PIN defaults, email-required for X users, forgot PIN
+
+- **Default PIN is 1234.** Set automatically on account creation. First settings open returns `{ error: 'must_change_pin' }`, forcing a PIN change before other edits.
+- **X users must supply an email.** Without one, no notifications and no PIN recovery. The `needs_email=1` URL param on the OAuth callback triggers a collection step.
+- **`POST /api/auth/forgot-pin`** — sends a magic link that resets PIN to 1234 and sets `pin_is_default=1`, then forces change on next settings open.
+- **`POST /api/settings/change-pin`** — now clears `pin_is_default` and rejects `1234` as the new PIN.
+- **`POST /api/settings/email`** — lets users update their notification email (requires PIN).
+- **`auth/verify.html`** — `stateNeedEmail` for X users; PIN change prompted via `statePinChange` after onboarding with blank PIN.
+- **Schema:** `pin_is_default` column on `users`; `is_pin_reset` column on `magic_links`.
+- **Onboarding:** PIN field is now optional — leaving it blank sets the default 1234 and `pin_is_default=1`.
 
 ---
 
 ## [4.0.0] — 2026-04-05
 
-### 🚀 Major — Security & auth upgrade
-
-v4.0.0 is a significant leap in privacy and authentication. Every handle is now a
-fully encrypted communication channel: messages can be PGP-encrypted end-to-end,
-files and voice recordings are encrypted at rest with AES-256-GCM, and login is
-now available via X (Twitter) OAuth in addition to magic links. Resend API is
-now optional — the platform sends notification emails from `yo@hollr.to` by default.
-
-### Added
+### 🚀 X OAuth, PGP, encrypted files, optional Resend
 
 #### Authentication
-- **X (Twitter) OAuth 2.0 PKCE login** — `GET /api/auth/x` + callback. Users can sign in with their X account in one click. PKCE `code_verifier` and `state` stored server-side in `express-session`.
-- **express-session** added for server-side session storage (X OAuth state + PKCE verifier).
-- `SESSION_SECRET` environment variable added.
+- **X (Twitter) OAuth 2.0 PKCE** — `GET /api/auth/x` + callback. PKCE `code_verifier` + `state` stored in `express-session`.
+- **`express-session`** added; `SESSION_SECRET` env var required.
 
-#### PGP Encryption
-- **PGP public key storage** — users can paste their OpenPGP public key in the Settings modal (`cog` icon). Stored in SQLite.
-- **Client-side PGP encryption** on the canvas — when a handle owner has a PGP key set, OpenPGP.js v5 (loaded via `esm.sh`) encrypts the message text in-browser before sending. The ciphertext is stored in the `messages` table, not the plaintext.
-- **PGP badge** — canvas shows a `🔐` badge when the handle owner has PGP enabled.
-- New `pgp_public_key` column in the `users` table.
-- `GET /api/profile/:handle` now includes `pgp_public_key` for client-side encryption.
+#### PGP end-to-end encryption
+- Users paste their OpenPGP public key in Settings → PGP tab.
+- Canvas loads the key via `GET /api/profile/:handle` (includes `pgp_public_key`).
+- Senders encrypt in-browser via **OpenPGP.js v5** (loaded from `esm.sh`, no build step).
+- `is_pgp` flag stored on messages. Email renders the armoured block with a GPG hint.
+- `🔐` badge shown on canvas topbar when PGP is active.
 
-#### Encrypted File & Voice Uploads
-- **AES-256-GCM file encryption** — every uploaded file and voice recording is encrypted server-side with a random 32-byte key and 12-byte IV before writing to disk.
-- `crypto.js` extended with `encryptBuffer(buffer)` → `{ ciphertext, key, iv }` and `decryptBuffer(ciphertext, key, iv)`.
-- `POST /api/upload/:handle` returns `{ url, file_key, file_iv, name }` — `file_key` and `file_iv` are hex-encoded and included in the notification email as a decrypt link.
-- `GET /api/decrypt/:handle/:filename` — streams the raw encrypted bytes to the client for in-browser decryption.
-- `messages` table extended with `is_pgp`, `file_attachments` (JSON), `audio_key`, `audio_iv` columns.
-
-#### In-Browser Decrypt Viewer
-- **`/decrypt` page** — brand new `decrypt/index.html` providing a fully client-side AES-256-GCM decrypt-and-download viewer.
-  - Accepts `key` and `iv` query parameters (pre-filled from email links).
-  - Fetches raw encrypted bytes from `/api/decrypt/:handle/:filename`.
-  - Decrypts using the Web Crypto API (`SubtleCrypto.decrypt`, `AES-GCM`).
-  - Detects MIME type (audio/image/PDF/generic) and renders inline or offers download.
-  - Zero server-side access to plaintext.
+#### Encrypted file & voice uploads
+- Every file and voice recording encrypted server-side with **AES-256-GCM** (fresh 32-byte key + 12-byte IV per file).
+- `crypto.js` extended with `encryptBuffer()` / `decryptBuffer()`.
+- `POST /api/upload/:handle` returns `{ url, file_key, file_iv, name }`.
+- **`/decrypt` page** — brand-new client-side AES-256-GCM viewer using Web Crypto API. Key material lives in the URL hash — never sent to the server.
 - `.htaccess` updated: `/decrypt` route added before the `/:handle` wildcard.
 
-#### Optional Resend API
-- **Platform fallback email** — if a handle owner has no Resend key configured, notification emails are sent from `yo@hollr.to` via the platform Resend key (`PLATFORM_RESEND_KEY`).
-- `PLATFORM_FROM_EMAIL` and `PLATFORM_RESEND_KEY` env vars already existed but are now the primary delivery path.
-- `mailer.js` updated to gracefully fall back to platform email when user has no `resend_key`.
+#### Optional Resend
+- If user has no Resend key, notifications sent via `PLATFORM_RESEND_KEY` from `yo@hollr.to`.
+- `mailer.js` falls back gracefully to the platform key.
 
-#### Onboarding & Settings
-- Auth verify page (`auth/verify.html`) updated: X OAuth login button added, Resend key field marked optional, PGP key textarea added to onboarding flow.
-- Settings modal in the canvas updated: new **PGP** tab alongside Resend and PIN tabs.
+#### Schema changes
+- `users`: added `x_id`, `x_username`, `x_token`, `x_token_secret`, `pgp_public_key`.
+- New `messages` table: `handle`, `sender`, `body`, `is_pgp`, `file_urls`, `audio_url`, `audio_encrypted`.
+- Runtime migration system: `ALTER TABLE … ADD COLUMN` wrapped in try/catch, runs on every startup.
 
-#### Landing Page
-- Hero subtitle, "How it works" steps, and Features section updated to reflect v4.0.0.
-- Steps 1 and 3 rewritten: login now "X or email", step 3 now "Set your PIN" (Resend optional).
-- New feature cards: `X & email login`, `PGP end-to-end encryption`, `Encrypted files & voice`, `Resend optional`.
-- Old `AES-256 encryption` card replaced by `Encrypted files & voice` (AES-256-GCM).
-- All 10 language packs updated with new strings.
-- Meta description updated.
-
-### Changed
-- `db.js` — runtime migrations add `x_id`, `x_username`, `x_token`, `pgp_public_key` columns to `users` table and create the new `messages` table.
-- `package.json` — added `openpgp@5`, `express-session`.
-- `.env.example` — documents `SESSION_SECRET`, `X_CLIENT_ID`, `X_CLIENT_SECRET`.
-
-### Architecture (v4.0.0)
-| Layer | Tech |
-|---|---|
-| Backend | Node.js 20 + Express 4 on Fly.io |
-| Database | SQLite via better-sqlite3 (WAL mode) |
-| Auth | X OAuth 2.0 PKCE + magic links via Resend, sessions via express-session |
-| Encryption (text secrets) | AES-256-CBC + PBKDF2-SHA256 (100k iterations) |
-| Encryption (files/audio) | AES-256-GCM (random key+IV per file, stored in DB) |
-| PGP | OpenPGP.js v5 (client-side, via esm.sh) |
-| Email | Resend REST API (platform `yo@hollr.to` fallback + optional per-user key) |
-| File uploads | Multer → Fly.io persistent volume (encrypted) |
-| Frontend | Plain HTML/CSS/JS, no build step, deployed via FTP |
-| Routing | Apache mod_rewrite on SiteGround |
+#### Landing page
+- Sections updated in all 10 languages: X login, PGP, encrypted files, optional Resend.
+- Step 1 updated to "Sign in with X or email"; step 3 updated to "Set your PIN".
 
 ---
 
 ## [3.0.0] — 2026-04-04
 
-### 🚀 Major — Platform relaunch as hollr.to SaaS
+### 🏗️ Full SaaS rewrite — Node.js backend, SQLite, magic links, handle canvas
 
-This is a full architectural evolution. The project was previously a single-user
-canvas (`to` / `to.paulfleury.com`). It is now a **free, open-source multi-user
-SaaS platform** where anyone can claim a handle at `hollr.to/:handle`.
+**Renamed:** `paulfxyz/to` → `paulfxyz/hollr`. Domain: `hollr.to`.
 
-### Added
-- **Multi-user platform** — anyone can register at [hollr.to](https://hollr.to), claim a unique handle, and receive messages at `hollr.to/:handle`
-- **Node.js / Express backend** deployed on Fly.io (`api.hollr.to`)
-  - Magic-link email authentication (no passwords, ever)
-  - SQLite + better-sqlite3 for persistent storage (Fly.io volume)
-  - AES-256-CBC + PBKDF2 encryption of per-user Resend API keys
-  - bcrypt PIN hashing
-  - Rate limiting (express-rate-limit) on auth and send routes
-  - Multer for file/audio uploads → `/data/uploads/:handle/`
-  - `nodemailer` + Resend REST API for magic-link emails
-  - Full REST API: `/api/auth/*`, `/api/handle/*`, `/api/settings`, `/api/send/:handle`, `/api/upload/:handle`, `/api/profile/:handle`
-- **Multi-language landing page** (`hollr.to`) in 10 languages: EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU
-  - Language auto-detection from browser
-  - Manual language picker modal
-  - Dark / light theme toggle (system default)
-  - Cabinet Grotesk + Satoshi font pairing
-  - Animated handle demo typewriter
-  - Live preview timer simulation
-  - Signup form that calls the magic-link API
-- **Auth verify page** (`hollr.to/auth/verify`) — handles magic link verification and new-user onboarding
-  - Live handle availability check (debounced)
-  - Resend key + from email + PIN collection
-  - Immediate redirect to canvas after claiming
-- **Per-handle canvas page** (`hollr.to/:handle`) — the full v2.0.0 canvas, adapted to:
-  - Load the handle owner's profile from `/api/profile/:handle` dynamically
-  - Replace all "Paul Fleury" references with the actual handle owner's name
-  - Route uploads and sends through the REST API
-  - Wire settings modal to REST endpoints with Bearer token auth
-  - Show a friendly 404 page if the handle doesn't exist
-- **Apache `.htaccess`** routing: `/` → landing, `/auth/verify` → auth, `/:handle` → canvas
-- **GitHub repo renamed** from `paulfxyz/to` → `paulfxyz/hollr`
-- **Fly.io deployment config** (`fly.toml`): Paris region, 256 MB shared CPU, persistent `/data` volume
+#### Backend (new, Fly.io)
+- **Node.js 20 + Express 4** replaces PHP.
+- **SQLite** (better-sqlite3, WAL mode) on a persistent Fly.io volume.
+- **Magic-link auth** via Resend — no passwords.
+- **Handle claiming** — `hollr.to/:handle` is yours forever, first-come first-served.
+- **AES-256-CBC + PBKDF2** for Resend key encryption at rest.
+- **bcrypt** for PIN hashing (cost 12).
+- Deployed to `hollr-api.fly.dev` (Paris, `cdg`).
 
-### Architecture
-| Layer | Tech |
-|---|---|
-| Backend | Node.js 20 + Express 4 on Fly.io |
-| Database | SQLite via better-sqlite3 (WAL mode) |
-| Auth | Magic links via Resend, sessions in SQLite |
-| Encryption | AES-256-CBC + PBKDF2-SHA256 (100k iterations) |
-| Email | Resend REST API (platform key for auth, per-user key for messages) |
-| File uploads | Multer → Fly.io persistent volume, served as static |
-| Frontend | Plain HTML/CSS/JS, no build step, deployed via FTP |
-| Routing | Apache mod_rewrite on SiteGround |
-| DNS | `api.hollr.to` CNAME → `hollr-api.fly.dev` |
+#### Frontend
+- **Multi-language landing** — `hollr.to` with 10 languages, dark/light mode, handle strip.
+- **`auth/verify.html`** — magic-link verification + new-user onboarding.
+- **`handle/index.html`** — per-handle canvas adapted from v2.0.0.
+- **`.htaccess`** Apache mod_rewrite routing.
 
-### Changed
-- Project renamed: **to** → **hollr**
-- Domain: `to.paulfleury.com` → `hollr.to`
-- The per-handle canvas is now fully dynamic (no hardcoded owner names)
+#### Infrastructure
+- `api.hollr.to` CNAME configured (pointed to Fly.io).
+- GitHub repo renamed `paulfxyz/hollr`.
+- Git history cleaned: Resend API key removed via `git-filter-repo`, key rotated.
 
 ---
 
-## [2.0.0] — 2026-04-04
+## [2.0.0] — 2026-04-03
 
-### Added
-- **Full i18n system** — 10 languages: English, French, German, Italian, Spanish, Dutch, Chinese, Hindi, Japanese, Russian
-- **Language picker modal** — flag icon in top-right opens a grid of 10 language options with auto-detection from browser locale
-- **Dark / light / system theme** — bulb icon in top-right opens theme picker modal; CSS custom properties for all colours; `data-theme` attribute on `<html>`
-- **Welcome modal flag strip** — compact flag row added to welcome card for immediate language switching
+### 🌐 i18n + dark/light mode
 
-### Changed
-- All CSS colours converted to `--custom-properties` with full dark/light variants
-- All UI text extracted into `STRINGS[lang]` i18n map
+- **10 languages**: EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU with auto-detection.
+- **Dark / light / system** theme modes, CSS custom properties.
+- 🌐 language picker (flag dropdown) and 🌙 theme toggle added to topbar.
+- Language flag strip added to the welcome modal.
+- Called 2.0.0 because the UX surface changed substantially.
 
 ---
 
-## [1.2.2] — 2026-04-04
+## [1.2.2] — 2026-04-03
 
 ### Fixed
-- `reply_to` validation: contact field now accepts any freeform text; `reply_to` only sent to Resend if value is a valid email address (Resend rejected non-email `reply_to` values)
+- Contact field now accepts any input (was previously restricted to email-only).
 
 ---
 
-## [1.2.1] — 2026-04-04
+## [1.2.1] — 2026-04-03
 
-### Changed
-- Page title and topbar renamed: "Message to Paul Fleury" → "Send a message to Paul Fleury"
+### Fixed
+- Title changed from "Message to Paul Fleury" → "Send a message to Paul Fleury".
+- Empty JSON body from PHP handler caused `undefined` errors — added guard.
+- "Sending…" hint now resets correctly after error responses.
 
 ---
 
-## [1.2.0] — 2026-04-04
+## [1.2.0] — 2026-04-03
 
 ### Added
-- Deep documentation pass on all PHP files (`send.php`, `upload.php`, `settings.php`)
-- README expanded with detailed lessons learned, tech stack table, bottlenecks, solutions
+- Deep code documentation and inline comments throughout all PHP files.
+- Lessons learned section in README.
+- `INSTALL.md` with step-by-step setup guide.
+- Version bumped to 1.2.0.
 
 ---
 
-## [1.1.0] — 2026-04-04
+## [1.1.0] — 2026-04-02
 
 ### Added
-- README badges (version, license, PHP version)
-- Quick-start / INSTALL.md guide
-- Improved README structure (ToC, sections)
+- README badges (version, license, PHP, node).
+- Formal versioning established (semver).
 
 ---
 
-## [1.0.0] — 2026-04-04
+## [1.0.0] — 2026-04-02
 
-### Added
-- Initial release: personal message canvas at `to.paulfleury.com`
-- `index.html` — Notion-inspired fullscreen canvas with:
-  - Stopwatch timer (start/pause/reset)
-  - Rich textarea with word/character count
-  - Voice recording (MediaRecorder API, WebM)
-  - File drag-and-drop upload
-  - Send modal (Resend API via PHP backend)
-  - Settings modal (AES-256-CBC + PBKDF2, PIN protection)
-  - Keyboard shortcuts (⌘↵ to send, Space to start, Esc to close)
-- `send.php` — decrypts API key, builds HTML+text email, calls Resend REST API via cURL
-- `upload.php` — multipart upload to `/cache/`, probabilistic 30-day cleanup
-- `settings.php` — AES-256-CBC + PBKDF2-SHA256 encryption of Resend key; PIN hashing; JSON settings file
-- `.htaccess` — security headers, PHP error suppression
-- GitHub repository created: `paulfxyz/to` (public)
-- FTP deployed to `to.paulfleury.com`
+### 🎉 Initial release
+
+- **"to"** — personal timed message canvas for Paul Fleury.
+- PHP 8.1 backend: `send.php`, `upload.php`, `settings.php`.
+- AES-256-CBC encryption for Resend API key at rest.
+- File uploads (drag and drop, any type).
+- Voice recording directly in the browser.
+- Timed canvas with ⌘↵ / Ctrl+Enter shortcut.
+- Resend integration for email delivery.
+- Deployed to `to.paulfleury.com` via SiteGround FTP.
+- GitHub: `paulfxyz/to` (public, MIT).

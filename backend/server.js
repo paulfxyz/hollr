@@ -1,5 +1,5 @@
 /**
- * server.js — hollr.to API Backend (v4.2.0)
+ * server.js — hollr.to API Backend (v4.3.0)
  *
  * Routes overview
  * ───────────────
@@ -25,7 +25,7 @@
  *   POST /api/upload/:handle           — upload encrypted file/voice
  *   GET  /api/decrypt/:handle/:file    — serve encrypted bytes for client-side decrypt
  *
- * v4.1.0 additions
+ * v4.3.0 additions
  * ────────────────
  *   • Default PIN is 1234. First settings open forces a PIN change.
  *   • Settings are always locked by PIN (no longer separate "setup" flow).
@@ -168,7 +168,7 @@ function createSession(userId) {
 
 // ── Health ───────────────────────────────────────────────────────────────────
 
-app.get('/health', (_req, res) => res.json({ ok: true, version: '4.2.0' }));
+app.get('/health', (_req, res) => res.json({ ok: true, version: '4.3.0' }));
 
 // ── Email magic link auth ────────────────────────────────────────────────────
 
@@ -786,5 +786,5 @@ app.use((err, _req, res, _next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
-  console.log(`🐺 hollr API v4.2.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  console.log(`🐺 hollr API v4.3.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
 });
