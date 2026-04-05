@@ -78,7 +78,6 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_magic_links_token ON magic_links(token);
   CREATE INDEX IF NOT EXISTS idx_sessions_token    ON sessions(token);
   CREATE INDEX IF NOT EXISTS idx_users_handle      ON users(handle);
-  CREATE INDEX IF NOT EXISTS idx_users_x_id        ON users(x_id);
   CREATE INDEX IF NOT EXISTS idx_messages_handle   ON messages(handle);
 `);
 
@@ -98,6 +97,13 @@ for (const { table, col, def } of v4Columns) {
   } catch {
     // Column already exists — safe to ignore
   }
+}
+
+// Create index on x_id after migrations (column may not exist on fresh DBs until after ALTER)
+try {
+  db.exec('CREATE INDEX IF NOT EXISTS idx_users_x_id ON users(x_id)');
+} catch {
+  // Ignore if already exists
 }
 
 module.exports = db;
