@@ -1,5 +1,5 @@
 /**
- * server.js — hollr.to API Backend (v4.0.0)
+ * server.js — hollr.to API Backend (v4.2.0)
  *
  * Routes overview
  * ───────────────
@@ -9,19 +9,29 @@
  *   GET  /api/auth/verify/:token       — verify magic link, create session
  *   GET  /api/auth/x                   — start X (Twitter) OAuth flow
  *   GET  /api/auth/x/callback          — X OAuth callback
+ *   POST /api/auth/forgot-pin          — send PIN reset magic link to email on file
  *   POST /api/auth/logout              — destroy session
  *   GET  /api/me                       — get authenticated user profile
  *
  *   POST /api/handle/check             — check handle availability
  *   POST /api/handle/claim             — claim handle during onboarding
  *
- *   POST /api/settings                 — update Resend key, from_email, PGP key
- *   POST /api/settings/change-pin      — change PIN
+ *   POST /api/settings                 — update Resend key, from_email, email, PGP key
+ *   POST /api/settings/change-pin      — change PIN (clears default flag)
+ *   POST /api/settings/email           — update contact email (requires PIN)
  *
  *   GET  /api/profile/:handle          — public profile (for canvas)
  *   POST /api/send/:handle             — send message to handle owner
  *   POST /api/upload/:handle           — upload encrypted file/voice
- *   GET  /api/decrypt/:handle/:file    — serve decryption key for own uploads
+ *   GET  /api/decrypt/:handle/:file    — serve encrypted bytes for client-side decrypt
+ *
+ * v4.1.0 additions
+ * ────────────────
+ *   • Default PIN is 1234. First settings open forces a PIN change.
+ *   • Settings are always locked by PIN (no longer separate "setup" flow).
+ *   • X-registered users must provide an email (for PIN reset + notifications).
+ *   • POST /api/auth/forgot-pin sends magic link to email on file.
+ *   • POST /api/settings/email lets users update their contact email.
  *
  * Auth: Bearer session token in Authorization header.
  *
@@ -64,19 +74,6 @@ const { sendMagicLink, forwardMessage } = require('./mailer');
 const UPLOAD_DIR = path.join(process.env.DATA_DIR || path.join(__dirname, 'data'), 'uploads');
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
-const storage = multer.diskStorage({
-  destination: (req, _file, cb) => {
-    const dir = path.join(UPLOAD_DIR, req.params.handle || 'anon');
-    fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
-  },
-  filename: (_req, file, cb) => {
-    const ext  = path.extname(file.originalname) || '.bin';
-    const name = `${Date.now()}-${uuidv4().slice(0, 8)}${ext}`;
-    cb(null, name);
-  },
-});
-
 // We encrypt the file in memory then write — so we use memoryStorage for upload
 const uploadMem = multer({
   storage: multer.memoryStorage(),
@@ -98,7 +95,7 @@ const allowedOrigins = [
 ];
 
 app.use(helmet({
-  contentSecurityPolicy: false, // We set it ourselves below if needed
+  contentSecurityPolicy: false,
 }));
 app.use(cors({
   origin: (origin, cb) => {
@@ -132,27 +129,28 @@ function requireAuth(req, res, next) {
   const token  = header.startsWith('Bearer ') ? header.slice(7) : null;
   if (!token) return res.status(401).json({ error: 'Authentication required' });
 
-  const session = db.prepare(`
+  const sess = db.prepare(`
     SELECT s.token, s.user_id, s.expires_at,
            u.email, u.handle, u.resend_key, u.pin_hash, u.from_email,
-           u.pgp_public_key, u.x_id, u.x_username
+           u.pgp_public_key, u.x_id, u.x_username, u.pin_is_default
     FROM sessions s JOIN users u ON u.id = s.user_id
     WHERE s.token = ? AND s.expires_at > unixepoch()
   `).get(token);
 
-  if (!session) return res.status(401).json({ error: 'Invalid or expired session' });
-  req.user  = session;
+  if (!sess) return res.status(401).json({ error: 'Invalid or expired session' });
+  req.user  = sess;
   req.token = token;
   next();
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-const HANDLE_RE = /^[a-zA-Z0-9_-]{2,30}$/;
-const RESERVED  = new Set([
+const DEFAULT_PIN = '1234';
+const HANDLE_RE   = /^[a-zA-Z0-9_-]{2,30}$/;
+const RESERVED    = new Set([
   'admin','api','app','www','mail','root','support','help','about',
   'legal','status','cdn','static','uploads','hollr','yo','auth',
-  'settings','profile','explore','discover',
+  'settings','profile','explore','discover','decrypt',
 ]);
 
 function isValidHandle(h) {
@@ -170,7 +168,7 @@ function createSession(userId) {
 
 // ── Health ───────────────────────────────────────────────────────────────────
 
-app.get('/health', (_req, res) => res.json({ ok: true, version: '4.0.0' }));
+app.get('/health', (_req, res) => res.json({ ok: true, version: '4.2.0' }));
 
 // ── Email magic link auth ────────────────────────────────────────────────────
 
@@ -219,32 +217,75 @@ app.get('/api/auth/verify/:token', (req, res) => {
   let user = db.prepare('SELECT * FROM users WHERE email = ?').get(row.email);
 
   if (user) {
+    // If user came via forgot-pin link, reset the default pin flag so they
+    // can set a fresh PIN through the normal change-pin flow on next settings open
+    if (row.is_pin_reset) {
+      db.prepare('UPDATE users SET pin_is_default = 1, pin_hash = ? WHERE id = ?')
+        .run(bcrypt.hashSync(DEFAULT_PIN, 12), user.id);
+    }
     const token = createSession(user.id);
     return res.json({
       ok:            true,
       session_token: token,
       is_new_user:   false,
+      is_pin_reset:  !!row.is_pin_reset,
       user: {
-        email:       user.email,
-        handle:      user.handle?.startsWith('__pending') ? null : user.handle,
-        has_api_key: !!user.resend_key,
-        has_pgp:     !!user.pgp_public_key,
+        email:           user.email,
+        handle:          user.handle?.startsWith('__pending') ? null : user.handle,
+        has_api_key:     !!user.resend_key,
+        has_pgp:         !!user.pgp_public_key,
+        pin_is_default:  user.pin_is_default ? true : false,
       },
     });
   }
 
-  // New user — create a pending account
+  // New user — create a pending account with default PIN
+  const pinHash = bcrypt.hashSync(DEFAULT_PIN, 12);
   const inserted = db.prepare(`
-    INSERT INTO users (email, handle) VALUES (?, ?)
-  `).run(row.email, `__pending_${uuidv4().slice(0, 8)}`);
+    INSERT INTO users (email, handle, pin_hash, pin_is_default) VALUES (?, ?, ?, 1)
+  `).run(row.email, `__pending_${uuidv4().slice(0, 8)}`, pinHash);
 
   const token = createSession(inserted.lastInsertRowid);
   res.json({
     ok:            true,
     session_token: token,
     is_new_user:   true,
-    user: { email: row.email, handle: null, has_api_key: false, has_pgp: false },
+    user: { email: row.email, handle: null, has_api_key: false, has_pgp: false, pin_is_default: true },
   });
+});
+
+/**
+ * POST /api/auth/forgot-pin
+ * Body: { email }
+ * Sends a magic link that — when clicked — resets PIN to 1234 and forces change.
+ * Rate-limited. Returns generic success to avoid email enumeration.
+ */
+app.post('/api/auth/forgot-pin', authLimiter, async (req, res) => {
+  const { email } = req.body;
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: 'Valid email required' });
+  }
+
+  const user = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+  // Always return ok to avoid email enumeration
+  if (!user) return res.json({ ok: true });
+
+  const token     = uuidv4();
+  const expiresAt = Math.floor(Date.now() / 1000) + 15 * 60;
+
+  db.prepare('DELETE FROM magic_links WHERE email = ?').run(email);
+  db.prepare('INSERT INTO magic_links (email, token, expires_at, is_pin_reset) VALUES (?, ?, ?, 1)').run(email, token, expiresAt);
+
+  const frontendUrl = process.env.FRONTEND_URL || 'https://hollr.to';
+  const link = `${frontendUrl}/auth/verify?token=${token}&pin_reset=1`;
+
+  try {
+    await sendMagicLink(email, link, { subject: 'Reset your hollr PIN', isPinReset: true });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Forgot-pin email failed:', err.message);
+    res.status(500).json({ error: 'Failed to send reset email' });
+  }
 });
 
 // ── X (Twitter) OAuth 2.0 ────────────────────────────────────────────────────
@@ -286,6 +327,7 @@ app.get('/api/auth/x', (req, res) => {
  * GET /api/auth/x/callback
  * Handles the OAuth callback from Twitter/X.
  * Creates or links an account, then redirects to the frontend with a session token.
+ * New X users without an email will get needs_email=1 in the redirect.
  */
 app.get('/api/auth/x/callback', async (req, res) => {
   const { code, state, error } = req.query;
@@ -333,26 +375,33 @@ app.get('/api/auth/x/callback', async (req, res) => {
 
     // Find or create user
     let user = db.prepare('SELECT * FROM users WHERE x_id = ?').get(xUser.id);
+    let isNew = false;
 
     if (!user) {
-      // Check if email-based account exists (can't link automatically — they must log in with email)
-      const pending = `__pending_${uuidv4().slice(0, 8)}`;
+      // Brand-new X user — create pending account with default PIN
+      const pinHash = bcrypt.hashSync(DEFAULT_PIN, 12);
+      const pending  = `__pending_${uuidv4().slice(0, 8)}`;
       const inserted = db.prepare(`
-        INSERT INTO users (x_id, x_username, handle)
-        VALUES (?, ?, ?)
-      `).run(xUser.id, xUser.username, pending);
-      user = db.prepare('SELECT * FROM users WHERE id = ?').get(inserted.lastInsertRowid);
+        INSERT INTO users (x_id, x_username, handle, pin_hash, pin_is_default)
+        VALUES (?, ?, ?, ?, 1)
+      `).run(xUser.id, xUser.username, pending, pinHash);
+      user  = db.prepare('SELECT * FROM users WHERE id = ?').get(inserted.lastInsertRowid);
+      isNew = true;
     } else {
       // Update X username in case it changed
       db.prepare('UPDATE users SET x_username = ?, updated_at = unixepoch() WHERE id = ?').run(xUser.username, user.id);
     }
 
-    const sessionTok = createSession(user.id);
-    const isNew      = user.handle.startsWith('__pending');
+    const sessionTok   = createSession(user.id);
+    const needsHandle  = user.handle.startsWith('__pending');
+    // X users need to supply an email if they don't have one yet
+    const needsEmail   = !user.email ? 1 : 0;
 
-    // Redirect to frontend with session token and new-user flag
     res.redirect(
-      `${frontendUrl}/auth/verify?x_session=${sessionTok}&is_new=${isNew}&x_username=${encodeURIComponent(xUser.username)}`
+      `${frontendUrl}/auth/verify?x_session=${sessionTok}` +
+      `&is_new=${needsHandle}` +
+      `&needs_email=${needsEmail}` +
+      `&x_username=${encodeURIComponent(xUser.username)}`
     );
   } catch (err) {
     console.error('X OAuth error:', err.message);
@@ -375,13 +424,15 @@ app.post('/api/auth/logout', requireAuth, (req, res) => {
  */
 app.get('/api/me', requireAuth, (req, res) => {
   res.json({
-    email:       req.user.email,
-    handle:      req.user.handle?.startsWith('__pending') ? null : req.user.handle,
-    has_api_key: !!req.user.resend_key,
-    has_pin:     !!req.user.pin_hash,
-    from_email:  req.user.from_email,
-    has_pgp:     !!req.user.pgp_public_key,
-    x_username:  req.user.x_username,
+    email:          req.user.email,
+    handle:         req.user.handle?.startsWith('__pending') ? null : req.user.handle,
+    has_api_key:    !!req.user.resend_key,
+    has_pin:        !!req.user.pin_hash,
+    pin_is_default: !!req.user.pin_is_default,
+    has_email:      !!req.user.email,
+    from_email:     req.user.from_email,
+    has_pgp:        !!req.user.pgp_public_key,
+    x_username:     req.user.x_username,
   });
 });
 
@@ -400,17 +451,30 @@ app.post('/api/handle/check', (req, res) => {
 
 /**
  * POST /api/handle/claim
- * Body: { handle, pin, resend_key?, from_email?, pgp_public_key? }
- * Resend API is now optional — platform email is used as fallback.
+ * Body: { handle, pin?, resend_key?, from_email?, pgp_public_key?, email? }
+ * PIN defaults to 1234 (pin_is_default=1) if not provided.
+ * Email is required for X-only users (no email on file).
  */
 app.post('/api/handle/claim', requireAuth, async (req, res) => {
-  const { handle, resend_key, pin, from_email, pgp_public_key } = req.body;
+  const { handle, resend_key, pin, from_email, pgp_public_key, email } = req.body;
 
-  if (!handle || !isValidHandle(handle))  return res.status(400).json({ error: 'Invalid handle format' });
-  if (!pin || !/^\d{4,8}$/.test(pin))    return res.status(400).json({ error: 'PIN must be 4-8 digits' });
+  if (!handle || !isValidHandle(handle)) return res.status(400).json({ error: 'Invalid handle format' });
+
+  // Validate PIN if provided, otherwise use default
+  const pinValue = pin || DEFAULT_PIN;
+  if (!/^\d{4,8}$/.test(pinValue)) return res.status(400).json({ error: 'PIN must be 4-8 digits' });
 
   const existing = db.prepare('SELECT id FROM users WHERE handle = ? AND id != ?').get(handle, req.user.user_id);
   if (existing) return res.status(409).json({ error: 'Handle already taken' });
+
+  // If user has no email yet (X-only), require one
+  const currentUser = db.prepare('SELECT email FROM users WHERE id = ?').get(req.user.user_id);
+  if (!currentUser.email && !email) {
+    return res.status(400).json({ error: 'Email required for PIN reset and notifications', code: 'email_required' });
+  }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: 'Valid email required' });
+  }
 
   // Validate PGP key if provided
   if (pgp_public_key) {
@@ -420,17 +484,27 @@ app.post('/api/handle/claim', requireAuth, async (req, res) => {
     }
   }
 
-  const pinHash      = bcrypt.hashSync(pin, 12);
-  const encryptedKey = resend_key ? encrypt(resend_key) : null;
+  const isDefaultPin  = !pin;  // no pin provided → using default
+  const pinHash       = bcrypt.hashSync(pinValue, 12);
+  const encryptedKey  = resend_key ? encrypt(resend_key) : null;
 
   db.prepare(`
     UPDATE users
-    SET handle = ?, pin_hash = ?, resend_key = ?, from_email = ?,
-        pgp_public_key = ?, updated_at = unixepoch()
+    SET handle = ?, pin_hash = ?, pin_is_default = ?,
+        resend_key = ?, from_email = ?,
+        pgp_public_key = ?,
+        email = COALESCE(email, ?),
+        updated_at = unixepoch()
     WHERE id = ?
-  `).run(handle, pinHash, encryptedKey, from_email || null, pgp_public_key || null, req.user.user_id);
+  `).run(
+    handle, pinHash, isDefaultPin ? 1 : 0,
+    encryptedKey, from_email || null,
+    pgp_public_key || null,
+    email || null,
+    req.user.user_id,
+  );
 
-  res.json({ ok: true, handle });
+  res.json({ ok: true, handle, pin_is_default: isDefaultPin });
 });
 
 // ── Settings ─────────────────────────────────────────────────────────────────
@@ -438,14 +512,26 @@ app.post('/api/handle/claim', requireAuth, async (req, res) => {
 /**
  * POST /api/settings
  * Body: { pin, resend_key?, from_email?, pgp_public_key? }
- * All fields optional; PIN is always required to authorise.
+ *
+ * Settings are always locked by PIN.
+ * If pin_is_default is set, returns { error: 'must_change_pin' } so the
+ * frontend can redirect to the PIN-change step before allowing other changes.
  */
 app.post('/api/settings', requireAuth, (req, res) => {
   const { pin, resend_key, from_email, pgp_public_key } = req.body;
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.user_id);
 
+  // PIN is required and must match
   if (!user.pin_hash || !bcrypt.compareSync(String(pin), user.pin_hash)) {
     return res.status(403).json({ error: 'Incorrect PIN' });
+  }
+
+  // If this is still the default PIN, force a change before allowing other edits
+  if (user.pin_is_default) {
+    return res.status(403).json({
+      error:  'must_change_pin',
+      message: 'You must set a new PIN before changing other settings.',
+    });
   }
 
   // Validate PGP key if provided
@@ -484,6 +570,7 @@ app.post('/api/settings', requireAuth, (req, res) => {
 /**
  * POST /api/settings/change-pin
  * Body: { current_pin, new_pin }
+ * Clears the pin_is_default flag on success.
  */
 app.post('/api/settings/change-pin', requireAuth, (req, res) => {
   const { current_pin, new_pin } = req.body;
@@ -495,9 +582,37 @@ app.post('/api/settings/change-pin', requireAuth, (req, res) => {
   if (!new_pin || !/^\d{4,8}$/.test(new_pin)) {
     return res.status(400).json({ error: 'New PIN must be 4-8 digits' });
   }
+  if (new_pin === DEFAULT_PIN) {
+    return res.status(400).json({ error: 'New PIN cannot be 1234' });
+  }
 
   const pinHash = bcrypt.hashSync(String(new_pin), 12);
-  db.prepare('UPDATE users SET pin_hash = ?, updated_at = unixepoch() WHERE id = ?').run(pinHash, req.user.user_id);
+  db.prepare('UPDATE users SET pin_hash = ?, pin_is_default = 0, updated_at = unixepoch() WHERE id = ?').run(pinHash, req.user.user_id);
+  res.json({ ok: true });
+});
+
+/**
+ * POST /api/settings/email
+ * Body: { pin, email }
+ * Updates (or adds) the contact email for the user.
+ * Required for X-only accounts to enable notifications + PIN recovery.
+ */
+app.post('/api/settings/email', requireAuth, (req, res) => {
+  const { pin, email } = req.body;
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.user_id);
+
+  if (!user.pin_hash || !bcrypt.compareSync(String(pin), user.pin_hash)) {
+    return res.status(403).json({ error: 'Incorrect PIN' });
+  }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: 'Valid email required' });
+  }
+
+  // Check email not already taken by another user
+  const existing = db.prepare('SELECT id FROM users WHERE email = ? AND id != ?').get(email, req.user.user_id);
+  if (existing) return res.status(409).json({ error: 'Email already in use by another account' });
+
+  db.prepare('UPDATE users SET email = ?, updated_at = unixepoch() WHERE id = ?').run(email, req.user.user_id);
   res.json({ ok: true });
 });
 
@@ -506,7 +621,6 @@ app.post('/api/settings/change-pin', requireAuth, (req, res) => {
 /**
  * GET /api/profile/:handle
  * Public endpoint for canvas rendering.
- * Returns handle, pgp_public_key (so sender can encrypt), whether they have own Resend key.
  */
 app.get('/api/profile/:handle', (req, res) => {
   const user = db.prepare(`
@@ -517,7 +631,7 @@ app.get('/api/profile/:handle', (req, res) => {
 
   res.json({
     handle:         user.handle,
-    active:         true,               // always active — platform email is the fallback
+    active:         true,
     pgp_public_key: user.pgp_public_key || null,
     x_username:     user.x_username || null,
   });
@@ -527,20 +641,16 @@ app.get('/api/profile/:handle', (req, res) => {
  * POST /api/upload/:handle
  * Multipart: file field = "file"
  * File is AES-256-GCM encrypted server-side before writing to disk.
- * Returns { ok, url, file_key, file_iv } — key+iv let the owner decrypt in-browser.
- * The key is also stored encrypted server-side for the /api/decrypt endpoint.
  */
 app.post('/api/upload/:handle', sendLimiter, uploadMem.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file received' });
 
-  // Check handle exists
   const user = db.prepare('SELECT id FROM users WHERE handle = ? COLLATE NOCASE').get(req.params.handle);
   if (!user) return res.status(404).json({ error: 'Handle not found' });
 
   try {
     const { encrypted, keyHex, ivHex } = encryptBuffer(req.file.buffer);
 
-    // Write encrypted bytes to disk with .enc suffix
     const ext      = path.extname(req.file.originalname) || '.bin';
     const filename = `${Date.now()}-${uuidv4().slice(0, 8)}${ext}.enc`;
     const dir      = path.join(UPLOAD_DIR, req.params.handle);
@@ -554,8 +664,8 @@ app.post('/api/upload/:handle', sendLimiter, uploadMem.single('file'), async (re
     res.json({
       ok:       true,
       url,
-      file_key: keyHex,   // 32-byte AES key — passed to sender for inline delivery
-      file_iv:  ivHex,    // 12-byte GCM IV
+      file_key: keyHex,
+      file_iv:  ivHex,
       name:     origName,
     });
   } catch (err) {
@@ -570,9 +680,6 @@ app.use('/uploads', express.static(UPLOAD_DIR));
 /**
  * POST /api/send/:handle
  * Body: { contact, message, file_attachments?, audio_url?, audio_key?, audio_iv? }
- * - message can be plaintext or a PGP-armoured ciphertext (sender encrypts client-side)
- * - file_attachments: array of { url, name, file_key, file_iv }
- * - Platform email (yo@hollr.to) is used if user has no own Resend key
  */
 app.post('/api/send/:handle', sendLimiter, async (req, res) => {
   const { contact, message, file_attachments, audio_url, audio_key, audio_iv, is_pgp } = req.body;
@@ -583,7 +690,7 @@ app.post('/api/send/:handle', sendLimiter, async (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE handle = ? COLLATE NOCASE').get(req.params.handle);
   if (!user)  return res.status(404).json({ error: 'Handle not found' });
 
-  // Store message in DB (for future inbox feature)
+  // Store message in DB
   db.prepare(`
     INSERT INTO messages (handle, sender, body, is_pgp, file_urls, audio_url, audio_encrypted)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -601,12 +708,10 @@ app.post('/api/send/:handle', sendLimiter, async (req, res) => {
   let resendKey, fromEmail;
 
   if (user.resend_key) {
-    // User's own Resend key
     try { resendKey = decrypt(user.resend_key); }
     catch { return res.status(500).json({ error: 'Failed to decrypt API key' }); }
     fromEmail = user.from_email || `yo@hollr.to`;
   } else {
-    // Fall back to platform key (yo@hollr.to)
     resendKey = process.env.PLATFORM_RESEND_KEY;
     fromEmail = process.env.PLATFORM_FROM_EMAIL || 'hollr <yo@hollr.to>';
     if (!resendKey) return res.status(503).json({ error: 'Platform email not configured' });
@@ -618,15 +723,15 @@ app.post('/api/send/:handle', sendLimiter, async (req, res) => {
     const result = await forwardMessage({
       resendKey,
       fromEmail,
-      toEmail:       user.email,
-      senderContact: contact,
-      message:       message.trim(),
-      isPgp:         !!is_pgp,
+      toEmail:        user.email,
+      senderContact:  contact,
+      message:        message.trim(),
+      isPgp:          !!is_pgp,
       fileAttachments: Array.isArray(file_attachments) ? file_attachments : [],
-      audioUrl:      audio_url || null,
-      audioKey:      audio_key || null,
-      audioIv:       audio_iv  || null,
-      handle:        user.handle,
+      audioUrl:       audio_url || null,
+      audioKey:       audio_key || null,
+      audioIv:        audio_iv  || null,
+      handle:         user.handle,
     });
 
     if (result.id) {
@@ -652,5 +757,5 @@ app.use((err, _req, res, _next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
-  console.log(`🐺 hollr API v4.0.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  console.log(`🐺 hollr API v4.2.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
 });

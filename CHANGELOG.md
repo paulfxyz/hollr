@@ -6,6 +6,32 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [4.2.0] — 2026-04-05
+
+### 🎨 Major — Landing page redesign restored
+
+Brings back the original editorial landing page design from the dedicated
+design session: warm cream (#f5f0e8) palette, Instrument Serif headings,
+giant outlined HOLLR hero letterform, and a sophisticated claim modal.
+Fully integrated with v4.x features (X OAuth, PGP, encrypted files,
+optional Resend).
+
+### Added / Changed
+
+#### Landing page — complete redesign
+- **Hero** — Giant SVG outlined "HOLLR" background text, "Holla at me. / *Encrypted. Secured.*" Instrument Serif headline, scrolling handle marquee strip.
+- **Signal section** — "We filter the noise. *You keep the signal.*" two-column layout with animated Pending Hollrs inbox mockup (HUMAN VERIFIED / PENDING REVIEW / AI FILTERED cards).
+- **How it works** — 4-step numbered cards (01–04): Claim handle, Set PIN, Share link, Receive securely.
+- **API & MCP section** — 3-column cards: REST API (`GET /v1/hollrs`), Webhooks, MCP Server (Coming Soon).
+- **Delivery options** — 3 radio-button cards: `yo@hollr.to` (default, selected), Resend API key, Webhook URL.
+- **Claim modal** — `hollr × 𝕏` branding, "Continue with X" OAuth button → `api.hollr.to/api/auth/x`, OR divider, collapsible email form with handle + email fields, X priority disclaimer.
+- **Dark mode** — Full dark theme (`#181510` bg) with warm text tokens.
+- **Typography** — Instrument Serif (Google Fonts) for all display text; Inter for body/UI.
+- All 10 language packs (EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU) updated with new string keys.
+- Sticky nav with backdrop blur, IntersectionObserver scroll-reveal animations, CSS marquee.
+
+---
+
 ## [4.0.0] — 2026-04-05
 
 ### 🚀 Major — Security & auth upgrade

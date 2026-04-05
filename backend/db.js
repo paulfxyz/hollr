@@ -1,5 +1,5 @@
 /**
- * db.js — SQLite database initialisation for hollr.to (v4.0.0)
+ * db.js — SQLite database initialisation for hollr.to (v4.2.0)
  *
  * Schema overview
  * ───────────────
@@ -81,7 +81,7 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_messages_handle   ON messages(handle);
 `);
 
-// ── Runtime migrations (add columns added in v4.0.0 to existing DBs) ─────────
+// ── Runtime migrations (add columns added in v4.2.0 to existing DBs) ─────────
 
 const v4Columns = [
   { table: 'users', col: 'x_id',          def: 'TEXT' },

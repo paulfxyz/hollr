@@ -1,83 +1,90 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>hollr — Your message canvas, on your handle</title>
-  <meta name="description" content="hollr is a free, open-source platform where anyone can claim a personal handle and receive PGP-encrypted messages, encrypted files and voice notes. Sign in with X or email. Resend API optional.">
-  <meta property="og:title" content="hollr — Your message canvas, on your handle">
-  <meta property="og:description" content="Free, open-source. Claim hollr.to/yourname and start receiving messages today.">
+  <title>hollr — Your public link. Encrypted. Yours.</title>
+  <meta name="description" content="hollr is your public link. Anyone sends — you decide what gets through. PGP-encrypted. Files and voice. Sign in with X or email.">
+  <meta property="og:title" content="hollr — Your public link. Encrypted. Yours.">
+  <meta property="og:description" content="hollr gives you a public handle. Anyone can send — only real humans get through. PGP-encrypted end-to-end.">
   <meta property="og:image" content="https://hollr.to/og.png">
   <meta property="og:url" content="https://hollr.to">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>🐺</text></svg>">
 
-  <!-- Fonts: Cabinet Grotesk (display) + Satoshi (body) — both from Fontshare -->
-  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@300,400,500,700,800&f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Theme: no-flash inline script -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('hollr_theme');
+      if (!t) {
+        t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
 
   <style>
-    /* ── Design tokens ──────────────────────────────────────────────────── */
+    /* ── Design Tokens ─────────────────────────────────────────────────────── */
     :root {
-      --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
-      --text-sm:   clamp(0.875rem, 0.8rem  + 0.35vw, 1rem);
-      --text-base: clamp(1rem,     0.95rem + 0.25vw, 1.125rem);
-      --text-lg:   clamp(1.125rem, 1rem    + 0.75vw, 1.5rem);
-      --text-xl:   clamp(1.5rem,   1.2rem  + 1.25vw, 2.25rem);
-      --text-2xl:  clamp(2rem,     1.2rem  + 2.5vw,  3.5rem);
-      --text-hero: clamp(3rem,     1rem    + 6vw,    7rem);
+      --bg:          #f5f0e8;
+      --bg-dark:     #181510;
+      --surface:     #eeeae0;
+      --surface-dark:#221f1a;
+      --text:        #1a1816;
+      --text-muted:  rgba(26,24,22,0.55);
+      --border:      rgba(26,24,22,0.1);
+      --accent:      #e8632a;
+      --accent-light:rgba(232,99,42,0.12);
+      --success:     #2d9e6b;
+      --pending:     #e8632a;
+      --ai-red:      #c0392b;
+      --card-bg:     #eeeae0;
+      --shadow:      0 2px 16px rgba(26,24,22,0.08);
+      --shadow-lg:   0 8px 48px rgba(26,24,22,0.12);
 
-      --space-1: 0.25rem; --space-2: 0.5rem;  --space-3: 0.75rem;
-      --space-4: 1rem;    --space-5: 1.25rem; --space-6: 1.5rem;
-      --space-8: 2rem;    --space-10: 2.5rem; --space-12: 3rem;
-      --space-16: 4rem;   --space-20: 5rem;   --space-24: 6rem;
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --font-body:  'Inter', system-ui, sans-serif;
 
-      --radius-sm: 0.375rem; --radius-md: 0.5rem;
-      --radius-lg: 0.75rem;  --radius-xl: 1rem;
-      --radius-full: 9999px;
-
-      --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
       --content: 1100px;
+      --radius: 0.75rem;
+      --radius-sm: 0.5rem;
+      --radius-full: 9999px;
+      --transition: 200ms cubic-bezier(0.16, 1, 0.3, 1);
 
-      --font-display: 'Cabinet Grotesk', 'Helvetica Neue', sans-serif;
-      --font-body:    'Satoshi', 'Inter', sans-serif;
+      --text-xs:   0.75rem;
+      --text-sm:   0.875rem;
+      --text-base: 1rem;
+      --text-lg:   1.125rem;
+      --text-xl:   1.5rem;
+      --text-2xl:  clamp(2rem, 4vw, 3rem);
+      --text-hero: clamp(3.5rem, 8vw, 4.75rem);
     }
 
-    /* ── Dark theme (default) ────────────────────────────────────────────── */
-    :root, [data-theme="dark"] {
-      --bg:       #0d0d0d;
-      --surface:  #141414;
-      --surface-2:#1a1a1a;
-      --border:   #2a2a2a;
-      --text:     #e8e8e6;
-      --muted:    #888886;
-      --faint:    #444442;
-      --accent:   #ff6b35;
-      --accent-h: #ff8555;
-      --accent-subtle: rgba(255,107,53,0.12);
-      --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
+    [data-theme="dark"] {
+      --bg:          #181510;
+      --surface:     #221f1a;
+      --card-bg:     #221f1a;
+      --text:        #f0ece4;
+      --text-muted:  rgba(240,236,228,0.5);
+      --border:      rgba(240,236,228,0.1);
+      --accent:      #e8632a;
+      --accent-light:rgba(232,99,42,0.15);
+      --shadow:      0 2px 16px rgba(0,0,0,0.3);
+      --shadow-lg:   0 8px 48px rgba(0,0,0,0.4);
     }
 
-    [data-theme="light"] {
-      --bg:       #fafaf8;
-      --surface:  #ffffff;
-      --surface-2:#f4f4f2;
-      --border:   #e5e5e0;
-      --text:     #1a1a18;
-      --muted:    #6b6b68;
-      --faint:    #c8c8c4;
-      --accent:   #e85d2a;
-      --accent-h: #cc4a1a;
-      --accent-subtle: rgba(232,93,42,0.10);
-      --shadow-lg: 0 24px 64px rgba(0,0,0,0.08);
-    }
-
-    /* ── Base ────────────────────────────────────────────────────────────── */
+    /* ── Reset & Base ─────────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html {
       scroll-behavior: smooth;
+      scroll-padding-top: 72px;
       -webkit-font-smoothing: antialiased;
-      scroll-padding-top: 80px;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     body {
@@ -88,1460 +95,2485 @@
       line-height: 1.65;
       min-height: 100dvh;
       transition: background var(--transition), color var(--transition);
+      overflow-x: hidden;
     }
 
     img, svg { display: block; max-width: 100%; }
     button { cursor: pointer; font: inherit; border: none; background: none; }
     a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
 
-    h1, h2, h3 {
-      font-family: var(--font-display);
-      text-wrap: balance;
-      line-height: 1.1;
-    }
+    /* ── Typography ───────────────────────────────────────────────────────── */
+    .serif { font-family: var(--font-serif); }
+    .serif-italic { font-family: var(--font-serif); font-style: italic; }
 
-    p { max-width: 64ch; text-wrap: pretty; }
-
-    ::selection { background: var(--accent-subtle); color: var(--text); }
-
-    :focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 3px;
-      border-radius: var(--radius-sm);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-
-    /* ── Layout helpers ──────────────────────────────────────────────────── */
+    /* ── Layout Utilities ─────────────────────────────────────────────────── */
     .container {
       max-width: var(--content);
-      margin-inline: auto;
-      padding-inline: clamp(var(--space-6), 5vw, var(--space-16));
+      margin: 0 auto;
+      padding: 0 clamp(1.25rem, 4vw, 3rem);
     }
 
     .section {
-      padding-block: clamp(var(--space-16), 8vw, var(--space-24));
+      padding: clamp(4rem, 8vw, 7rem) 0;
     }
 
-    /* ── Nav ─────────────────────────────────────────────────────────────── */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
+    /* ── Buttons ──────────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4em;
+      padding: 0.65em 1.3em;
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--text);
+      color: var(--bg);
+      border: 1.5px solid var(--text);
+    }
+    .btn-primary:hover {
+      opacity: 0.82;
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1.5px solid var(--border);
+    }
+    [data-theme="dark"] .btn-ghost {
+      border-color: rgba(240,236,228,0.2);
+    }
+    .btn-ghost:hover {
+      border-color: var(--text);
+      background: var(--surface);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #fff;
+      border: 1.5px solid var(--accent);
+    }
+    .btn-accent:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+
+    .btn-lg {
+      padding: 0.75em 1.6em;
+      font-size: var(--text-base);
+    }
+
+    /* ── Section Labels ───────────────────────────────────────────────────── */
+    .section-label {
+      display: inline-block;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    /* ── Scroll Reveal ───────────────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       NAV
+    ════════════════════════════════════════════════════════════════════════ */
+    .nav {
+      position: sticky;
+      top: 0;
       z-index: 100;
-      backdrop-filter: blur(20px) saturate(1.5);
-      -webkit-backdrop-filter: blur(20px) saturate(1.5);
-      background: color-mix(in srgb, var(--bg) 80%, transparent);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      transition: background var(--transition), border-color var(--transition),
+                  backdrop-filter var(--transition), box-shadow var(--transition);
+    }
+    .nav.scrolled {
+      background: rgba(245,240,232,0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
-      transition: background var(--transition), border-color var(--transition);
+      box-shadow: 0 1px 12px rgba(26,24,22,0.06);
+    }
+    [data-theme="dark"] .nav.scrolled {
+      background: rgba(24,21,16,0.88);
     }
 
     .nav-inner {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      height: 64px;
+      gap: 2rem;
+      width: 100%;
     }
 
     .nav-logo {
       display: flex;
       align-items: center;
-      gap: var(--space-3);
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: var(--text-lg);
+      gap: 0.5rem;
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      font-weight: 400;
+      flex-shrink: 0;
       letter-spacing: -0.02em;
     }
-
-    .nav-logo-wolf { font-size: 22px; }
 
     .nav-links {
       display: flex;
       align-items: center;
-      gap: var(--space-6);
-      list-style: none;
+      gap: 1.75rem;
+      flex: 1;
+      justify-content: center;
     }
 
     .nav-links a {
       font-size: var(--text-sm);
-      color: var(--muted);
+      color: var(--text-muted);
       transition: color var(--transition);
+      font-weight: 450;
     }
     .nav-links a:hover { color: var(--text); }
 
-    .nav-actions {
+    .nav-right {
       display: flex;
       align-items: center;
-      gap: var(--space-3);
+      gap: 0.75rem;
+      flex-shrink: 0;
     }
 
-    .btn {
-      display: inline-flex;
+    /* Language picker */
+    .lang-wrapper {
+      position: relative;
+    }
+    .lang-btn {
+      display: flex;
       align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-3) var(--space-6);
-      border-radius: var(--radius-full);
+      gap: 0.3em;
       font-size: var(--text-sm);
-      font-weight: 600;
-      transition: all var(--transition);
-      white-space: nowrap;
-    }
-
-    .btn-ghost {
-      color: var(--muted);
-    }
-    .btn-ghost:hover { color: var(--text); background: var(--surface-2); }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-    .btn-primary:hover { background: var(--accent-h); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,107,53,0.35); }
-
-    .btn-large {
-      padding: var(--space-4) var(--space-8);
-      font-size: var(--text-base);
-      border-radius: var(--radius-xl);
-    }
-
-    .btn-outline {
+      color: var(--text-muted);
+      padding: 0.35em 0.65em;
+      border-radius: var(--radius-sm);
       border: 1.5px solid var(--border);
-      color: var(--text);
+      transition: all var(--transition);
       background: transparent;
     }
-    .btn-outline:hover { border-color: var(--text); background: var(--surface-2); }
+    .lang-btn:hover { color: var(--text); border-color: var(--text); }
+    .lang-btn svg { width: 12px; height: 12px; opacity: 0.5; }
 
-    /* Theme toggle */
-    .theme-toggle {
-      width: 38px; height: 38px;
-      border-radius: var(--radius-full);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted);
-      transition: all var(--transition);
-    }
-    .theme-toggle:hover { color: var(--text); background: var(--surface-2); }
-
-    /* Lang picker */
-    .lang-btn {
-      font-size: 18px;
-      width: 38px; height: 38px;
-      border-radius: var(--radius-full);
-      display: flex; align-items: center; justify-content: center;
-      transition: background var(--transition);
-    }
-    .lang-btn:hover { background: var(--surface-2); }
-
-    /* ── Hero ────────────────────────────────────────────────────────────── */
-    .hero {
-      padding-top: calc(64px + clamp(var(--space-16), 8vw, var(--space-24)));
-      padding-bottom: clamp(var(--space-16), 8vw, var(--space-24));
-      text-align: center;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-2) var(--space-4);
-      background: var(--accent-subtle);
-      color: var(--accent);
-      border-radius: var(--radius-full);
-      font-size: var(--text-xs);
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: var(--space-8);
-    }
-
-    .hero-title {
-      font-size: var(--text-hero);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.0;
-      margin-bottom: var(--space-6);
-    }
-
-    .hero-title .accent { color: var(--accent); }
-
-    .hero-sub {
-      font-size: var(--text-lg);
-      color: var(--muted);
-      max-width: 52ch;
-      margin-inline: auto;
-      margin-bottom: var(--space-10);
-    }
-
-    .hero-cta {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-4);
-      flex-wrap: wrap;
-      margin-bottom: var(--space-16);
-    }
-
-    .hero-handle-demo {
-      display: inline-flex;
-      align-items: center;
-      gap: 0;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      padding: var(--space-3) var(--space-5);
-      font-family: var(--font-display);
-      font-size: var(--text-base);
-      font-weight: 500;
-      overflow: hidden;
+    .lang-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.5rem;
+      min-width: 180px;
       box-shadow: var(--shadow-lg);
+      z-index: 200;
     }
+    .lang-wrapper.open .lang-dropdown { display: block; }
 
-    .hero-handle-demo .domain { color: var(--muted); }
-    .hero-handle-demo .handle { color: var(--accent); font-weight: 700; }
-
-    /* ── Stats strip ─────────────────────────────────────────────────────── */
-    .stats {
+    .lang-option {
       display: flex;
-      justify-content: center;
-      gap: clamp(var(--space-8), 5vw, var(--space-16));
-      flex-wrap: wrap;
-      padding-block: var(--space-12);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .stat-item { text-align: center; }
-    .stat-value {
-      display: block;
-      font-family: var(--font-display);
-      font-size: var(--text-xl);
-      font-weight: 800;
-      letter-spacing: -0.02em;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.45em 0.75em;
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: background var(--transition);
       color: var(--text);
     }
-    .stat-label {
-      font-size: var(--text-xs);
-      color: var(--muted);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
+    .lang-option:hover { background: var(--surface); }
+    .lang-option.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+    .lang-option .lang-flag { font-size: 1rem; }
+    .lang-option .lang-name { flex: 1; }
 
-    /* ── How it works ────────────────────────────────────────────────────── */
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: var(--space-6);
-      margin-top: var(--space-12);
-    }
-
-    .step-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      padding: var(--space-8) var(--space-6);
-      position: relative;
-      transition: border-color var(--transition), transform var(--transition);
-    }
-    .step-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-
-    .step-num {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px; height: 36px;
-      background: var(--accent-subtle);
-      color: var(--accent);
+    /* Theme toggle */
+    .theme-btn {
+      width: 34px;
+      height: 34px;
       border-radius: var(--radius-full);
-      font-family: var(--font-display);
-      font-size: var(--text-sm);
-      font-weight: 800;
-      margin-bottom: var(--space-5);
-    }
-
-    .step-card h3 {
-      font-size: var(--text-base);
-      font-weight: 700;
-      margin-bottom: var(--space-2);
-    }
-    .step-card p {
-      font-size: var(--text-sm);
-      color: var(--muted);
-      max-width: none;
-    }
-
-    /* ── Feature grid ────────────────────────────────────────────────────── */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: var(--space-5);
-      margin-top: var(--space-12);
-    }
-
-    .feature-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      padding: var(--space-8);
-      transition: border-color var(--transition);
-    }
-    .feature-card:hover { border-color: var(--faint); }
-
-    .feature-icon {
-      font-size: 28px;
-      margin-bottom: var(--space-4);
-      display: block;
-    }
-
-    .feature-card h3 {
-      font-size: var(--text-base);
-      font-weight: 700;
-      margin-bottom: var(--space-2);
-    }
-    .feature-card p {
-      font-size: var(--text-sm);
-      color: var(--muted);
-      max-width: none;
-    }
-
-    /* ── Canvas preview ──────────────────────────────────────────────────── */
-    .preview-wrap {
-      margin-top: var(--space-12);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      overflow: hidden;
-      box-shadow: var(--shadow-lg);
-    }
-
-    .preview-bar {
+      border: 1.5px solid var(--border);
       display: flex;
       align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-4) var(--space-6);
-      background: var(--surface);
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--text-muted);
+      transition: all var(--transition);
+      background: transparent;
+    }
+    .theme-btn:hover { color: var(--text); border-color: var(--text); }
+
+    /* Hamburger */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 6px;
+      margin-left: auto;
+    }
+    .nav-hamburger span {
+      width: 22px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all var(--transition);
+    }
+
+    /* Mobile nav drawer */
+    .nav-mobile {
+      display: none;
+      position: fixed;
+      inset: 64px 0 0;
+      background: var(--bg);
+      z-index: 99;
+      flex-direction: column;
+      padding: 2rem 1.5rem;
+      gap: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+    .nav-mobile.open { display: flex; }
+    .nav-mobile a {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--text);
+      padding: 0.5rem 0;
       border-bottom: 1px solid var(--border);
     }
-
-    .preview-dot {
-      width: 12px; height: 12px;
-      border-radius: var(--radius-full);
+    .nav-mobile .btn {
+      margin-top: 0.5rem;
+      justify-content: center;
     }
 
-    .preview-url {
-      flex: 1;
-      text-align: center;
-      font-size: var(--text-xs);
-      color: var(--muted);
-      font-family: monospace;
-    }
-
-    .preview-body {
-      background: var(--bg);
-      padding: var(--space-10) var(--space-8);
+    /* ════════════════════════════════════════════════════════════════════════
+       HERO
+    ════════════════════════════════════════════════════════════════════════ */
+    .hero {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: var(--space-6);
-      min-height: 320px;
-    }
-
-    .preview-timer {
-      font-family: var(--font-display);
-      font-size: clamp(3rem, 8vw, 5rem);
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      color: var(--text);
-    }
-
-    .preview-canvas {
-      width: 100%;
-      max-width: 560px;
-      height: 160px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      display: flex;
-      align-items: center;
-      padding: var(--space-5);
-    }
-
-    .preview-placeholder {
-      width: 200px;
-      height: 14px;
-      background: var(--border);
-      border-radius: var(--radius-full);
-      animation: shimmer 2s ease-in-out infinite;
-    }
-
-    @keyframes shimmer {
-      0%, 100% { opacity: 0.4; }
-      50%       { opacity: 1; }
-    }
-
-    .preview-actions {
-      display: flex;
-      gap: var(--space-3);
-    }
-
-    .preview-action {
-      height: 38px;
-      border-radius: var(--radius-full);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      padding-inline: var(--space-5);
-      font-size: var(--text-xs);
-      color: var(--muted);
-    }
-
-    .preview-action.primary {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    /* ── Testimonials / social proof ─────────────────────────────────────── */
-    .quotes {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: var(--space-5);
-      margin-top: var(--space-12);
-    }
-
-    .quote-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      padding: var(--space-7);
-    }
-
-    .quote-text {
-      font-size: var(--text-base);
-      color: var(--text);
-      margin-bottom: var(--space-5);
-      font-style: italic;
-    }
-
-    .quote-author {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-    }
-
-    .quote-avatar {
-      width: 36px; height: 36px;
-      border-radius: var(--radius-full);
-      background: var(--accent-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-    }
-
-    .quote-name {
-      font-size: var(--text-sm);
-      font-weight: 600;
-    }
-    .quote-role {
-      font-size: var(--text-xs);
-      color: var(--muted);
-    }
-
-    /* ── Open source section ─────────────────────────────────────────────── */
-    .oss-block {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      padding: clamp(var(--space-10), 5vw, var(--space-16));
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-10);
-      flex-wrap: wrap;
-      margin-top: var(--space-12);
-    }
-
-    .oss-block h2 {
-      font-size: var(--text-xl);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin-bottom: var(--space-3);
-    }
-    .oss-block p {
-      color: var(--muted);
-      font-size: var(--text-sm);
-    }
-    .oss-actions { display: flex; gap: var(--space-4); flex-wrap: wrap; }
-
-    /* ── CTA section ─────────────────────────────────────────────────────── */
-    .cta-section {
       text-align: center;
-      padding-block: clamp(var(--space-20), 10vw, var(--space-24));
+      padding: clamp(3.5rem, 10vw, 8rem) 0 clamp(3rem, 6vw, 6rem);
+      overflow: hidden;
     }
 
-    .cta-section h2 {
-      font-size: var(--text-2xl);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      margin-bottom: var(--space-5);
+    .hero-bg-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-serif);
+      font-size: clamp(9rem, 22vw, 18rem);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(26,24,22,0.065);
+      text-stroke: 1.5px rgba(26,24,22,0.065);
+      white-space: nowrap;
+      user-select: none;
+      pointer-events: none;
+      z-index: 0;
+      line-height: 1;
+    }
+    [data-theme="dark"] .hero-bg-text {
+      -webkit-text-stroke: 1.5px rgba(240,236,228,0.07);
     }
 
-    .cta-section p {
-      color: var(--muted);
-      margin-inline: auto;
-      margin-bottom: var(--space-10);
-    }
-
-    /* ── Signup form ─────────────────────────────────────────────────────── */
-    .signup-form {
+    .hero-content {
+      position: relative;
+      z-index: 1;
       display: flex;
-      gap: var(--space-3);
-      max-width: 440px;
-      margin-inline: auto;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: var(--text-hero);
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+      color: var(--text);
+      max-width: 14ch;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--text);
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 1.5vw, 1.075rem);
+      color: var(--text-muted);
+      max-width: 52ch;
+      line-height: 1.7;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 0.75rem;
       flex-wrap: wrap;
       justify-content: center;
+      margin-top: 0.25rem;
     }
 
-    .signup-input {
-      flex: 1;
-      min-width: 200px;
-      padding: var(--space-4) var(--space-5);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-full);
-      color: var(--text);
-      font-family: var(--font-body);
+    /* Marquee strip */
+    .handle-strip {
+      width: 100vw;
+      margin-top: 3.5rem;
+      overflow: hidden;
+      position: relative;
+    }
+    .handle-strip::before,
+    .handle-strip::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 80px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .handle-strip::before {
+      left: 0;
+      background: linear-gradient(to right, var(--bg), transparent);
+    }
+    .handle-strip::after {
+      right: 0;
+      background: linear-gradient(to left, var(--bg), transparent);
+    }
+    .handle-track {
+      display: flex;
+      gap: 0;
+      animation: marquee 28s linear infinite;
+      width: max-content;
+    }
+    @keyframes marquee {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .handle-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4em;
+      padding: 0.45em 1.2em;
       font-size: var(--text-sm);
-      transition: border-color var(--transition);
-      outline: none;
+      color: var(--text-muted);
+      white-space: nowrap;
+      border-right: 1px solid var(--border);
     }
-    .signup-input::placeholder { color: var(--faint); }
-    .signup-input:focus { border-color: var(--accent); }
-
-    /* ── Footer ──────────────────────────────────────────────────────────── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding-block: var(--space-10);
+    .handle-item::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.6;
+      flex-shrink: 0;
     }
 
-    .footer-inner {
+    /* ════════════════════════════════════════════════════════════════════════
+       HOW IT WORKS — Filter section
+    ════════════════════════════════════════════════════════════════════════ */
+    #how-it-works {
+      background: var(--surface);
+    }
+    [data-theme="dark"] #how-it-works {
+      background: var(--surface);
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(3rem, 6vw, 6rem);
+      align-items: start;
+    }
+
+    .filter-left {}
+
+    .filter-heading {
+      font-family: var(--font-serif);
+      font-size: var(--text-2xl);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .filter-heading em { font-style: italic; }
+
+    .filter-body {
+      font-size: var(--text-base);
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      max-width: 46ch;
+    }
+
+    .filter-features {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .filter-feature {
+      display: flex;
+      gap: 0.9rem;
+      align-items: flex-start;
+    }
+    .filter-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      margin-top: 0.45em;
+    }
+    .filter-feature-text strong {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.15em;
+      font-size: var(--text-sm);
+    }
+    .filter-feature-text span {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Inbox mockup card */
+    .inbox-card {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+    [data-theme="dark"] .inbox-card {
+      background: #1e1b17;
+    }
+
+    .inbox-header {
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1.5px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: var(--space-6);
-      flex-wrap: wrap;
     }
-
-    .footer-logo {
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: var(--text-base);
-    }
-
-    .footer-links {
-      display: flex;
-      gap: var(--space-6);
-      list-style: none;
-    }
-    .footer-links a {
-      font-size: var(--text-sm);
-      color: var(--muted);
-      transition: color var(--transition);
-    }
-    .footer-links a:hover { color: var(--text); }
-
-    .footer-copy {
-      font-size: var(--text-xs);
-      color: var(--faint);
-    }
-
-    /* ── Section header ──────────────────────────────────────────────────── */
-    .section-header { margin-bottom: var(--space-3); }
-
-    .section-label {
+    .inbox-header-title {
       font-size: var(--text-xs);
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: var(--space-4);
-      display: block;
+      color: var(--text-muted);
+    }
+    .inbox-count {
+      font-size: var(--text-xs);
+      background: var(--accent);
+      color: #fff;
+      border-radius: var(--radius-full);
+      padding: 0.15em 0.6em;
+      font-weight: 600;
     }
 
-    .section-title {
+    .inbox-messages {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .inbox-msg {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .inbox-msg:last-child { border-bottom: none; }
+
+    .inbox-msg-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3em;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.2em 0.6em;
+      border-radius: var(--radius-full);
+    }
+    .status-verified { background: rgba(45,158,107,0.12); color: var(--success); }
+    .status-pending  { background: rgba(232,99,42,0.12);  color: var(--pending); }
+    .status-filtered { background: rgba(192,57,43,0.1);   color: var(--ai-red); }
+
+    .inbox-msg-text {
+      font-size: var(--text-sm);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .inbox-msg.filtered .inbox-msg-text {
+      text-decoration: line-through;
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+
+    .inbox-msg-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .inbox-action {
+      font-size: var(--text-xs);
+      font-weight: 500;
+      padding: 0.3em 0.8em;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--border);
+      color: var(--text-muted);
+      transition: all var(--transition);
+    }
+    .inbox-action:hover { color: var(--text); border-color: var(--text); }
+    .inbox-action.primary {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+    }
+    .inbox-action.primary:hover { opacity: 0.8; }
+
+    .inbox-footer {
+      padding: 0.85rem 1.25rem;
+      border-top: 1.5px solid var(--border);
+      background: var(--surface);
+    }
+    [data-theme="dark"] .inbox-footer { background: var(--surface-dark); }
+    .inbox-footer code {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       FEATURES — Holla from anywhere
+    ════════════════════════════════════════════════════════════════════════ */
+    #features {}
+
+    .steps-heading {
+      text-align: center;
+      margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    }
+
+    .steps-title {
+      font-family: var(--font-serif);
       font-size: var(--text-2xl);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      margin-bottom: var(--space-4);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 0;
     }
 
-    .section-desc {
-      color: var(--muted);
-      max-width: 52ch;
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
     }
 
-    /* ── Language modal ──────────────────────────────────────────────────── */
+    .step-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: relative;
+    }
+    [data-theme="dark"] .step-card { background: var(--surface-dark); }
+
+    .step-number {
+      font-family: var(--font-serif);
+      font-size: clamp(2.5rem, 4vw, 3.5rem);
+      font-weight: 400;
+      color: var(--border);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    [data-theme="dark"] .step-number { color: rgba(240,236,228,0.15); }
+
+    .step-card h3 {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--text);
+    }
+    .step-card p {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       API & MCP
+    ════════════════════════════════════════════════════════════════════════ */
+    #api-mcp {
+      background: var(--surface);
+    }
+    [data-theme="dark"] #api-mcp { background: var(--surface); }
+
+    .api-heading {
+      text-align: center;
+      margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    }
+
+    .api-title {
+      font-family: var(--font-serif);
+      font-size: var(--text-2xl);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .api-title em { font-style: italic; }
+
+    .api-desc {
+      font-size: var(--text-base);
+      color: var(--text-muted);
+      max-width: 54ch;
+      margin: 1rem auto 0;
+      line-height: 1.7;
+    }
+
+    .api-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .api-card {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: relative;
+    }
+    [data-theme="dark"] .api-card { background: #1e1b17; }
+
+    .api-card-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.2em 0.65em;
+      border-radius: var(--radius-full);
+      background: var(--accent);
+      color: #fff;
+      width: fit-content;
+    }
+
+    .api-card h3 {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .api-card p {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      line-height: 1.65;
+      flex: 1;
+    }
+
+    .api-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.9rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+    [data-theme="dark"] .api-chip { background: rgba(240,236,228,0.04); }
+    .api-chip::before {
+      content: '›';
+      color: var(--accent);
+      font-size: 0.9rem;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       DELIVERY
+    ════════════════════════════════════════════════════════════════════════ */
+    .delivery-heading {
+      text-align: center;
+      margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    }
+
+    .delivery-title {
+      font-family: var(--font-serif);
+      font-size: var(--text-2xl);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 0;
+    }
+
+    .delivery-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .delivery-option {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      position: relative;
+      cursor: default;
+    }
+    [data-theme="dark"] .delivery-option { background: var(--surface-dark); }
+
+    .delivery-option.selected {
+      border-color: var(--accent);
+      background: rgba(232,99,42,0.06);
+    }
+
+    .delivery-radio {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.25rem;
+    }
+    .delivery-option.selected .delivery-radio {
+      border-color: var(--accent);
+    }
+    .delivery-radio-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: none;
+    }
+    .delivery-option.selected .delivery-radio-dot { display: block; }
+
+    .delivery-icon {
+      font-size: 1.25rem;
+    }
+
+    .delivery-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .delivery-sub {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    .delivery-default {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .delivery-caption {
+      text-align: center;
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      margin-top: 1.5rem;
+      max-width: 56ch;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.65;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       CTA FOOTER
+    ════════════════════════════════════════════════════════════════════════ */
+    .cta-footer {
+      background: var(--surface);
+      text-align: center;
+      padding: clamp(4rem, 9vw, 8rem) 0 clamp(3rem, 6vw, 5rem);
+    }
+    [data-theme="dark"] .cta-footer { background: var(--surface); }
+
+    .cta-footer-title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+      font-weight: 400;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      max-width: 22ch;
+      margin: 0 auto 2rem;
+    }
+
+    .cta-footer-btns {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .footer-bar {
+      border-top: 1px solid var(--border);
+      padding: 1.75rem 0;
+    }
+
+    .footer-bar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+    .footer-bar-inner a:hover { color: var(--text); }
+    .footer-sep { opacity: 0.3; }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       MODAL
+    ════════════════════════════════════════════════════════════════════════ */
     .modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 1000;
-      backdrop-filter: blur(4px);
+      background: rgba(24,21,16,0.6);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 500;
       align-items: center;
       justify-content: center;
+      padding: 1.5rem;
     }
-    .modal-overlay.open { display: flex; }
+    .modal-overlay.open {
+      display: flex;
+    }
 
     .modal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      padding: var(--space-8);
-      max-width: 400px;
-      width: calc(100% - var(--space-8));
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: clamp(2rem, 4vw, 2.75rem);
+      max-width: 440px;
+      width: 100%;
+      position: relative;
       box-shadow: var(--shadow-lg);
+      animation: modal-in 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modal-in {
+      from { opacity: 0; transform: scale(0.96) translateY(12px); }
+      to   { opacity: 1; transform: none; }
     }
 
-    .modal h3 {
-      font-size: var(--text-lg);
-      font-weight: 700;
-      margin-bottom: var(--space-5);
-    }
-
-    .lang-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: var(--space-2);
-    }
-
-    .lang-option {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--space-1);
-      padding: var(--space-3) var(--space-2);
-      border-radius: var(--radius-md);
-      border: 1.5px solid transparent;
-      cursor: pointer;
+    .modal-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      color: var(--text-muted);
       transition: all var(--transition);
-      font-size: 22px;
-      background: var(--surface-2);
     }
-    .lang-option:hover { border-color: var(--accent); }
-    .lang-option.active { border-color: var(--accent); background: var(--accent-subtle); }
-    .lang-option span { font-size: var(--text-xs); color: var(--muted); }
+    .modal-close:hover { color: var(--text); border-color: var(--text); }
 
-    /* ── Responsive ──────────────────────────────────────────────────────── */
-    @media (max-width: 640px) {
-      .nav-links { display: none; }
-      .oss-block { flex-direction: column; }
-      .footer-inner { flex-direction: column; text-align: center; }
-      .footer-links { justify-content: center; }
+    .modal-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 0.6rem;
+      line-height: 1.2;
+    }
+
+    .modal-desc {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-bottom: 1.75rem;
+    }
+    .modal-desc strong { color: var(--text); }
+
+    .modal-x-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      padding: 0.8em 1.5em;
+      background: var(--text);
+      color: var(--bg);
+      border-radius: var(--radius-full);
+      font-size: var(--text-base);
+      font-weight: 500;
+      transition: opacity var(--transition);
+    }
+    .modal-x-btn:hover { opacity: 0.82; }
+
+    .modal-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1.25rem 0;
+      color: var(--text-muted);
+      font-size: var(--text-xs);
+    }
+    .modal-divider::before,
+    .modal-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .modal-email-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.4em;
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      transition: color var(--transition);
+      width: 100%;
+      justify-content: center;
+      padding: 0.35em 0;
+    }
+    .modal-email-toggle:hover { color: var(--text); }
+
+    .modal-email-form {
+      display: none;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .modal-email-form.open { display: flex; }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      transition: border-color var(--transition);
+    }
+    .input-group:focus-within { border-color: var(--accent); }
+
+    .input-prefix {
+      padding: 0.65em 0.75em;
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .input-group input,
+    .modal-email-form input[type="email"] {
+      width: 100%;
+      padding: 0.65em 0.75em;
+      font-size: var(--text-sm);
+      color: var(--text);
+      background: var(--bg);
+      border: none;
+      outline: none;
+      font-family: var(--font-body);
+    }
+
+    .modal-email-form input[type="email"] {
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: border-color var(--transition);
+    }
+    .modal-email-form input[type="email"]:focus {
+      border-color: var(--accent);
+    }
+
+    .modal-note {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .modal-privacy {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+      line-height: 1.6;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       RESPONSIVE
+    ════════════════════════════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .nav-links,
+      .nav-right .btn { display: none; }
+      .nav-hamburger { display: flex; }
+
+      .filter-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: repeat(2, 1fr); }
+      .api-cards { grid-template-columns: 1fr; }
+      .delivery-options { grid-template-columns: 1fr; max-width: 480px; }
+
+      .lang-wrapper,
+      .theme-btn { display: none; }
+      .nav-hamburger { display: flex; }
+    }
+
+    @media (max-width: 600px) {
+      .steps-grid { grid-template-columns: 1fr; }
+      .hero-ctas { flex-direction: column; align-items: center; }
+      .hero-ctas .btn { width: 100%; justify-content: center; max-width: 280px; }
+      .cta-footer-btns { flex-direction: column; align-items: center; }
+      .cta-footer-btns .btn { width: 100%; max-width: 280px; justify-content: center; }
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════
+       LOGO SVG
+    ════════════════════════════════════════════════════════════════════════ */
+    .hollr-logo-icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    /* X logo inline */
+    .x-logo {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
     }
   </style>
 </head>
 <body>
 
-<!-- ── Nav ──────────────────────────────────────────────────────────────────── -->
-<nav>
-  <div class="nav-inner container">
-    <a href="/" class="nav-logo" aria-label="hollr home">
-      <span class="nav-logo-wolf">🐺</span>
-      hollr
-    </a>
+<!-- ════════════════════════════════════════════════════════════════════════
+  NAV
+════════════════════════════════════════════════════════════════════════ -->
+<nav class="nav" id="mainNav" role="navigation" aria-label="Main navigation">
+  <div class="container">
+    <div class="nav-inner">
 
-    <ul class="nav-links" role="list">
-      <li><a href="#how-it-works" data-i18n="nav.how">How it works</a></li>
-      <li><a href="#features" data-i18n="nav.features">Features</a></li>
-      <li><a href="#open-source" data-i18n="nav.oss">Open source</a></li>
-    </ul>
-
-    <div class="nav-actions">
-      <button class="lang-btn" id="langToggle" title="Language" aria-label="Switch language">🌐</button>
-      <button class="theme-toggle" id="themeToggle" data-theme-toggle title="Toggle theme" aria-label="Switch to light mode">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      <!-- Logo -->
+      <a href="/" class="nav-logo" aria-label="hollr home">
+        <svg class="hollr-logo-icon" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="28" height="28" rx="7" fill="currentColor" opacity="0.1"/>
+          <!-- Bell body -->
+          <path d="M14 5.5C10.686 5.5 8 8.186 8 11.5v5.25l-1.5 1.75h15L20 16.75V11.5c0-3.314-2.686-6-6-6Z" fill="currentColor" opacity="0.85"/>
+          <!-- Bell ringer -->
+          <path d="M12.5 19.5a1.5 1.5 0 0 0 3 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.85"/>
+          <!-- Sound waves -->
+          <path d="M21.5 10a5.5 5.5 0 0 0-1-3.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M6.5 10a5.5 5.5 0 0 1 1-3.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity="0.4" fill="none"/>
         </svg>
+        hollr
+      </a>
+
+      <!-- Center links -->
+      <ul class="nav-links">
+        <li><a href="#how-it-works" data-i18n="nav.how">How it works</a></li>
+        <li><a href="#features" data-i18n="nav.features">Features</a></li>
+        <li><a href="#api-mcp" data-i18n="nav.api">API &amp; MCP</a></li>
+        <li><a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener" data-i18n="nav.github">GitHub ↗</a></li>
+      </ul>
+
+      <!-- Right -->
+      <div class="nav-right">
+        <!-- Language picker -->
+        <div class="lang-wrapper" id="langWrapper">
+          <button class="lang-btn" id="langBtn" aria-label="Switch language" aria-expanded="false" aria-haspopup="listbox">
+            <span id="langFlag">🇬🇧</span>
+            <span id="langCode">EN</span>
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 4l4 4 4-4"/></svg>
+          </button>
+          <div class="lang-dropdown" id="langDropdown" role="listbox" aria-label="Language selection">
+            <div class="lang-option active" role="option" data-lang="en"><span class="lang-flag">🇬🇧</span><span class="lang-name">English</span></div>
+            <div class="lang-option" role="option" data-lang="fr"><span class="lang-flag">🇫🇷</span><span class="lang-name">Français</span></div>
+            <div class="lang-option" role="option" data-lang="de"><span class="lang-flag">🇩🇪</span><span class="lang-name">Deutsch</span></div>
+            <div class="lang-option" role="option" data-lang="it"><span class="lang-flag">🇮🇹</span><span class="lang-name">Italiano</span></div>
+            <div class="lang-option" role="option" data-lang="es"><span class="lang-flag">🇪🇸</span><span class="lang-name">Español</span></div>
+            <div class="lang-option" role="option" data-lang="nl"><span class="lang-flag">🇳🇱</span><span class="lang-name">Nederlands</span></div>
+            <div class="lang-option" role="option" data-lang="zh"><span class="lang-flag">🇨🇳</span><span class="lang-name">中文</span></div>
+            <div class="lang-option" role="option" data-lang="hi"><span class="lang-flag">🇮🇳</span><span class="lang-name">हिंदी</span></div>
+            <div class="lang-option" role="option" data-lang="ja"><span class="lang-flag">🇯🇵</span><span class="lang-name">日本語</span></div>
+            <div class="lang-option" role="option" data-lang="ru"><span class="lang-flag">🇷🇺</span><span class="lang-name">Русский</span></div>
+          </div>
+        </div>
+
+        <!-- Theme toggle -->
+        <button class="theme-btn" id="themeToggle" aria-label="Toggle dark/light mode">
+          <span id="themeIcon">🌙</span>
+        </button>
+
+        <!-- CTA -->
+        <button class="btn btn-primary" id="navCta" data-modal data-i18n="nav.cta">Claim your handle</button>
+      </div>
+
+      <!-- Hamburger -->
+      <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
       </button>
-      <a href="#signup" class="btn btn-primary" data-i18n="nav.cta">Get your handle</a>
     </div>
   </div>
 </nav>
 
-<!-- ── Hero ─────────────────────────────────────────────────────────────────── -->
-<section class="hero section container">
-  <div class="hero-badge">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="12"/></svg>
-    <span data-i18n="hero.badge">Free &amp; Open Source</span>
-  </div>
-
-  <h1 class="hero-title" data-i18n="hero.title">
-    Your message canvas,<br><span class="accent">your handle.</span>
-  </h1>
-
-  <p class="hero-sub" data-i18n="hero.sub">
-    hollr gives everyone a personal, timed message canvas at their own handle.
-    Sign in with X or email. PGP-encrypted messages. Files &amp; voice encrypted at rest. Resend API optional.
-  </p>
-
-  <div class="hero-cta">
-    <a href="#signup" class="btn btn-primary btn-large" data-i18n="hero.cta1">Claim your handle →</a>
-    <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener" class="btn btn-outline btn-large" data-i18n="hero.cta2">View on GitHub</a>
-  </div>
-
-  <div class="hero-handle-demo">
-    <span class="domain">hollr.to/</span><span class="handle" id="demoHandle">paulfxyz</span>
-  </div>
-</section>
-
-<!-- ── Stats ─────────────────────────────────────────────────────────────────── -->
-<div class="container">
-  <div class="stats">
-    <div class="stat-item">
-      <span class="stat-value">100%</span>
-      <span class="stat-label" data-i18n="stats.free">Free forever</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-value">10</span>
-      <span class="stat-label" data-i18n="stats.langs">Languages</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-value">0</span>
-      <span class="stat-label" data-i18n="stats.storage">Data stored by us</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-value">∞</span>
-      <span class="stat-label" data-i18n="stats.handles">Handles available</span>
-    </div>
-  </div>
+<!-- Mobile drawer -->
+<div class="nav-mobile" id="navMobile" role="dialog" aria-label="Mobile navigation">
+  <a href="#how-it-works" data-i18n="nav.how">How it works</a>
+  <a href="#features" data-i18n="nav.features">Features</a>
+  <a href="#api-mcp" data-i18n="nav.api">API &amp; MCP</a>
+  <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener">GitHub ↗</a>
+  <button class="btn btn-primary" data-modal data-i18n="nav.cta">Claim your handle</button>
 </div>
 
-<!-- ── How it works ───────────────────────────────────────────────────────────── -->
-<section class="section container" id="how-it-works">
-  <div class="section-header">
-    <span class="section-label" data-i18n="steps.label">How it works</span>
-    <h2 class="section-title" data-i18n="steps.title">Up and running in 60 seconds</h2>
-    <p class="section-desc" data-i18n="steps.desc">No credit card. No server setup. Just your email or X account, a handle, and a PIN.</p>
-  </div>
+<!-- ════════════════════════════════════════════════════════════════════════
+  HERO
+════════════════════════════════════════════════════════════════════════ -->
+<main>
+<section class="hero" aria-labelledby="hero-headline">
+  <div class="hero-bg-text" aria-hidden="true">HOLLR</div>
 
-  <div class="steps">
-    <div class="step-card">
-      <div class="step-num">1</div>
-      <h3 data-i18n="steps.1.title">Sign in with X or email</h3>
-      <p data-i18n="steps.1.desc">Login with your X (Twitter) account or get a magic link by email — no password needed, ever.</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">2</div>
-      <h3 data-i18n="steps.2.title">Pick your handle</h3>
-      <p data-i18n="steps.2.desc">Choose something like <em>hollr.to/paulfxyz</em>. First come, first served.</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">3</div>
-      <h3 data-i18n="steps.3.title">Set your PIN</h3>
-      <p data-i18n="steps.3.desc">Set a security PIN to protect your settings. Resend API key is optional — platform emails work out of the box.</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">4</div>
-      <h3 data-i18n="steps.4.title">Share your link</h3>
-      <p data-i18n="steps.4.desc">Drop <em>hollr.to/yourhandle</em> anywhere. Your encrypted canvas is live.</p>
-    </div>
-  </div>
-</section>
+  <div class="container">
+    <div class="hero-content">
+      <span class="hero-badge reveal" data-i18n="hero.badge">YOUR OPEN INBOX</span>
 
-<!-- ── Canvas preview ─────────────────────────────────────────────────────────── -->
-<section class="section container">
-  <div class="section-header">
-    <span class="section-label" data-i18n="preview.label">The canvas</span>
-    <h2 class="section-title" data-i18n="preview.title">A distraction-free message experience</h2>
-    <p class="section-desc" data-i18n="preview.desc">A timed, fullscreen canvas with voice recording, file uploads, and a focused send flow.</p>
-  </div>
+      <h1 class="hero-title reveal reveal-delay-1" id="hero-headline">
+        <span data-i18n="hero.title.line1">Holla at me.</span><br>
+        <em data-i18n="hero.title.line2">Encrypted. Secured.</em>
+      </h1>
 
-  <div class="preview-wrap">
-    <div class="preview-bar">
-      <div class="preview-dot" style="background:#ff5f57"></div>
-      <div class="preview-dot" style="background:#ffbd2e"></div>
-      <div class="preview-dot" style="background:#28c840"></div>
-      <div class="preview-url">hollr.to/paulfxyz</div>
-    </div>
-    <div class="preview-body">
-      <div class="preview-timer" id="previewTimer">00:00</div>
-      <div class="preview-canvas">
-        <div class="preview-placeholder"></div>
-      </div>
-      <div class="preview-actions">
-        <div class="preview-action">🎤 <span data-i18n="preview.record">Record</span></div>
-        <div class="preview-action">📎 <span data-i18n="preview.attach">Attach</span></div>
-        <div class="preview-action primary">✉️ <span data-i18n="preview.send">Send</span></div>
+      <p class="hero-sub reveal reveal-delay-2" data-i18n="hero.sub">
+        hollr is your public link. Anyone sends — you decide what gets through. PGP-encrypted. Files and voice. Sign in with X or email.
+      </p>
+
+      <div class="hero-ctas reveal reveal-delay-3">
+        <button class="btn btn-primary btn-lg" data-modal data-i18n="hero.cta1">Claim your handle →</button>
+        <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener" class="btn btn-ghost btn-lg" data-i18n="hero.cta2">View on GitHub</a>
       </div>
     </div>
   </div>
-</section>
 
-<!-- ── Features ───────────────────────────────────────────────────────────────── -->
-<section class="section container" id="features">
-  <div class="section-header">
-    <span class="section-label" data-i18n="features.label">Features</span>
-    <h2 class="section-title" data-i18n="features.title">Everything you need, nothing you don't</h2>
-  </div>
-
-  <div class="features-grid">
-    <div class="feature-card">
-      <span class="feature-icon">𝕏</span>
-      <h3 data-i18n="feat.x.title">X &amp; email login</h3>
-      <p data-i18n="feat.x.desc">Sign in with your X (Twitter) account via OAuth 2.0 PKCE, or receive a magic link by email. No passwords, ever.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🔐</span>
-      <h3 data-i18n="feat.pgp.title">PGP end-to-end encryption</h3>
-      <p data-i18n="feat.pgp.desc">Add your PGP public key in settings. Senders encrypt messages with your key — only you can decrypt them.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🔒</span>
-      <h3 data-i18n="feat.enc.title">Encrypted files &amp; voice</h3>
-      <p data-i18n="feat.enc.desc">Every uploaded file and voice note is encrypted at rest with AES-256-GCM. Decrypt instantly in your browser via the secure viewer.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">📧</span>
-      <h3 data-i18n="feat.key.title">Resend optional</h3>
-      <p data-i18n="feat.key.desc">Platform sends email notifications from yo@hollr.to by default. Plug in your own Resend key for custom delivery.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">⏱️</span>
-      <h3 data-i18n="feat.timer.title">Timed canvas</h3>
-      <p data-i18n="feat.timer.desc">An always-running timer reminds senders how long they've been composing. Focus and intentionality built in.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🎤</span>
-      <h3 data-i18n="feat.voice.title">Voice recording</h3>
-      <p data-i18n="feat.voice.desc">Record a voice note directly in the browser. Encrypted and linked in your notification email.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">📎</span>
-      <h3 data-i18n="feat.files.title">File attachments</h3>
-      <p data-i18n="feat.files.desc">Drag and drop any file. Encrypted, uploaded securely, and linked in the email — no limits on type.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🌐</span>
-      <h3 data-i18n="feat.i18n.title">10 languages</h3>
-      <p data-i18n="feat.i18n.desc">English, French, German, Italian, Spanish, Dutch, Chinese, Hindi, Japanese, Russian. More coming.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🌙</span>
-      <h3 data-i18n="feat.dark.title">Dark &amp; light mode</h3>
-      <p data-i18n="feat.dark.desc">Follows your system preference. Manual toggle always available.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🛠️</span>
-      <h3 data-i18n="feat.oss.title">Fully open source</h3>
-      <p data-i18n="feat.oss.desc">MIT licensed. Fork it, self-host it, extend it. No vendor lock-in, ever.</p>
+  <!-- Scrolling handle strip -->
+  <div class="handle-strip" aria-hidden="true">
+    <div class="handle-track" id="handleTrack">
+      <span class="handle-item">hollr.to/paulfxyz</span>
+      <span class="handle-item">hollr.to/devjohn</span>
+      <span class="handle-item">hollr.to/sarah_k</span>
+      <span class="handle-item">hollr.to/mia_writes</span>
+      <span class="handle-item">hollr.to/tobias</span>
+      <span class="handle-item">hollr.to/nico_dev</span>
+      <span class="handle-item">hollr.to/priya</span>
+      <span class="handle-item">hollr.to/jonesy</span>
+      <span class="handle-item">hollr.to/lukas_m</span>
+      <span class="handle-item">hollr.to/ama_k</span>
+      <span class="handle-item">hollr.to/dani_rx</span>
+      <span class="handle-item">hollr.to/rem_o</span>
+      <!-- duplicate for seamless loop -->
+      <span class="handle-item">hollr.to/paulfxyz</span>
+      <span class="handle-item">hollr.to/devjohn</span>
+      <span class="handle-item">hollr.to/sarah_k</span>
+      <span class="handle-item">hollr.to/mia_writes</span>
+      <span class="handle-item">hollr.to/tobias</span>
+      <span class="handle-item">hollr.to/nico_dev</span>
+      <span class="handle-item">hollr.to/priya</span>
+      <span class="handle-item">hollr.to/jonesy</span>
+      <span class="handle-item">hollr.to/lukas_m</span>
+      <span class="handle-item">hollr.to/ama_k</span>
+      <span class="handle-item">hollr.to/dani_rx</span>
+      <span class="handle-item">hollr.to/rem_o</span>
     </div>
   </div>
 </section>
 
-<!-- ── OSS block ──────────────────────────────────────────────────────────────── -->
-<section class="section container" id="open-source">
-  <div class="oss-block">
-    <div>
-      <h2 data-i18n="oss.title">Built in the open</h2>
-      <p data-i18n="oss.desc">hollr is MIT licensed. The full source — backend, landing, canvas — lives on GitHub. Self-host on Fly.io in minutes.</p>
-    </div>
-    <div class="oss-actions">
-      <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener" class="btn btn-outline">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-        GitHub
-      </a>
-      <a href="#signup" class="btn btn-primary" data-i18n="oss.cta">Claim your handle</a>
+<!-- ════════════════════════════════════════════════════════════════════════
+  HOW IT WORKS — Filter
+════════════════════════════════════════════════════════════════════════ -->
+<section class="section" id="how-it-works" aria-labelledby="filter-heading">
+  <div class="container">
+    <div class="filter-grid">
+
+      <!-- Left -->
+      <div class="filter-left">
+        <span class="section-label reveal" data-i18n="filter.label">ONLY THE GOOD STUFF</span>
+        <h2 class="filter-heading reveal reveal-delay-1" id="filter-heading">
+          <span data-i18n="filter.title1">We filter the noise.</span><br>
+          <em data-i18n="filter.title2">You keep the signal.</em>
+        </h2>
+        <p class="filter-body reveal reveal-delay-2" data-i18n="filter.body">
+          Your hollr link is public. We get it — spam happens. Only real, human-written messages make it through. PGP-encrypted end-to-end.
+        </p>
+
+        <div class="filter-features">
+          <div class="filter-feature reveal reveal-delay-2">
+            <div class="filter-dot"></div>
+            <div class="filter-feature-text">
+              <strong data-i18n="filter.feat1.title">PGP end-to-end</strong>
+              <span data-i18n="filter.feat1.desc">Messages are encrypted with your public key before they leave the sender's browser. We never read them.</span>
+            </div>
+          </div>
+          <div class="filter-feature reveal reveal-delay-3">
+            <div class="filter-dot"></div>
+            <div class="filter-feature-text">
+              <strong data-i18n="filter.feat2.title">Human-verified</strong>
+              <span data-i18n="filter.feat2.desc">Only messages that pass the canvas timer and form are delivered. No bots, no bulk.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Inbox mockup -->
+      <div class="reveal reveal-delay-2">
+        <div class="inbox-card">
+          <div class="inbox-header">
+            <span class="inbox-header-title" data-i18n="inbox.title">Pending hollrs</span>
+            <span class="inbox-count">3</span>
+          </div>
+
+          <div class="inbox-messages">
+            <!-- Verified message -->
+            <div class="inbox-msg">
+              <div class="inbox-msg-header">
+                <span class="status-pill status-verified">
+                  <span>●</span> <span data-i18n="inbox.verified">Human Verified</span>
+                </span>
+              </div>
+              <p class="inbox-msg-text" data-i18n="inbox.msg1">"Hey — huge fan of your work on hollr. Would love to collab on something…"</p>
+              <div class="inbox-msg-actions">
+                <button class="inbox-action primary" data-i18n="inbox.read">Read →</button>
+                <button class="inbox-action" data-i18n="inbox.dismiss">Dismiss</button>
+              </div>
+            </div>
+
+            <!-- Pending message -->
+            <div class="inbox-msg">
+              <div class="inbox-msg-header">
+                <span class="status-pill status-pending">
+                  <span>●</span> <span data-i18n="inbox.pending">Pending Review</span>
+                </span>
+              </div>
+              <p class="inbox-msg-text" data-i18n="inbox.msg2">"Quick question about your setup — I'm working on something similar and…"</p>
+              <div class="inbox-msg-actions">
+                <button class="inbox-action primary" data-i18n="inbox.read">Read →</button>
+                <button class="inbox-action" data-i18n="inbox.dismiss">Dismiss</button>
+              </div>
+            </div>
+
+            <!-- AI filtered -->
+            <div class="inbox-msg filtered">
+              <div class="inbox-msg-header">
+                <span class="status-pill status-filtered">
+                  <span>●</span> <span data-i18n="inbox.filtered">AI Filtered</span>
+                </span>
+              </div>
+              <p class="inbox-msg-text" data-i18n="inbox.msg3">"Congratulations! You've been selected for a special crypto opportuni—"</p>
+              <div class="inbox-msg-actions">
+                <button class="inbox-action" data-i18n="inbox.restore">Restore</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="inbox-footer">
+            <code>hollr.inbox({ handle: 'you', token: '...' })</code>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
 
-<!-- ── CTA / Signup ──────────────────────────────────────────────────────────── -->
-<section class="cta-section container" id="signup">
-  <h2 data-i18n="cta.title">Your handle is waiting.</h2>
-  <p data-i18n="cta.sub">Enter your email and we'll send you a magic link. No password. No credit card.</p>
+<!-- ════════════════════════════════════════════════════════════════════════
+  FEATURES — Holla from anywhere
+════════════════════════════════════════════════════════════════════════ -->
+<section class="section" id="features" aria-labelledby="features-heading">
+  <div class="container">
+    <div class="steps-heading">
+      <span class="section-label reveal" data-i18n="steps.label">HOW IT WORKS</span>
+      <h2 class="steps-title reveal reveal-delay-1" id="features-heading" data-i18n="steps.title">Holla from anywhere.</h2>
+    </div>
 
-  <form class="signup-form" id="signupForm" onsubmit="handleSignup(event)">
-    <input
-      type="email"
-      class="signup-input"
-      id="signupEmail"
-      placeholder="you@example.com"
-      required
-      autocomplete="email"
-      data-i18n-placeholder="cta.placeholder"
-    >
-    <button type="submit" class="btn btn-primary" data-i18n="cta.btn">Get started →</button>
-  </form>
-
-  <p id="signupStatus" style="margin-top:var(--space-5);font-size:var(--text-sm);color:var(--muted);display:none"></p>
+    <div class="steps-grid">
+      <div class="step-card reveal">
+        <div class="step-number" aria-hidden="true">01</div>
+        <h3 data-i18n="steps.1.title">Claim your handle</h3>
+        <p data-i18n="steps.1.desc">Sign in with X or email. <code>hollr.to/yourname</code> is yours instantly.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-1">
+        <div class="step-number" aria-hidden="true">02</div>
+        <h3 data-i18n="steps.2.title">Set your PIN</h3>
+        <p data-i18n="steps.2.desc">Protect your settings with a 4-digit PIN. Change it any time.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-number" aria-hidden="true">03</div>
+        <h3 data-i18n="steps.3.title">Share your link</h3>
+        <p data-i18n="steps.3.desc">Drop <code>hollr.to/yourname</code> anywhere. Your encrypted canvas is live.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-3">
+        <div class="step-number" aria-hidden="true">04</div>
+        <h3 data-i18n="steps.4.title">Receive securely</h3>
+        <p data-i18n="steps.4.desc">PGP-encrypted messages, encrypted files and voice notes delivered to you.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ── Footer ─────────────────────────────────────────────────────────────────── -->
-<footer>
-  <div class="footer-inner container">
-    <span class="footer-logo">🐺 hollr</span>
-    <ul class="footer-links" role="list">
-      <li><a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener">GitHub</a></li>
-      <li><a href="https://github.com/paulfxyz/hollr/blob/main/LICENSE">MIT License</a></li>
-      <li><a href="https://github.com/paulfxyz/hollr/blob/main/CHANGELOG.md">Changelog</a></li>
-    </ul>
-    <span class="footer-copy" data-i18n="footer.copy">Built with ❤️ + AI. 100% vibe coding.</span>
+<!-- ════════════════════════════════════════════════════════════════════════
+  API & MCP
+════════════════════════════════════════════════════════════════════════ -->
+<section class="section" id="api-mcp" aria-labelledby="api-heading">
+  <div class="container">
+    <div class="api-heading">
+      <span class="section-label reveal" data-i18n="api.label">BUILT FOR DEVELOPERS</span>
+      <h2 class="api-title reveal reveal-delay-1" id="api-heading">
+        <span data-i18n="api.title1">Your hollrs,</span><br>
+        <em data-i18n="api.title2">anywhere you need them.</em>
+      </h2>
+      <p class="api-desc reveal reveal-delay-2" data-i18n="api.desc">
+        hollr isn't just a link. It's an open platform. Pipe your incoming messages into any system — your CRM, your Notion, your terminal, your AI stack.
+      </p>
+    </div>
+
+    <div class="api-cards">
+      <div class="api-card reveal">
+        <h3 data-i18n="api.rest.title">REST API</h3>
+        <p data-i18n="api.rest.desc">Full HTTP API. List hollrs, fetch content, manage your handle. Build anything on top.</p>
+        <div class="api-chip">GET /v1/hollrs</div>
+      </div>
+
+      <div class="api-card reveal reveal-delay-1">
+        <h3 data-i18n="api.webhooks.title">Webhooks</h3>
+        <p data-i18n="api.webhooks.desc">POST each hollr to any URL the moment it arrives. Zapier, Make, your own server — no polling.</p>
+        <div class="api-chip">POST your-endpoint.com/hook</div>
+      </div>
+
+      <div class="api-card reveal reveal-delay-2">
+        <span class="api-card-badge" data-i18n="api.mcp.badge">Coming Soon</span>
+        <h3 data-i18n="api.mcp.title">MCP Server</h3>
+        <p data-i18n="api.mcp.desc">Read your hollrs directly from Claude, Cursor, or any AI tool via the Model Context Protocol.</p>
+        <div class="api-chip">MCP hollr://yourhandle/hollrs</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+  DELIVERY
+════════════════════════════════════════════════════════════════════════ -->
+<section class="section" aria-labelledby="delivery-heading">
+  <div class="container">
+    <div class="delivery-heading">
+      <span class="section-label reveal" data-i18n="delivery.label">WHERE YOUR HOLLRS LAND</span>
+      <h2 class="delivery-title reveal reveal-delay-1" id="delivery-heading" data-i18n="delivery.title">Where your hollrs land.</h2>
+    </div>
+
+    <div class="delivery-options">
+      <div class="delivery-option selected reveal">
+        <div class="delivery-radio"><div class="delivery-radio-dot"></div></div>
+        <span class="delivery-icon">🟠</span>
+        <div class="delivery-label">yo@hollr.to</div>
+        <div class="delivery-default" data-i18n="delivery.default">Default — zero setup, instant</div>
+      </div>
+
+      <div class="delivery-option reveal reveal-delay-1">
+        <div class="delivery-radio"></div>
+        <span class="delivery-icon">⚪</span>
+        <div class="delivery-label" data-i18n="delivery.resend">Your Resend API key</div>
+        <div class="delivery-sub" data-i18n="delivery.resend.sub">Direct to your inbox, no relay</div>
+      </div>
+
+      <div class="delivery-option reveal reveal-delay-2">
+        <div class="delivery-radio"></div>
+        <span class="delivery-icon">⚪</span>
+        <div class="delivery-label" data-i18n="delivery.webhook">Webhook URL</div>
+        <div class="delivery-sub" data-i18n="delivery.webhook.sub">POST to any endpoint you control</div>
+      </div>
+    </div>
+
+    <p class="delivery-caption reveal reveal-delay-3" data-i18n="delivery.caption">
+      Every option delivers the same PGP-encrypted payload. Same security. Your call.
+    </p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+  CTA FOOTER
+════════════════════════════════════════════════════════════════════════ -->
+<section class="cta-footer" aria-labelledby="cta-heading">
+  <div class="container">
+    <span class="section-label reveal" data-i18n="cta.label">YOUR HOLLR LINK IS WAITING</span>
+    <h2 class="cta-footer-title reveal reveal-delay-1" id="cta-heading" data-i18n="cta.title">
+      Claim hollr.to/yourname before someone else does.
+    </h2>
+    <div class="cta-footer-btns reveal reveal-delay-2">
+      <button class="btn btn-primary btn-lg" data-modal data-i18n="cta.cta1">Claim your handle →</button>
+      <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener" class="btn btn-ghost btn-lg" data-i18n="cta.cta2">View on GitHub</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer bar -->
+<footer class="footer-bar" role="contentinfo">
+  <div class="container">
+    <div class="footer-bar-inner">
+      <span>© 2026 hollr</span>
+      <span class="footer-sep">·</span>
+      <span>MIT License</span>
+      <span class="footer-sep">·</span>
+      <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener">GitHub</a>
+      <span class="footer-sep">·</span>
+      <a href="https://hollr.to">hollr.to</a>
+    </div>
   </div>
 </footer>
+</main>
 
-<!-- ── Language modal ──────────────────────────────────────────────────────────── -->
-<div class="modal-overlay" id="langModal" role="dialog" aria-modal="true" aria-label="Language picker">
-  <div class="modal">
-    <h3 data-i18n="lang.title">Choose language</h3>
-    <div class="lang-grid" id="langGrid"></div>
+<!-- ════════════════════════════════════════════════════════════════════════
+  CLAIM MODAL
+════════════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modalClose" aria-label="Close modal">✕</button>
+
+    <div class="modal-brand">
+      <svg class="hollr-logo-icon" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="28" height="28" rx="7" fill="currentColor" opacity="0.1"/>
+        <path d="M14 5.5C10.686 5.5 8 8.186 8 11.5v5.25l-1.5 1.75h15L20 16.75V11.5c0-3.314-2.686-6-6-6Z" fill="currentColor" opacity="0.85"/>
+        <path d="M12.5 19.5a1.5 1.5 0 0 0 3 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.85"/>
+      </svg>
+      <span style="font-size:0.85rem;color:var(--text-muted);">hollr</span>
+      <span style="color:var(--text-muted);font-size:0.85rem;">×</span>
+      <!-- X logo -->
+      <svg class="x-logo" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.265 5.64 5.899-5.64Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </div>
+
+    <h2 class="modal-title" id="modal-title" data-i18n="modal.title">Claim your hollr handle</h2>
+    <p class="modal-desc" data-i18n="modal.desc">
+      Connect with X and your Twitter handle becomes your hollr link — instantly. <strong>hollr.to/@you</strong>. Encrypted, no middleman.
+    </p>
+
+    <a href="https://api.hollr.to/api/auth/x" class="modal-x-btn" data-i18n="modal.x">
+      <svg class="x-logo" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.265 5.64 5.899-5.64Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      𝕏 Continue with X
+    </a>
+
+    <div class="modal-divider" data-i18n="modal.or">OR</div>
+
+    <button class="modal-email-toggle" id="emailToggle" aria-expanded="false" aria-controls="emailForm">
+      <span data-i18n="modal.email.toggle">Register with email instead</span>
+      <span id="emailToggleArrow" style="transition:transform 0.2s">▾</span>
+    </button>
+
+    <div class="modal-email-form" id="emailForm">
+      <div class="input-group">
+        <span class="input-prefix">hollr.to/</span>
+        <input type="text" placeholder="yourname" autocomplete="username" aria-label="Choose your handle" data-i18n-placeholder="modal.handle.placeholder">
+      </div>
+      <input type="email" placeholder="you@example.com" autocomplete="email" aria-label="Your email address" data-i18n-placeholder="modal.email.placeholder">
+      <a href="https://hollr.to/auth/verify" class="btn btn-primary" style="justify-content:center;" data-i18n="modal.email.btn">Claim handle →</a>
+    </div>
+
+    <div class="modal-note">
+      <span data-i18n="modal.note">⚠ X sign-in takes priority. If someone later claims the same handle through X, theirs becomes <strong>hollr.to/yourhandleX2</strong>. First on X wins.</span>
+    </div>
+
+    <p class="modal-privacy" data-i18n="modal.privacy">
+      We only read your public X username. No DMs, no posting, no followers data.
+    </p>
   </div>
 </div>
 
+<!-- ════════════════════════════════════════════════════════════════════════
+  SCRIPTS
+════════════════════════════════════════════════════════════════════════ -->
 <script>
-/* ═══════════════════════════════════════════════════════════════════════════
-   hollr.to — Landing page JS
-   Handles: i18n, theme toggle, language modal, hero handle demo,
-            preview timer, signup form submission
-   ═══════════════════════════════════════════════════════════════════════════ */
+const API_BASE = 'https://api.hollr.to';
 
-// ── i18n strings ─────────────────────────────────────────────────────────────
-
-const LANGS = [
-  { code:'en', flag:'🇬🇧', name:'English' },
-  { code:'fr', flag:'🇫🇷', name:'Français' },
-  { code:'de', flag:'🇩🇪', name:'Deutsch' },
-  { code:'it', flag:'🇮🇹', name:'Italiano' },
-  { code:'es', flag:'🇪🇸', name:'Español' },
-  { code:'nl', flag:'🇳🇱', name:'Nederlands' },
-  { code:'zh', flag:'🇨🇳', name:'中文' },
-  { code:'hi', flag:'🇮🇳', name:'हिन्दी' },
-  { code:'ja', flag:'🇯🇵', name:'日本語' },
-  { code:'ru', flag:'🇷🇺', name:'Русский' },
-];
-
+// ── i18n strings ───────────────────────────────────────────────────────────
 const STRINGS = {
   en: {
-    'nav.how':'How it works','nav.features':'Features','nav.oss':'Open source','nav.cta':'Get your handle',
-    'hero.badge':'Free & Open Source','hero.title':'Your message canvas,\nyour handle.',
-    'hero.sub':'hollr gives everyone a personal, timed message canvas at their own handle. Sign in with X or email. PGP-encrypted messages. Files & voice encrypted at rest. Resend API optional.',
-    'hero.cta1':'Claim your handle →','hero.cta2':'View on GitHub',
-    'stats.free':'Free forever','stats.langs':'Languages','stats.storage':'Data stored by us','stats.handles':'Handles available',
-    'steps.label':'How it works','steps.title':'Up and running in 60 seconds',
-    'steps.desc':'No credit card. No server setup. Just your email or X account, a handle, and a PIN.',
-    'steps.1.title':'Sign in with X or email','steps.1.desc':'Login with your X account via OAuth, or get a magic link by email — no password needed, ever.',
-    'steps.2.title':'Pick your handle','steps.2.desc':'Choose something like hollr.to/paulfxyz. First come, first served.',
-    'steps.3.title':'Set your PIN','steps.3.desc':'Set a security PIN to protect your settings. Resend API key is optional — platform emails work out of the box.',
-    'steps.4.title':'Share your link','steps.4.desc':'Drop hollr.to/yourhandle anywhere. Your encrypted canvas is live.',
-    'preview.label':'The canvas','preview.title':'A distraction-free message experience',
-    'preview.desc':'A timed, fullscreen canvas with voice recording, file uploads, and a focused send flow.',
-    'preview.record':'Record','preview.attach':'Attach','preview.send':'Send',
-    'features.label':'Features','features.title':'Everything you need, nothing you don\'t',
-    'feat.x.title':'X & email login','feat.x.desc':'Sign in with X (Twitter) via OAuth 2.0 PKCE, or get a magic link by email. No passwords, ever.',
-    'feat.pgp.title':'PGP end-to-end encryption','feat.pgp.desc':'Add your PGP public key in settings. Senders encrypt with your key — only you can decrypt.',
-    'feat.enc.title':'Encrypted files & voice','feat.enc.desc':'Files and voice notes are encrypted at rest with AES-256-GCM. Decrypt instantly in-browser via the secure viewer.',
-    'feat.key.title':'Resend optional','feat.key.desc':'Platform sends from yo@hollr.to by default. Plug in your own Resend key for custom delivery.',
-    'feat.timer.title':'Timed canvas','feat.timer.desc':'An always-running timer reminds senders how long they\'ve been composing.',
-    'feat.voice.title':'Voice recording','feat.voice.desc':'Record a voice note directly in the browser. Encrypted and linked in your notification email.',
-    'feat.files.title':'File attachments','feat.files.desc':'Drag and drop any file. Encrypted, uploaded securely, and linked in the email.',
-    'feat.i18n.title':'10 languages','feat.i18n.desc':'English, French, German, Italian, Spanish, Dutch, Chinese, Hindi, Japanese, Russian.',
-    'feat.dark.title':'Dark & light mode','feat.dark.desc':'Follows your system preference. Manual toggle always available.',
-    'feat.oss.title':'Fully open source','feat.oss.desc':'MIT licensed. Fork it, self-host it, extend it. No vendor lock-in, ever.',
-    'oss.title':'Built in the open','oss.desc':'hollr is MIT licensed. The full source lives on GitHub. Self-host on Fly.io in minutes.',
-    'oss.cta':'Claim your handle',
-    'cta.title':'Your handle is waiting.','cta.sub':'Enter your email and we\'ll send you a magic link. No password. No credit card.',
-    'cta.placeholder':'you@example.com','cta.btn':'Get started →',
-    'footer.copy':'Built with ❤️ + AI. 100% vibe coding.',
-    'lang.title':'Choose language',
-    'signup.sent':'Check your inbox — we sent you a magic link!',
-    'signup.error':'Something went wrong. Please try again.',
+    'nav.how': 'How it works',
+    'nav.features': 'Features',
+    'nav.api': 'API & MCP',
+    'nav.github': 'GitHub ↗',
+    'nav.cta': 'Claim your handle',
+    'hero.badge': 'YOUR OPEN INBOX',
+    'hero.title.line1': 'Holla at me.',
+    'hero.title.line2': 'Encrypted. Secured.',
+    'hero.sub': 'hollr is your public link. Anyone sends — you decide what gets through. PGP-encrypted. Files and voice. Sign in with X or email.',
+    'hero.cta1': 'Claim your handle →',
+    'hero.cta2': 'View on GitHub',
+    'filter.label': 'ONLY THE GOOD STUFF',
+    'filter.title1': 'We filter the noise.',
+    'filter.title2': 'You keep the signal.',
+    'filter.body': 'Your hollr link is public. We get it — spam happens. Only real, human-written messages make it through. PGP-encrypted end-to-end.',
+    'filter.feat1.title': 'PGP end-to-end',
+    'filter.feat1.desc': 'Messages are encrypted with your public key before they leave the sender\'s browser. We never read them.',
+    'filter.feat2.title': 'Human-verified',
+    'filter.feat2.desc': 'Only messages that pass the canvas timer and form are delivered. No bots, no bulk.',
+    'inbox.title': 'Pending hollrs',
+    'inbox.verified': 'Human Verified',
+    'inbox.pending': 'Pending Review',
+    'inbox.filtered': 'AI Filtered',
+    'inbox.msg1': '"Hey — huge fan of your work on hollr. Would love to collab on something…"',
+    'inbox.msg2': '"Quick question about your setup — I\'m working on something similar and…"',
+    'inbox.msg3': '"Congratulations! You\'ve been selected for a special crypto opportuni—"',
+    'inbox.read': 'Read →',
+    'inbox.dismiss': 'Dismiss',
+    'inbox.restore': 'Restore',
+    'steps.label': 'HOW IT WORKS',
+    'steps.title': 'Holla from anywhere.',
+    'steps.1.title': 'Claim your handle',
+    'steps.1.desc': 'Sign in with X or email. hollr.to/yourname is yours instantly.',
+    'steps.2.title': 'Set your PIN',
+    'steps.2.desc': 'Protect your settings with a 4-digit PIN. Change it any time.',
+    'steps.3.title': 'Share your link',
+    'steps.3.desc': 'Drop hollr.to/yourname anywhere. Your encrypted canvas is live.',
+    'steps.4.title': 'Receive securely',
+    'steps.4.desc': 'PGP-encrypted messages, encrypted files and voice notes delivered to you.',
+    'api.label': 'BUILT FOR DEVELOPERS',
+    'api.title1': 'Your hollrs,',
+    'api.title2': 'anywhere you need them.',
+    'api.desc': 'hollr isn\'t just a link. It\'s an open platform. Pipe your incoming messages into any system — your CRM, your Notion, your terminal, your AI stack.',
+    'api.rest.title': 'REST API',
+    'api.rest.desc': 'Full HTTP API. List hollrs, fetch content, manage your handle. Build anything on top.',
+    'api.webhooks.title': 'Webhooks',
+    'api.webhooks.desc': 'POST each hollr to any URL the moment it arrives. Zapier, Make, your own server — no polling.',
+    'api.mcp.badge': 'Coming Soon',
+    'api.mcp.title': 'MCP Server',
+    'api.mcp.desc': 'Read your hollrs directly from Claude, Cursor, or any AI tool via the Model Context Protocol.',
+    'delivery.label': 'WHERE YOUR HOLLRS LAND',
+    'delivery.title': 'Where your hollrs land.',
+    'delivery.default': 'Default — zero setup, instant',
+    'delivery.resend': 'Your Resend API key',
+    'delivery.resend.sub': 'Direct to your inbox, no relay',
+    'delivery.webhook': 'Webhook URL',
+    'delivery.webhook.sub': 'POST to any endpoint you control',
+    'delivery.caption': 'Every option delivers the same PGP-encrypted payload. Same security. Your call.',
+    'cta.label': 'YOUR HOLLR LINK IS WAITING',
+    'cta.title': 'Claim hollr.to/yourname before someone else does.',
+    'cta.cta1': 'Claim your handle →',
+    'cta.cta2': 'View on GitHub',
+    'modal.title': 'Claim your hollr handle',
+    'modal.desc': 'Connect with X and your Twitter handle becomes your hollr link — instantly. hollr.to/@you. Encrypted, no middleman.',
+    'modal.x': '𝕏 Continue with X',
+    'modal.or': 'OR',
+    'modal.email.toggle': 'Register with email instead ▾',
+    'modal.handle.placeholder': 'yourname',
+    'modal.email.placeholder': 'you@example.com',
+    'modal.email.btn': 'Claim handle →',
+    'modal.note': '⚠ X sign-in takes priority. If someone later claims the same handle through X, theirs becomes hollr.to/yourhandleX2. First on X wins.',
+    'modal.privacy': 'We only read your public X username. No DMs, no posting, no followers data.',
   },
+
   fr: {
-    'nav.how':'Comment ça marche','nav.features':'Fonctionnalités','nav.oss':'Open source','nav.cta':'Réserver mon handle',
-    'hero.badge':'Gratuit & Open Source','hero.title':'Votre canvas de messages,\nvotre handle.',
-    'hero.sub':'hollr offre à chacun un canvas de messages personnel et minuté à son propre handle. Connexion via X ou email. Messages chiffrés PGP. Fichiers et vocaux chiffrés. Resend optionnel.',
-    'hero.cta1':'Réserver mon handle →','hero.cta2':'Voir sur GitHub',
-    'stats.free':'Gratuit pour toujours','stats.langs':'Langues','stats.storage':'Données stockées','stats.handles':'Handles disponibles',
-    'steps.label':'Comment ça marche','steps.title':'Opérationnel en 60 secondes',
-    'steps.desc':'Aucune carte bancaire. Pas de serveur à configurer. Juste votre email ou compte X, un handle et un code PIN.',
-    'steps.1.title':'Connexion via X ou email','steps.1.desc':'Connectez-vous avec X via OAuth ou recevez un lien magique par email — aucun mot de passe.',
-    'steps.2.title':'Choisissez votre handle','steps.2.desc':'Choisissez quelque chose comme hollr.to/paulfxyz.',
-    'steps.3.title':'Définissez votre PIN','steps.3.desc':'Un code PIN protège vos paramètres. La clé Resend est optionnelle — les emails de la plateforme fonctionnent d\'office.',
-    'steps.4.title':'Partagez votre lien','steps.4.desc':'Déposez hollr.to/votrehandle n\'importe où. Votre canvas chiffré est en ligne.',
-    'preview.label':'Le canvas','preview.title':'Une expérience de messagerie sans distraction',
-    'preview.desc':'Un canvas plein écran minuté avec enregistrement vocal, envoi de fichiers et formulaire concentré.',
-    'preview.record':'Enregistrer','preview.attach':'Joindre','preview.send':'Envoyer',
-    'features.label':'Fonctionnalités','features.title':'Tout ce dont vous avez besoin, rien de plus',
-    'feat.x.title':'Connexion X & email','feat.x.desc':'Connectez-vous via X (Twitter) OAuth 2.0 PKCE ou par lien magique. Aucun mot de passe.',
-    'feat.pgp.title':'Chiffrement PGP de bout en bout','feat.pgp.desc':'Ajoutez votre clé PGP publique dans les paramètres. Les expéditeurs chiffrent avec votre clé.',
-    'feat.enc.title':'Fichiers & vocaux chiffrés','feat.enc.desc':'Chaque fichier et vocal est chiffré au repos avec AES-256-GCM. Déchiffrement instantané dans le navigateur.',
-    'feat.key.title':'Resend optionnel','feat.key.desc':'La plateforme envoie depuis yo@hollr.to par défaut. Ajoutez votre clé Resend pour une livraison personnalisée.',
-    'feat.timer.title':'Canvas minuté','feat.timer.desc':'Un minuteur permanent rappelle aux expéditeurs leur temps de composition.',
-    'feat.voice.title':'Enregistrement vocal','feat.voice.desc':'Enregistrez un message vocal directement dans le navigateur. Chiffré et lié dans l\'email.',
-    'feat.files.title':'Pièces jointes','feat.files.desc':'Glissez-déposez n\'importe quel fichier. Chiffré, téléversé en sécurité et lié dans l\'email.',
-    'feat.i18n.title':'10 langues','feat.i18n.desc':'Anglais, Français, Allemand, Italien, Espagnol, Néerlandais, Chinois, Hindi, Japonais, Russe.',
-    'feat.dark.title':'Mode sombre & clair','feat.dark.desc':'Suit vos préférences système. Bascule manuelle toujours disponible.',
-    'feat.oss.title':'100% open source','feat.oss.desc':'Licence MIT. Forkez-le, hébergez-le, étendez-le. Jamais de dépendance.',
-    'oss.title':'Construit en open source','oss.desc':'hollr est sous licence MIT. Le code complet est sur GitHub. Auto-hébergez sur Fly.io en quelques minutes.',
-    'oss.cta':'Réserver mon handle',
-    'cta.title':'Votre handle vous attend.','cta.sub':'Entrez votre email et nous vous enverrons un lien magique. Aucun mot de passe. Aucune carte bancaire.',
-    'cta.placeholder':'vous@exemple.com','cta.btn':'Commencer →',
-    'footer.copy':'Construit avec ❤️ + IA. 100% vibe coding.',
-    'lang.title':'Choisir la langue',
-    'signup.sent':'Vérifiez votre boîte — nous vous avons envoyé un lien magique !',
-    'signup.error':'Une erreur s\'est produite. Veuillez réessayer.',
+    'nav.how': 'Comment ça marche',
+    'nav.features': 'Fonctionnalités',
+    'nav.api': 'API & MCP',
+    'nav.github': 'GitHub ↗',
+    'nav.cta': 'Réserver mon handle',
+    'hero.badge': 'VOTRE BOÎTE OUVERTE',
+    'hero.title.line1': 'Holla at me.',
+    'hero.title.line2': 'Chiffré. Sécurisé.',
+    'hero.sub': 'hollr est votre lien public. N\'importe qui envoie — vous décidez ce qui passe. Chiffrement PGP. Fichiers et vocaux. Connexion via X ou email.',
+    'hero.cta1': 'Réserver mon handle →',
+    'hero.cta2': 'Voir sur GitHub',
+    'filter.label': 'SEULEMENT LE MEILLEUR',
+    'filter.title1': 'Nous filtrons le bruit.',
+    'filter.title2': 'Vous gardez le signal.',
+    'filter.body': 'Votre lien hollr est public. Le spam, ça arrive. Seuls les messages vraiment humains passent. Chiffrement PGP de bout en bout.',
+    'filter.feat1.title': 'PGP de bout en bout',
+    'filter.feat1.desc': 'Les messages sont chiffrés avec votre clé publique avant de quitter le navigateur de l\'expéditeur. Nous ne les lisons jamais.',
+    'filter.feat2.title': 'Vérification humaine',
+    'filter.feat2.desc': 'Seuls les messages ayant passé le timer du canvas sont livrés. Zéro bot, zéro spam massif.',
+    'inbox.title': 'Hollrs en attente',
+    'inbox.verified': 'Humain Vérifié',
+    'inbox.pending': 'En Attente',
+    'inbox.filtered': 'Filtré par IA',
+    'inbox.msg1': '"Hey — grand fan de ton travail sur hollr. J\'adorerais collaborer sur quelque chose…"',
+    'inbox.msg2': '"Question rapide sur ta configuration — je travaille sur quelque chose de similaire et…"',
+    'inbox.msg3': '"Félicitations ! Vous avez été sélectionné pour une opportunité crypto spéciale—"',
+    'inbox.read': 'Lire →',
+    'inbox.dismiss': 'Ignorer',
+    'inbox.restore': 'Restaurer',
+    'steps.label': 'COMMENT ÇA MARCHE',
+    'steps.title': 'Holla depuis n\'importe où.',
+    'steps.1.title': 'Réclamez votre handle',
+    'steps.1.desc': 'Connectez-vous avec X ou email. hollr.to/votrehandle vous appartient instantanément.',
+    'steps.2.title': 'Définissez votre PIN',
+    'steps.2.desc': 'Protégez vos paramètres avec un code PIN à 4 chiffres. Modifiez-le quand vous voulez.',
+    'steps.3.title': 'Partagez votre lien',
+    'steps.3.desc': 'Déposez hollr.to/votrehandle partout. Votre canvas chiffré est en ligne.',
+    'steps.4.title': 'Recevez en sécurité',
+    'steps.4.desc': 'Messages chiffrés PGP, fichiers et vocaux chiffrés livrés directement chez vous.',
+    'api.label': 'CONÇU POUR LES DÉVELOPPEURS',
+    'api.title1': 'Vos hollrs,',
+    'api.title2': 'partout où vous en avez besoin.',
+    'api.desc': 'hollr n\'est pas juste un lien. C\'est une plateforme ouverte. Redirigez vos messages entrants vers n\'importe quel système — votre CRM, Notion, votre terminal ou votre stack IA.',
+    'api.rest.title': 'REST API',
+    'api.rest.desc': 'API HTTP complète. Listez, récupérez, gérez votre handle. Construisez n\'importe quoi dessus.',
+    'api.webhooks.title': 'Webhooks',
+    'api.webhooks.desc': 'POST chaque hollr vers n\'importe quelle URL dès qu\'il arrive. Zapier, Make, votre propre serveur — sans polling.',
+    'api.mcp.badge': 'Bientôt disponible',
+    'api.mcp.title': 'Serveur MCP',
+    'api.mcp.desc': 'Lisez vos hollrs directement depuis Claude, Cursor ou tout outil IA via le Model Context Protocol.',
+    'delivery.label': 'OÙ ATTERRISSENT VOS HOLLRS',
+    'delivery.title': 'Où atterrissent vos hollrs.',
+    'delivery.default': 'Défaut — zéro config, instantané',
+    'delivery.resend': 'Votre clé API Resend',
+    'delivery.resend.sub': 'Direct dans votre boîte, sans relais',
+    'delivery.webhook': 'URL Webhook',
+    'delivery.webhook.sub': 'POST vers n\'importe quel endpoint que vous contrôlez',
+    'delivery.caption': 'Chaque option livre le même payload chiffré PGP. Même sécurité. Votre choix.',
+    'cta.label': 'VOTRE LIEN HOLLR VOUS ATTEND',
+    'cta.title': 'Réclamez hollr.to/votrehandle avant que quelqu\'un d\'autre ne le fasse.',
+    'cta.cta1': 'Réserver mon handle →',
+    'cta.cta2': 'Voir sur GitHub',
+    'modal.title': 'Réclamez votre handle hollr',
+    'modal.desc': 'Connectez-vous avec X et votre handle Twitter devient votre lien hollr — instantanément. hollr.to/@vous. Chiffré, sans intermédiaire.',
+    'modal.x': '𝕏 Continuer avec X',
+    'modal.or': 'OU',
+    'modal.email.toggle': 'S\'inscrire par email ▾',
+    'modal.handle.placeholder': 'votrehandle',
+    'modal.email.placeholder': 'vous@exemple.fr',
+    'modal.email.btn': 'Réclamer le handle →',
+    'modal.note': '⚠ La connexion X est prioritaire. Si quelqu\'un réclame le même handle via X ultérieurement, le sien devient hollr.to/yourhandleX2. Le premier sur X gagne.',
+    'modal.privacy': 'Nous lisons uniquement votre nom d\'utilisateur X public. Pas de DMs, pas de publication, pas de données d\'abonnés.',
   },
+
   de: {
-    'nav.how':'Wie es funktioniert','nav.features':'Funktionen','nav.oss':'Open Source','nav.cta':'Handle sichern',
-    'hero.badge':'Kostenlos & Open Source','hero.title':'Deine Nachrichtenläche,\ndein Handle.',
-    'hero.sub':'hollr gibt jedem eine persönliche, zeitgesteuerte Nachrichtenfläche mit eigenem Handle. Anmelden per X oder E-Mail. PGP-Verschlüsselung. Dateien & Sprache verschlüsselt. Resend optional.',
-    'hero.cta1':'Handle sichern →','hero.cta2':'Auf GitHub ansehen',
-    'stats.free':'Für immer kostenlos','stats.langs':'Sprachen','stats.storage':'Gespeicherte Daten','stats.handles':'Verfügbare Handles',
-    'steps.label':'So funktioniert es','steps.title':'In 60 Sekunden einsatzbereit',
-    'steps.desc':'Keine Kreditkarte. Kein Server. Nur E-Mail oder X-Konto, ein Handle und ein PIN.',
-    'steps.1.title':'Anmelden per X oder E-Mail','steps.1.desc':'Melde dich per X OAuth an oder erhalte einen Magic Link — kein Passwort nötig.',
-    'steps.2.title':'Handle wählen','steps.2.desc':'Wähle z. B. hollr.to/paulfxyz. Wer zuerst kommt, mahlt zuerst.',
-    'steps.3.title':'PIN festlegen','steps.3.desc':'Lege einen PIN fest. Resend-Schlüssel optional — Plattform-E-Mails funktionieren sofort.',
-    'steps.4.title':'Link teilen','steps.4.desc':'Teile hollr.to/deinhandle überall. Deine verschlüsselte Fläche ist live.',
-    'preview.label':'Die Fläche','preview.title':'Ein ablenkungsfreies Nachrichtenerlebnis',
-    'preview.desc':'Eine zeitgesteuerte Vollfläche mit Sprachaufnahme, Dateiuploads und fokussiertem Sendeablauf.',
-    'preview.record':'Aufnehmen','preview.attach':'Anhängen','preview.send':'Senden',
-    'features.label':'Funktionen','features.title':'Alles was du brauchst, nichts was du nicht brauchst',
-    'feat.x.title':'X & E-Mail-Login','feat.x.desc':'Anmelden per X (Twitter) OAuth 2.0 PKCE oder Magic Link. Kein Passwort.',
-    'feat.pgp.title':'PGP-Ende-zu-Ende-Verschlüsselung','feat.pgp.desc':'Füge deinen PGP-Public-Key in den Einstellungen hinzu. Absender verschlüsseln damit.',
-    'feat.enc.title':'Dateien & Sprache verschlüsselt','feat.enc.desc':'Jede Datei und Sprachnotiz wird mit AES-256-GCM verschlüsselt. Im Browser sofort entschlüsselbar.',
-    'feat.key.title':'Resend optional','feat.key.desc':'Plattform sendet standardmäßig von yo@hollr.to. Füge deinen Resend-Schlüssel für eigene Zustellung hinzu.',
-    'feat.timer.title':'Zeitgesteuerte Fläche','feat.timer.desc':'Ein laufender Timer erinnert Absender, wie lange sie schreiben.',
-    'feat.voice.title':'Sprachaufnahme','feat.voice.desc':'Nimm direkt im Browser eine Sprachnachricht auf. Verschlüsselt und per Link in der E-Mail.',
-    'feat.files.title':'Dateianhänge','feat.files.desc':'Drag & Drop beliebiger Dateien. Verschlüsselt und sicher hochgeladen.',
-    'feat.i18n.title':'10 Sprachen','feat.i18n.desc':'Englisch, Französisch, Deutsch, Italienisch, Spanisch, Niederländisch, Chinesisch, Hindi, Japanisch, Russisch.',
-    'feat.dark.title':'Dunkel- & Hellmodus','feat.dark.desc':'Folgt deiner Systemeinstellung. Manuelle Umschaltung immer verfügbar.',
-    'feat.oss.title':'Vollständig Open Source','feat.oss.desc':'MIT-lizenziert. Forke es, betreibe es selbst, erweitere es.',
-    'oss.title':'Im Offenen gebaut','oss.desc':'hollr ist MIT-lizenziert. Der gesamte Quellcode liegt auf GitHub.',
-    'oss.cta':'Handle sichern',
-    'cta.title':'Dein Handle wartet.','cta.sub':'Gib deine E-Mail ein und wir senden dir einen Magic Link.',
-    'cta.placeholder':'du@beispiel.de','cta.btn':'Loslegen →',
-    'footer.copy':'Gebaut mit ❤️ + KI. 100% Vibe Coding.',
-    'lang.title':'Sprache wählen',
-    'signup.sent':'Schau in dein Postfach — wir haben dir einen Magic Link gesendet!',
-    'signup.error':'Etwas ist schiefgelaufen. Bitte versuche es erneut.',
+    'nav.how': 'Wie es funktioniert',
+    'nav.features': 'Funktionen',
+    'nav.api': 'API & MCP',
+    'nav.github': 'GitHub ↗',
+    'nav.cta': 'Handle sichern',
+    'hero.badge': 'IHR OFFENER POSTEINGANG',
+    'hero.title.line1': 'Holla at me.',
+    'hero.title.line2': 'Verschlüsselt. Gesichert.',
+    'hero.sub': 'hollr ist dein öffentlicher Link. Jeder kann senden — du entscheidest, was durchkommt. PGP-verschlüsselt. Dateien und Sprachnachrichten. Anmelden mit X oder E-Mail.',
+    'hero.cta1': 'Handle sichern →',
+    'hero.cta2': 'Auf GitHub ansehen',
+    'filter.label': 'NUR DAS WESENTLICHE',
+    'filter.title1': 'Wir filtern das Rauschen.',
+    'filter.title2': 'Du behältst das Signal.',
+    'filter.body': 'Dein hollr-Link ist öffentlich. Spam passiert — nur echte, menschlich verfasste Nachrichten kommen durch. PGP-Ende-zu-Ende-Verschlüsselung.',
+    'filter.feat1.title': 'PGP Ende-zu-Ende',
+    'filter.feat1.desc': 'Nachrichten werden mit deinem öffentlichen Schlüssel verschlüsselt, bevor sie den Browser des Absenders verlassen. Wir lesen sie nie.',
+    'filter.feat2.title': 'Menschlich verifiziert',
+    'filter.feat2.desc': 'Nur Nachrichten, die den Canvas-Timer bestehen, werden zugestellt. Keine Bots, kein Massen-Spam.',
+    'inbox.title': 'Ausstehende Hollrs',
+    'inbox.verified': 'Menschlich Verifiziert',
+    'inbox.pending': 'Ausstehend',
+    'inbox.filtered': 'KI-gefiltert',
+    'inbox.msg1': '"Hey — riesiger Fan deiner Arbeit an hollr. Würde gerne an etwas zusammenarbeiten…"',
+    'inbox.msg2': '"Kurze Frage zu deinem Setup — ich arbeite an etwas Ähnlichem und…"',
+    'inbox.msg3': '"Herzlichen Glückwunsch! Du wurdest für eine besondere Krypto-Möglichkeit ausgewählt—"',
+    'inbox.read': 'Lesen →',
+    'inbox.dismiss': 'Ablehnen',
+    'inbox.restore': 'Wiederherstellen',
+    'steps.label': 'SO FUNKTIONIERT ES',
+    'steps.title': 'Holla von überall.',
+    'steps.1.title': 'Handle sichern',
+    'steps.1.desc': 'Melde dich mit X oder E-Mail an. hollr.to/deinname gehört dir sofort.',
+    'steps.2.title': 'PIN festlegen',
+    'steps.2.desc': 'Schütze deine Einstellungen mit einem 4-stelligen PIN. Jederzeit änderbar.',
+    'steps.3.title': 'Link teilen',
+    'steps.3.desc': 'Teile hollr.to/deinname überall. Deine verschlüsselte Canvas ist live.',
+    'steps.4.title': 'Sicher empfangen',
+    'steps.4.desc': 'PGP-verschlüsselte Nachrichten, Dateien und Sprachnotizen werden direkt an dich zugestellt.',
+    'api.label': 'FÜR ENTWICKLER GEBAUT',
+    'api.title1': 'Deine Hollrs,',
+    'api.title2': 'überall wo du sie brauchst.',
+    'api.desc': 'hollr ist nicht nur ein Link. Es ist eine offene Plattform. Leite eingehende Nachrichten in jedes System — dein CRM, Notion, Terminal oder deinen KI-Stack.',
+    'api.rest.title': 'REST API',
+    'api.rest.desc': 'Vollständige HTTP-API. Hollrs auflisten, Inhalte abrufen, Handle verwalten. Baue alles darauf auf.',
+    'api.webhooks.title': 'Webhooks',
+    'api.webhooks.desc': 'POST jeden Hollr an beliebige URLs, sobald er eintrifft. Zapier, Make, eigener Server — kein Polling.',
+    'api.mcp.badge': 'Demnächst',
+    'api.mcp.title': 'MCP-Server',
+    'api.mcp.desc': 'Lies deine Hollrs direkt aus Claude, Cursor oder jedem KI-Tool über das Model Context Protocol.',
+    'delivery.label': 'WO DEINE HOLLRS LANDEN',
+    'delivery.title': 'Wo deine Hollrs landen.',
+    'delivery.default': 'Standard — kein Setup, sofort',
+    'delivery.resend': 'Dein Resend-API-Schlüssel',
+    'delivery.resend.sub': 'Direkt in deinen Posteingang, ohne Relay',
+    'delivery.webhook': 'Webhook-URL',
+    'delivery.webhook.sub': 'POST an jeden Endpunkt, den du kontrollierst',
+    'delivery.caption': 'Jede Option liefert denselben PGP-verschlüsselten Payload. Gleiche Sicherheit. Deine Wahl.',
+    'cta.label': 'DEIN HOLLR-LINK WARTET',
+    'cta.title': 'Sichere hollr.to/deinname, bevor es jemand anderes tut.',
+    'cta.cta1': 'Handle sichern →',
+    'cta.cta2': 'Auf GitHub ansehen',
+    'modal.title': 'Deinen hollr-Handle sichern',
+    'modal.desc': 'Verbinde dich mit X und dein Twitter-Handle wird sofort dein hollr-Link. hollr.to/@du. Verschlüsselt, kein Mittelsmann.',
+    'modal.x': '𝕏 Mit X fortfahren',
+    'modal.or': 'ODER',
+    'modal.email.toggle': 'Mit E-Mail registrieren ▾',
+    'modal.handle.placeholder': 'deinhandle',
+    'modal.email.placeholder': 'du@beispiel.de',
+    'modal.email.btn': 'Handle sichern →',
+    'modal.note': '⚠ X-Login hat Priorität. Falls jemand später denselben Handle via X beansprucht, wird seiner hollr.to/yourhandleX2. Erster auf X gewinnt.',
+    'modal.privacy': 'Wir lesen nur deinen öffentlichen X-Benutzernamen. Keine DMs, kein Posten, keine Follower-Daten.',
   },
+
   it: {
-    'nav.how':'Come funziona','nav.features':'Funzionalità','nav.oss':'Open source','nav.cta':'Prendi il tuo handle',
-    'hero.badge':'Gratuito e Open Source','hero.title':'La tua canvas messaggi,\nil tuo handle.',
-    'hero.sub':'hollr offre a tutti una canvas di messaggi personale e temporizzata con il proprio handle.',
-    'hero.cta1':'Prendi il tuo handle →','hero.cta2':'Vedi su GitHub',
-    'stats.free':'Gratuito per sempre','stats.langs':'Lingue','stats.storage':'Dati memorizzati','stats.handles':'Handle disponibili',
-    'steps.label':'Come funziona','steps.title':'Operativo in 60 secondi',
-    'steps.desc':'Nessuna carta di credito. Solo email o account X, un handle e un PIN.',
-    'steps.1.title':'Accedi con X o email','steps.1.desc':'Accedi con X via OAuth o ricevi un link magico via email — nessuna password.',
-    'steps.2.title':'Scegli il tuo handle','steps.2.desc':'Scegli qualcosa come hollr.to/paulfxyz.',
-    'steps.3.title':'Imposta il PIN','steps.3.desc':'Un PIN protegge le tue impostazioni. La chiave Resend è opzionale — le email della piattaforma funzionano subito.',
-    'steps.4.title':'Condividi il link','steps.4.desc':'Condividi hollr.to/tuohandle ovunque. La tua canvas cifrata è attiva.',
-    'preview.label':'La canvas','preview.title':'Un\'esperienza di messaggistica senza distrazioni',
-    'preview.desc':'Una canvas a schermo intero con registrazione vocale, upload di file e invio focalizzato.',
-    'preview.record':'Registra','preview.attach':'Allega','preview.send':'Invia',
-    'features.label':'Funzionalità','features.title':'Tutto ciò che ti serve, niente di più',
-    'feat.x.title':'Login con X & email','feat.x.desc':'Accedi con X (Twitter) OAuth 2.0 PKCE o tramite link magico. Nessuna password.',
-    'feat.pgp.title':'Crittografia PGP end-to-end','feat.pgp.desc':'Aggiungi la tua chiave PGP pubblica nelle impostazioni. I mittenti cifrano con la tua chiave.',
-    'feat.enc.title':'File e vocali cifrati','feat.enc.desc':'Ogni file e nota vocale è cifrata con AES-256-GCM. Decifra istantaneamente nel browser.',
-    'feat.key.title':'Resend opzionale','feat.key.desc':'La piattaforma invia da yo@hollr.to di default. Aggiungi la tua chiave Resend per la consegna personalizzata.',
-    'feat.timer.title':'Canvas temporizzata','feat.timer.desc':'Un timer sempre attivo ricorda ai mittenti quanto tempo hanno impiegato.',
-    'feat.voice.title':'Registrazione vocale','feat.voice.desc':'Registra un messaggio vocale nel browser. Cifrato e collegato nell\'email.',
-    'feat.files.title':'Allegati','feat.files.desc':'Trascina qualsiasi file. Cifrato, caricato in sicurezza e collegato nell\'email.',
-    'feat.i18n.title':'10 lingue','feat.i18n.desc':'Inglese, Francese, Tedesco, Italiano, Spagnolo, Olandese, Cinese, Hindi, Giapponese, Russo.',
-    'feat.dark.title':'Modalità scura e chiara','feat.dark.desc':'Segue le preferenze di sistema.',
-    'feat.oss.title':'Completamente open source','feat.oss.desc':'Licenza MIT. Forkalo, ospitalo, estendilo.',
-    'oss.title':'Costruito all\'aperto','oss.desc':'hollr è sotto licenza MIT. Il codice completo è su GitHub.',
-    'oss.cta':'Prendi il tuo handle',
-    'cta.title':'Il tuo handle ti aspetta.','cta.sub':'Inserisci la tua email e ti invieremo un link magico.',
-    'cta.placeholder':'tu@esempio.it','cta.btn':'Inizia →',
-    'footer.copy':'Costruito con ❤️ + IA. 100% vibe coding.',
-    'lang.title':'Scegli la lingua',
-    'signup.sent':'Controlla la tua casella — ti abbiamo inviato un link magico!',
-    'signup.error':'Qualcosa è andato storto. Riprova.',
+    'nav.how': 'Come funziona',
+    'nav.features': 'Funzionalità',
+    'nav.api': 'API & MCP',
+    'nav.github': 'GitHub ↗',
+    'nav.cta': 'Prendi il tuo handle',
+    'hero.badge': 'LA TUA INBOX APERTA',
+    'hero.title.line1': 'Holla at me.',
+    'hero.title.line2': 'Cifrato. Sicuro.',
+    'hero.sub': 'hollr è il tuo link pubblico. Chiunque può inviare — tu decidi cosa passa. Crittografia PGP. File e vocali. Accedi con X o email.',
+    'hero.cta1': 'Prendi il tuo handle →',
+    'hero.cta2': 'Vedi su GitHub',
+    'filter.label': 'SOLO IL MEGLIO',
+    'filter.title1': 'Filtriamo il rumore.',
+    'filter.title2': 'Tu tieni il segnale.',
+    'filter.body': 'Il tuo link hollr è pubblico. Lo spam capita — solo i messaggi umani autentici passano. Crittografia PGP end-to-end.',
+    'filter.feat1.title': 'PGP end-to-end',
+    'filter.feat1.desc': 'I messaggi vengono cifrati con la tua chiave pubblica prima di lasciare il browser del mittente. Non li leggiamo mai.',
+    'filter.feat2.title': 'Verificato umano',
+    'filter.feat2.desc': 'Solo i messaggi che superano il timer del canvas vengono consegnati. Niente bot, niente spam massivo.',
+    'inbox.title': 'Hollrs in attesa',
+    'inbox.verified': 'Umano Verificato',
+    'inbox.pending': 'In Attesa',
+    'inbox.filtered': 'Filtrato dall\'IA',
+    'inbox.msg1': '"Ciao — grande fan del tuo lavoro su hollr. Mi piacerebbe collaborare su qualcosa…"',
+    'inbox.msg2': '"Una domanda rapida sul tuo setup — sto lavorando su qualcosa di simile e…"',
+    'inbox.msg3': '"Congratulazioni! Sei stato selezionato per un\'opportunità crypto speciale—"',
+    'inbox.read': 'Leggi →',
+    'inbox.dismiss': 'Ignora',
+    'inbox.restore': 'Ripristina',
+    'steps.label': 'COME FUNZIONA',
+    'steps.title': 'Holla da ovunque.',
+    'steps.1.title': 'Rivendica il tuo handle',
+    'steps.1.desc': 'Accedi con X o email. hollr.to/tuonome è tuo istantaneamente.',
+    'steps.2.title': 'Imposta il PIN',
+    'steps.2.desc': 'Proteggi le impostazioni con un PIN a 4 cifre. Modificabile in qualsiasi momento.',
+    'steps.3.title': 'Condividi il link',
+    'steps.3.desc': 'Inserisci hollr.to/tuonome ovunque. La tua canvas cifrata è live.',
+    'steps.4.title': 'Ricevi in sicurezza',
+    'steps.4.desc': 'Messaggi cifrati PGP, file e note vocali consegnati direttamente a te.',
+    'api.label': 'COSTRUITO PER SVILUPPATORI',
+    'api.title1': 'I tuoi hollrs,',
+    'api.title2': 'ovunque tu ne abbia bisogno.',
+    'api.desc': 'hollr non è solo un link. È una piattaforma aperta. Instrada i tuoi messaggi in qualsiasi sistema — il tuo CRM, Notion, terminale o stack AI.',
+    'api.rest.title': 'REST API',
+    'api.rest.desc': 'API HTTP completa. Elenca hollrs, recupera contenuti, gestisci il handle. Costruisci qualsiasi cosa sopra.',
+    'api.webhooks.title': 'Webhooks',
+    'api.webhooks.desc': 'POST ogni hollr a qualsiasi URL non appena arriva. Zapier, Make, il tuo server — niente polling.',
+    'api.mcp.badge': 'Prossimamente',
+    'api.mcp.title': 'Server MCP',
+    'api.mcp.desc': 'Leggi i tuoi hollrs direttamente da Claude, Cursor o qualsiasi tool AI tramite il Model Context Protocol.',
+    'delivery.label': 'DOVE ATTERRANO I TUOI HOLLRS',
+    'delivery.title': 'Dove atterrano i tuoi hollrs.',
+    'delivery.default': 'Predefinito — zero setup, istantaneo',
+    'delivery.resend': 'La tua chiave API Resend',
+    'delivery.resend.sub': 'Diretto nella tua casella, senza relay',
+    'delivery.webhook': 'URL Webhook',
+    'delivery.webhook.sub': 'POST a qualsiasi endpoint che controlli',
+    'delivery.caption': 'Ogni opzione consegna lo stesso payload cifrato PGP. Stessa sicurezza. Scegli tu.',
+    'cta.label': 'IL TUO LINK HOLLR TI ASPETTA',
+    'cta.title': 'Rivendica hollr.to/tuonome prima che qualcun altro lo faccia.',
+    'cta.cta1': 'Prendi il tuo handle →',
+    'cta.cta2': 'Vedi su GitHub',
+    'modal.title': 'Rivendica il tuo handle hollr',
+    'modal.desc': 'Connettiti con X e il tuo handle Twitter diventa il tuo link hollr — istantaneamente. hollr.to/@tu. Cifrato, nessun intermediario.',
+    'modal.x': '𝕏 Continua con X',
+    'modal.or': 'OPPURE',
+    'modal.email.toggle': 'Registrati con email ▾',
+    'modal.handle.placeholder': 'tuohandle',
+    'modal.email.placeholder': 'tu@esempio.it',
+    'modal.email.btn': 'Rivendica handle →',
+    'modal.note': '⚠ Il login X ha priorità. Se qualcuno rivendica lo stesso handle via X in seguito, il suo diventa hollr.to/yourhandleX2. Chi arriva prima su X vince.',
+    'modal.privacy': 'Leggiamo solo il tuo nome utente X pubblico. Niente DM, niente post, niente dati dei follower.',
   },
+
   es: {
-    'nav.how':'Cómo funciona','nav.features':'Funciones','nav.oss':'Código abierto','nav.cta':'Obtener mi handle',
-    'hero.badge':'Gratis y Código Abierto','hero.title':'Tu canvas de mensajes,\ntu handle.',
-    'hero.sub':'hollr le da a todos una canvas de mensajes personal y temporizada en su propio handle.',
-    'hero.cta1':'Obtener mi handle →','hero.cta2':'Ver en GitHub',
-    'stats.free':'Gratis para siempre','stats.langs':'Idiomas','stats.storage':'Datos almacenados','stats.handles':'Handles disponibles',
-    'steps.label':'Cómo funciona','steps.title':'Listo en 60 segundos',
-    'steps.desc':'Sin tarjeta de crédito. Sin servidor. Solo email o cuenta X, un handle y un PIN.',
-    'steps.1.title':'Inicia sesión con X o email','steps.1.desc':'Usa X OAuth o recibe un enlace mágico por email — sin contraseña, nunca.',
-    'steps.2.title':'Elige tu handle','steps.2.desc':'Elige algo como hollr.to/paulfxyz.',
-    'steps.3.title':'Establece tu PIN','steps.3.desc':'Un PIN protege tus ajustes. La clave Resend es opcional — los emails de la plataforma funcionan por defecto.',
-    'steps.4.title':'Comparte tu enlace','steps.4.desc':'Comparte hollr.to/tuhandle en cualquier lugar. Tu canvas cifrado está activo.',
-    'preview.label':'El canvas','preview.title':'Una experiencia de mensajes sin distracciones',
-    'preview.desc':'Un canvas de pantalla completa con grabación de voz, carga de archivos y envío enfocado.',
-    'preview.record':'Grabar','preview.attach':'Adjuntar','preview.send':'Enviar',
-    'features.label':'Funciones','features.title':'Todo lo que necesitas, nada más',
-    'feat.x.title':'Login con X & email','feat.x.desc':'Inicia sesión con X (Twitter) OAuth 2.0 PKCE o por enlace mágico. Sin contraseñas.',
-    'feat.pgp.title':'Cifrado PGP de extremo a extremo','feat.pgp.desc':'Agrega tu clave PGP pública en ajustes. Los remitentes cifran con tu clave.',
-    'feat.enc.title':'Archivos y voz cifrados','feat.enc.desc':'Cada archivo y nota de voz se cifra con AES-256-GCM. Descifra al instante en el navegador.',
-    'feat.key.title':'Resend opcional','feat.key.desc':'La plataforma envía desde yo@hollr.to por defecto. Agrega tu clave Resend para entrega personalizada.',
-    'feat.timer.title':'Canvas temporizada','feat.timer.desc':'Un temporizador siempre activo recuerda a los remitentes cuánto llevan escribiendo.',
-    'feat.voice.title':'Grabación de voz','feat.voice.desc':'Graba un mensaje de voz en el navegador. Cifrado y enlazado en el email.',
-    'feat.files.title':'Archivos adjuntos','feat.files.desc':'Arrastra cualquier archivo. Cifrado, cargado de forma segura y enlazado en el email.',
-    'feat.i18n.title':'10 idiomas','feat.i18n.desc':'Inglés, Francés, Alemán, Italiano, Español, Neerlandés, Chino, Hindi, Japonés, Ruso.',
-    'feat.dark.title':'Modo oscuro y claro','feat.dark.desc':'Sigue tus preferencias del sistema.',
-    'feat.oss.title':'Totalmente código abierto','feat.oss.desc':'Licencia MIT. Fórkalo, alójalo, extiéndelo.',
-    'oss.title':'Construido en abierto','oss.desc':'hollr es MIT. El código completo está en GitHub.',
-    'oss.cta':'Obtener mi handle',
-    'cta.title':'Tu handle te espera.','cta.sub':'Ingresa tu email y te enviaremos un enlace mágico.',
-    'cta.placeholder':'tu@ejemplo.es','cta.btn':'Empezar →',
-    'footer.copy':'Construido con ❤️ + IA. 100% vibe coding.',
-    'lang.title':'Elegir idioma',
-    'signup.sent':'¡Revisa tu bandeja — te enviamos un enlace mágico!',
-    'signup.error':'Algo salió mal. Por favor, inténtalo de nuevo.',
+    'nav.how': 'Cómo funciona',
+    'nav.features': 'Funciones',
+    'nav.api': 'API y MCP',
+    'nav.github': 'GitHub ↗',
+    'nav.cta': 'Reclamar mi handle',
+    'hero.badge': 'TU BANDEJA ABIERTA',
+    'hero.title.line1': 'Holla at me.',
+    'hero.title.line2': 'Cifrado. Seguro.',
+    'hero.sub': 'hollr es tu enlace público. Cualquiera puede enviar — tú decides qué pasa. Cifrado PGP. Archivos y voz. Entra con X o email.',
+    'hero.cta1': 'Reclamar mi handle →',
+    'hero.cta2': 'Ver en GitHub',
+    'filter.label': 'SOLO LO BUENO',
+    'filter.title1': 'Filtramos el ruido.',
+    'filter.title2': 'Tú te quedas con la señal.',
+    'filter.body': 'Tu enlace hollr es público. El spam ocurre — solo los mensajes humanos auténticos pasan. Cifrado PGP de extremo a extremo.',
+    'filter.feat1.title': 'PGP de extremo a extremo',
+    'filter.feat1.desc': 'Los mensajes se cifran con tu clave pública antes de salir del navegador del remitente. Nunca los leemos.',
+    'filter.feat2.title': 'Verificado humano',
+    'filter.feat2.desc': 'Solo los mensajes que superan el temporizador del canvas se entregan. Sin bots, sin spam masivo.',
+    'inbox.title': 'Hollrs pendientes',
+    'inbox.verified': 'Humano Verificado',
+    'inbox.pending': 'Revisión Pendiente',
+    'inbox.filtered': 'Filtrado por IA',
+    'inbox.msg1': '"Hola — gran fan de tu trabajo en hollr. Me encantaría colaborar en algo…"',
+    'inbox.msg2': '"Pregunta rápida sobre tu configuración — estoy trabajando en algo similar y…"',
+    'inbox.msg3': '"¡Felicidades! Has sido seleccionado para una oportunidad crypto especial—"',
+    'inbox.read': 'Leer →',
+    'inbox.dismiss': 'Ignorar',
+    'inbox.restore': 'Restaurar',
+    'steps.label': 'CÓMO FUNCIONA',
+    'steps.title': 'Holla desde cualquier lugar.',
+    'steps.1.title': 'Reclama tu handle',
+    'steps.1.desc': 'Entra con X o email. hollr.to/tunombre es tuyo al instante.',
+    'steps.2.title': 'Establece tu PIN',
+    'steps.2.desc': 'Protege tu configuración con un PIN de 4 dígitos. Cámbialo cuando quieras.',
+    'steps.3.title': 'Comparte tu enlace',
+    'steps.3.desc': 'Coloca hollr.to/tunombre donde quieras. Tu canvas cifrado está activo.',
+    'steps.4.title': 'Recibe con seguridad',
+    'steps.4.desc': 'Mensajes cifrados PGP, archivos y notas de voz entregados directamente a ti.',
+    'api.label': 'CONSTRUIDO PARA DESARROLLADORES',
+    'api.title1': 'Tus hollrs,',
+    'api.title2': 'donde los necesites.',
+    'api.desc': 'hollr no es solo un enlace. Es una plataforma abierta. Envía tus mensajes entrantes a cualquier sistema — tu CRM, Notion, terminal o stack de IA.',
+    'api.rest.title': 'REST API',
+    'api.rest.desc': 'API HTTP completa. Lista hollrs, obtén contenido, gestiona tu handle. Construye lo que quieras encima.',
+    'api.webhooks.title': 'Webhooks',
+    'api.webhooks.desc': 'POST cada hollr a cualquier URL en el momento en que llega. Zapier, Make, tu propio servidor — sin polling.',
+    'api.mcp.badge': 'Próximamente',
+    'api.mcp.title': 'Servidor MCP',
+    'api.mcp.desc': 'Lee tus hollrs directamente desde Claude, Cursor o cualquier herramienta de IA mediante el Model Context Protocol.',
+    'delivery.label': 'DÓNDE ATERRIZAN TUS HOLLRS',
+    'delivery.title': 'Dónde aterrizan tus hollrs.',
+    'delivery.default': 'Por defecto — sin config, instantáneo',
+    'delivery.resend': 'Tu clave API de Resend',
+    'delivery.resend.sub': 'Directo a tu bandeja, sin relay',
+    'delivery.webhook': 'URL de Webhook',
+    'delivery.webhook.sub': 'POST a cualquier endpoint que controles',
+    'delivery.caption': 'Cada opción entrega el mismo payload cifrado PGP. Misma seguridad. Tú decides.',
+    'cta.label': 'TU ENLACE HOLLR TE ESPERA',
+    'cta.title': 'Reclama hollr.to/tunombre antes de que alguien más lo haga.',
+    'cta.cta1': 'Reclamar mi handle →',
+    'cta.cta2': 'Ver en GitHub',
+    'modal.title': 'Reclama tu handle hollr',
+    'modal.desc': 'Conéctate con X y tu handle de Twitter se convierte en tu enlace hollr — al instante. hollr.to/@tu. Cifrado, sin intermediarios.',
+    'modal.x': '𝕏 Continuar con X',
+    'modal.or': 'O',
+    'modal.email.toggle': 'Registrarse con email ▾',
+    'modal.handle.placeholder': 'tuhandle',
+    'modal.email.placeholder': 'tu@ejemplo.es',
+    'modal.email.btn': 'Reclamar handle →',
+    'modal.note': '⚠ El inicio de sesión con X tiene prioridad. Si alguien reclama el mismo handle mediante X más tarde, el suyo se convierte en hollr.to/yourhandleX2. El primero en X gana.',
+    'modal.privacy': 'Solo leemos tu nombre de usuario X público. Sin DMs, sin publicaciones, sin datos de seguidores.',
   },
+
   nl: {
-    'nav.how':'Hoe het werkt','nav.features':'Functies','nav.oss':'Open source','nav.cta':'Mijn handle claimen',
-    'hero.badge':'Gratis & Open Source','hero.title':'Jouw berichtencanvas,\njouw handle.',
-    'hero.sub':'hollr geeft iedereen een persoonlijk, getimed berichtencanvas op zijn eigen handle.',
-    'hero.cta1':'Mijn handle claimen →','hero.cta2':'Bekijk op GitHub',
-    'stats.free':'Voor altijd gratis','stats.langs':'Talen','stats.storage':'Opgeslagen data','stats.handles':'Beschikbare handles',
-    'steps.label':'Hoe het werkt','steps.title':'Klaar in 60 seconden',
-    'steps.desc':'Geen creditcard. Geen server. Alleen je e-mail of X-account, een handle en een PIN.',
-    'steps.1.title':'Inloggen met X of e-mail','steps.1.desc':'Log in met X OAuth of ontvang een magische link per e-mail — nooit een wachtwoord.',
-    'steps.2.title':'Kies je handle','steps.2.desc':'Kies iets als hollr.to/paulfxyz.',
-    'steps.3.title':'Stel je PIN in','steps.3.desc':'Een PIN beveiligt je instellingen. Resend-sleutel is optioneel — platform-e-mails werken standaard.',
-    'steps.4.title':'Deel je link','steps.4.desc':'Deel hollr.to/jouwhandle overal. Je versleutelde canvas is live.',
-    'preview.label':'Het canvas','preview.title':'Een afleidingsvrije berichtervaring',
-    'preview.desc':'Een getimed volledig scherm canvas met stemopname, bestandsuploads en gefocust verzenden.',
-    'preview.record':'Opnemen','preview.attach':'Bijvoegen','preview.send':'Verzenden',
-    'features.label':'Functies','features.title':'Alles wat je nodig hebt, niets meer',
-    'feat.x.title':'X & e-mail login','feat.x.desc':'Inloggen via X (Twitter) OAuth 2.0 PKCE of magische link. Geen wachtwoorden.',
-    'feat.pgp.title':'PGP end-to-end-versleuteling','feat.pgp.desc':'Voeg je PGP-publieke sleutel toe in instellingen. Verzenders versleutelen ermee.',
-    'feat.enc.title':'Bestanden & stem versleuteld','feat.enc.desc':'Elk bestand en elke stemnotitie is versleuteld met AES-256-GCM. Direct ontsleutelen in de browser.',
-    'feat.key.title':'Resend optioneel','feat.key.desc':'Platform verstuurt standaard vanuit yo@hollr.to. Voeg je Resend-sleutel toe voor eigen bezorging.',
-    'feat.timer.title':'Getimed canvas','feat.timer.desc':'Een doorlopende timer herinnert verzenders aan hun schrijftijd.',
-    'feat.voice.title':'Stemopname','feat.voice.desc':'Neem direct in de browser een stemnotitie op. Versleuteld en gelinkt in de e-mail.',
-    'feat.files.title':'Bestandsbijlagen','feat.files.desc':'Sleep elk bestand. Versleuteld, veilig geüpload en gelinkt in de e-mail.',
-    'feat.i18n.title':'10 talen','feat.i18n.desc':'Engels, Frans, Duits, Italiaans, Spaans, Nederlands, Chinees, Hindi, Japans, Russisch.',
-    'feat.dark.title':'Donkere & lichte modus','feat.dark.desc':'Volgt je systeemvoorkeur.',
-    'feat.oss.title':'Volledig open source','feat.oss.desc':'MIT-licentie. Fork het, host het zelf, breid het uit.',
-    'oss.title':'Open gebouwd','oss.desc':'hollr heeft een MIT-licentie. De volledige broncode staat op GitHub.',
-    'oss.cta':'Mijn handle claimen',
-    'cta.title':'Jouw handle wacht.','cta.sub':'Voer je e-mail in en we sturen je een magische link.',
-    'cta.placeholder':'jij@voorbeeld.nl','cta.btn':'Aan de slag →',
-    'footer.copy':'Gebouwd met ❤️ + AI. 100% vibe coding.',
-    'lang.title':'Taal kiezen',
-    'signup.sent':'Check je inbox — we hebben je een magische link gestuurd!',
-    'signup.error':'Er ging iets mis. Probeer het opnieuw.',
+    'nav.how': 'Hoe het werkt',
+    'nav.features': 'Functies',
+    'nav.api': 'API & MCP',
+    'nav.github': 'GitHub ↗',
+    'nav.cta': 'Mijn handle claimen',
+    'hero.badge': 'JE OPEN INBOX',
+    'hero.title.line1': 'Holla at me.',
+    'hero.title.line2': 'Versleuteld. Beveiligd.',
+    'hero.sub': 'hollr is jouw openbare link. Iedereen kan sturen — jij bepaalt wat doorkomt. PGP-versleuteld. Bestanden en spraak. Inloggen met X of e-mail.',
+    'hero.cta1': 'Mijn handle claimen →',
+    'hero.cta2': 'Bekijk op GitHub',
+    'filter.label': 'ALLEEN HET GOEDE',
+    'filter.title1': 'Wij filteren het lawaai.',
+    'filter.title2': 'Jij houdt het signaal.',
+    'filter.body': 'Je hollr-link is openbaar. Spam gebeurt — alleen echte, menselijk geschreven berichten komen door. PGP end-to-end versleuteld.',
+    'filter.feat1.title': 'PGP end-to-end',
+    'filter.feat1.desc': 'Berichten worden versleuteld met jouw publieke sleutel voordat ze de browser van de afzender verlaten. Wij lezen ze nooit.',
+    'filter.feat2.title': 'Menselijk geverifieerd',
+    'filter.feat2.desc': 'Alleen berichten die de canvas-timer doorstaan worden bezorgd. Geen bots, geen bulk.',
+    'inbox.title': 'Openstaande hollrs',
+    'inbox.verified': 'Menselijk Geverifieerd',
+    'inbox.pending': 'Wordt Bekeken',
+    'inbox.filtered': 'AI-gefilterd',
+    'inbox.msg1': '"Hey — grote fan van je werk aan hollr. Zou graag samenwerken aan iets…"',
+    'inbox.msg2': '"Snelle vraag over je setup — ik werk aan iets soortgelijks en…"',
+    'inbox.msg3': '"Gefeliciteerd! Je bent geselecteerd voor een speciale crypto-mogelijkheid—"',
+    'inbox.read': 'Lezen →',
+    'inbox.dismiss': 'Negeren',
+    'inbox.restore': 'Herstellen',
+    'steps.label': 'HOE HET WERKT',
+    'steps.title': 'Holla vanaf overal.',
+    'steps.1.title': 'Claim je handle',
+    'steps.1.desc': 'Log in met X of e-mail. hollr.to/jounaam is meteen van jou.',
+    'steps.2.title': 'Stel je PIN in',
+    'steps.2.desc': 'Beveilig je instellingen met een 4-cijferige PIN. Altijd te wijzigen.',
+    'steps.3.title': 'Deel je link',
+    'steps.3.desc': 'Zet hollr.to/jouwnaam overal. Jouw versleuteld canvas is live.',
+    'steps.4.title': 'Ontvang veilig',
+    'steps.4.desc': 'PGP-versleutelde berichten, bestanden en spraaknotities bij jou bezorgd.',
+    'api.label': 'GEBOUWD VOOR ONTWIKKELAARS',
+    'api.title1': 'Je hollrs,',
+    'api.title2': 'overal waar je ze nodig hebt.',
+    'api.desc': 'hollr is niet zomaar een link. Het is een open platform. Stuur inkomende berichten naar elk systeem — je CRM, Notion, terminal of AI-stack.',
+    'api.rest.title': 'REST API',
+    'api.rest.desc': 'Volledige HTTP-API. Hollrs weergeven, inhoud ophalen, handle beheren. Bouw er alles op.',
+    'api.webhooks.title': 'Webhooks',
+    'api.webhooks.desc': 'POST elke hollr naar een URL zodra die binnenkomt. Zapier, Make, je eigen server — geen polling.',
+    'api.mcp.badge': 'Binnenkort',
+    'api.mcp.title': 'MCP-server',
+    'api.mcp.desc': 'Lees je hollrs direct vanuit Claude, Cursor of elk AI-tool via het Model Context Protocol.',
+    'delivery.label': 'WAAR JE HOLLRS LANDEN',
+    'delivery.title': 'Waar je hollrs landen.',
+    'delivery.default': 'Standaard — geen setup, direct',
+    'delivery.resend': 'Je Resend API-sleutel',
+    'delivery.resend.sub': 'Direct naar je inbox, geen relay',
+    'delivery.webhook': 'Webhook-URL',
+    'delivery.webhook.sub': 'POST naar elk endpoint dat jij beheert',
+    'delivery.caption': 'Elke optie levert dezelfde PGP-versleutelde payload. Dezelfde veiligheid. Jouw keuze.',
+    'cta.label': 'JE HOLLR-LINK WACHT',
+    'cta.title': 'Claim hollr.to/jouwnaam voordat iemand anders dat doet.',
+    'cta.cta1': 'Mijn handle claimen →',
+    'cta.cta2': 'Bekijk op GitHub',
+    'modal.title': 'Claim je hollr-handle',
+    'modal.desc': 'Verbind met X en je Twitter-handle wordt meteen je hollr-link. hollr.to/@jij. Versleuteld, geen tussenpersoon.',
+    'modal.x': '𝕏 Doorgaan met X',
+    'modal.or': 'OF',
+    'modal.email.toggle': 'Registreer met e-mail ▾',
+    'modal.handle.placeholder': 'jouhandle',
+    'modal.email.placeholder': 'jij@voorbeeld.nl',
+    'modal.email.btn': 'Handle claimen →',
+    'modal.note': '⚠ X-inlog heeft prioriteit. Als iemand later dezelfde handle via X claimt, wordt die van hem hollr.to/yourhandleX2. Eerste op X wint.',
+    'modal.privacy': 'We lezen alleen je openbare X-gebruikersnaam. Geen DMs, geen berichten, geen volgersdata.',
   },
+
   zh: {
-    'nav.how':'使用方法','nav.features':'功能','nav.oss':'开源','nav.cta':'获取我的 handle',
-    'hero.badge':'免费 & 开源','hero.title':'你的消息画布，\n你的专属 handle。',
-    'hero.sub':'hollr 为每个人提供一个个人定时消息画布，使用自己的 handle，由你的 Resend API 密钥驱动。',
-    'hero.cta1':'获取我的 handle →','hero.cta2':'在 GitHub 上查看',
-    'stats.free':'永久免费','stats.langs':'语言','stats.storage':'存储数据','stats.handles':'可用 handle',
-    'steps.label':'使用方法','steps.title':'60 秒即可上线',
-    'steps.desc':'无需信用卡，无需服务器。只需邮箱或 X 账号、handle 和 PIN。',
-    'steps.1.title':'用 X 或邮箱登录','steps.1.desc':'通过 X OAuth 登录，或通过邮件获取魔法链接 — 永远不需要密码。',
-    'steps.2.title':'选择你的 handle','steps.2.desc':'选择类似 hollr.to/paulfxyz 的名称。先到先得。',
-    'steps.3.title':'设置 PIN','steps.3.desc':'PIN 保护你的设置。Resend 密钥是可选的 — 平台邮件默认可用。',
-    'steps.4.title':'分享你的链接','steps.4.desc':'在任何地方分享 hollr.to/你的handle。你的加密画布上线了。',
-    'preview.label':'画布','preview.title':'无干扰的消息体验',
-    'preview.desc':'带语音录制、文件上传和专注发送流程的全屏计时画布。',
-    'preview.record':'录音','preview.attach':'附件','preview.send':'发送',
-    'features.label':'功能','features.title':'你需要的一切，别无其他',
-    'feat.x.title':'X 和邮箱登录','feat.x.desc':'通过 X (Twitter) OAuth 2.0 PKCE 或魔法链接登录。无需密码。',
-    'feat.pgp.title':'PGP 端到端加密','feat.pgp.desc':'在设置中添加你的 PGP 公钥。发送者用你的密钥加密消息。',
-    'feat.enc.title':'文件和语音加密','feat.enc.desc':'每个文件和语音消息都用 AES-256-GCM 加密存储。在浏览器中即时解密。',
-    'feat.key.title':'Resend 可选','feat.key.desc':'平台默认从 yo@hollr.to 发送邮件。添加你的 Resend 密钥可自定义投递。',
-    'feat.timer.title':'计时画布','feat.timer.desc':'持续运行的计时器提醒发送者他们写了多久。',
-    'feat.voice.title':'语音录制','feat.voice.desc':'直接在浏览器中录制语音消息。加密后通过邮件链接发送。',
-    'feat.files.title':'文件附件','feat.files.desc':'拖放任何文件。加密、安全上传并在邮件中链接。',
-    'feat.i18n.title':'10 种语言','feat.i18n.desc':'英语、法语、德语、意大利语、西班牙语、荷兰语、中文、印地语、日语、俄语。',
-    'feat.dark.title':'深色和浅色模式','feat.dark.desc':'跟随系统偏好，随时可手动切换。',
-    'feat.oss.title':'完全开源','feat.oss.desc':'MIT 许可证。Fork、自托管、扩展。',
-    'oss.title':'公开构建','oss.desc':'hollr 采用 MIT 许可证。完整源代码在 GitHub 上。',
-    'oss.cta':'获取我的 handle',
-    'cta.title':'你的 handle 在等你。','cta.sub':'输入你的邮箱，我们会发送一个魔法链接。无需密码，无需信用卡。',
-    'cta.placeholder':'你@示例.com','cta.btn':'开始 →',
-    'footer.copy':'用 ❤️ + AI 构建。100% vibe coding。',
-    'lang.title':'选择语言',
-    'signup.sent':'检查你的收件箱 — 我们已发送魔法链接！',
-    'signup.error':'出错了，请重试。',
+    'nav.how': '使用方法',
+    'nav.features': '功能',
+    'nav.api': 'API & MCP',
+    'nav.github': 'GitHub ↗',
+    'nav.cta': '获取我的 handle',
+    'hero.badge': '您的开放收件箱',
+    'hero.title.line1': 'Holla at me.',
+    'hero.title.line2': '加密。安全。',
+    'hero.sub': 'hollr 是您的公开链接。任何人都可以发送 — 您决定什么通过。PGP 加密。文件和语音。用 X 或邮箱登录。',
+    'hero.cta1': '获取我的 handle →',
+    'hero.cta2': '在 GitHub 上查看',
+    'filter.label': '只留精华',
+    'filter.title1': '我们过滤噪音。',
+    'filter.title2': '您保留信号。',
+    'filter.body': '您的 hollr 链接是公开的。垃圾信息难免 — 只有真实的人类撰写的消息才能通过。端对端 PGP 加密。',
+    'filter.feat1.title': 'PGP 端对端',
+    'filter.feat1.desc': '消息在离开发件人浏览器前就用您的公钥加密。我们从不读取。',
+    'filter.feat2.title': '人工验证',
+    'filter.feat2.desc': '只有通过 canvas 计时器和表单的消息才会被投递。无机器人，无批量发送。',
+    'inbox.title': '待处理的 hollrs',
+    'inbox.verified': '人工已验证',
+    'inbox.pending': '待审核',
+    'inbox.filtered': 'AI 已过滤',
+    'inbox.msg1': '"嗨 — 我是您 hollr 工作的超级粉丝。很想一起合作做点什么……"',
+    'inbox.msg2': '"关于您的设置有个小问题 — 我在做类似的东西，想了解一下……"',
+    'inbox.msg3': '"恭喜！您已被选中获得一个特殊的加密机会——"',
+    'inbox.read': '阅读 →',
+    'inbox.dismiss': '忽略',
+    'inbox.restore': '恢复',
+    'steps.label': '使用方法',
+    'steps.title': '随处 Holla。',
+    'steps.1.title': '获取您的 handle',
+    'steps.1.desc': '用 X 或邮箱登录。hollr.to/您的名字立即归您所有。',
+    'steps.2.title': '设置 PIN',
+    'steps.2.desc': '用 4 位 PIN 保护您的设置。随时可修改。',
+    'steps.3.title': '分享您的链接',
+    'steps.3.desc': '在任何地方放上 hollr.to/您的名字。您的加密 canvas 上线了。',
+    'steps.4.title': '安全接收',
+    'steps.4.desc': 'PGP 加密消息、加密文件和语音笔记直接投递给您。',
+    'api.label': '为开发者构建',
+    'api.title1': '您的 hollrs，',
+    'api.title2': '任何您需要的地方。',
+    'api.desc': 'hollr 不只是一个链接，它是一个开放平台。将您的入站消息推送到任何系统 — 您的 CRM、Notion、终端或 AI 栈。',
+    'api.rest.title': 'REST API',
+    'api.rest.desc': '完整的 HTTP API。列举 hollrs、获取内容、管理 handle。在上面构建任何东西。',
+    'api.webhooks.title': 'Webhooks',
+    'api.webhooks.desc': '每个 hollr 到达时立即 POST 到任意 URL。Zapier、Make、您自己的服务器 — 无需轮询。',
+    'api.mcp.badge': '即将推出',
+    'api.mcp.title': 'MCP 服务器',
+    'api.mcp.desc': '通过 Model Context Protocol，直接从 Claude、Cursor 或任何 AI 工具读取您的 hollrs。',
+    'delivery.label': '您的 HOLLRS 投递到哪里',
+    'delivery.title': '您的 hollrs 投递到哪里。',
+    'delivery.default': '默认 — 零配置，即时',
+    'delivery.resend': '您的 Resend API 密钥',
+    'delivery.resend.sub': '直接投递到您的收件箱，无中继',
+    'delivery.webhook': 'Webhook URL',
+    'delivery.webhook.sub': 'POST 到您控制的任意端点',
+    'delivery.caption': '每个选项都投递相同的 PGP 加密载荷。同等安全性。由您决定。',
+    'cta.label': '您的 HOLLR 链接在等待',
+    'cta.title': '在别人抢先之前，获取 hollr.to/您的名字。',
+    'cta.cta1': '获取我的 handle →',
+    'cta.cta2': '在 GitHub 上查看',
+    'modal.title': '获取您的 hollr handle',
+    'modal.desc': '连接 X，您的 Twitter handle 立即成为您的 hollr 链接。hollr.to/@您。加密，无中间人。',
+    'modal.x': '𝕏 通过 X 继续',
+    'modal.or': '或',
+    'modal.email.toggle': '用邮箱注册 ▾',
+    'modal.handle.placeholder': '您的handle',
+    'modal.email.placeholder': 'you@example.com',
+    'modal.email.btn': '获取 handle →',
+    'modal.note': '⚠ X 登录优先。如果他人之后通过 X 获取相同 handle，他们的将变为 hollr.to/yourhandleX2。X 上先到先得。',
+    'modal.privacy': '我们只读取您的公开 X 用户名。无 DM，无发帖，无粉丝数据。',
   },
+
   hi: {
-    'nav.how':'यह कैसे काम करता है','nav.features':'विशेषताएं','nav.oss':'ओपन सोर्स','nav.cta':'अपना हैंडल पाएं',
-    'hero.badge':'निःशुल्क और ओपन सोर्स','hero.title':'आपका संदेश कैनवास,\nआपका हैंडल।',
-    'hero.sub':'hollr हर किसी को अपने हैंडल पर एक व्यक्तिगत, समयबद्ध संदेश कैनवास देता है।',
-    'hero.cta1':'अपना हैंडल पाएं →','hero.cta2':'GitHub पर देखें',
-    'stats.free':'हमेशा मुफ़्त','stats.langs':'भाषाएं','stats.storage':'संग्रहीत डेटा','stats.handles':'उपलब्ध हैंडल',
-    'steps.label':'यह कैसे काम करता है','steps.title':'60 सेकंड में तैयार',
-    'steps.desc':'कोई क्रेडिट कार्ड नहीं। बस ईमेल या X खाता, एक हैंडल और एक PIN।',
-    'steps.1.title':'X या ईमेल से लॉगिन करें','steps.1.desc':'X OAuth से लॉगिन करें या ईमेल द्वारा मैजिक लिंक प्राप्त करें — पासवर्ड की ज़रूरत नहीं।',
-    'steps.2.title':'अपना हैंडल चुनें','steps.2.desc':'hollr.to/paulfxyz जैसा कुछ चुनें।',
-    'steps.3.title':'PIN सेट करें','steps.3.desc':'PIN आपकी सेटिंग्स को सुरक्षित करता है। Resend कुंजी वैकल्पिक है।',
-    'steps.4.title':'लिंक साझा करें','steps.4.desc':'hollr.to/yourhandle कहीं भी साझा करें। आपका एन्क्रिप्टेड कैनवास लाइव है।',
-    'preview.label':'कैनवास','preview.title':'बिना व्यवधान का संदेश अनुभव',
-    'preview.desc':'वॉयस रिकॉर्डिंग और फ़ाइल अपलोड के साथ पूर्ण स्क्रीन समयबद्ध कैनवास।',
-    'preview.record':'रिकॉर्ड','preview.attach':'संलग्न','preview.send':'भेजें',
-    'features.label':'विशेषताएं','features.title':'जो चाहिए वो सब, बाकी कुछ नहीं',
-    'feat.x.title':'X और ईमेल लॉगिन','feat.x.desc':'X (Twitter) OAuth 2.0 PKCE या मैजिक लिंक से लॉगिन। कोई पासवर्ड नहीं।',
-    'feat.pgp.title':'PGP एंड-टू-एंड एन्क्रिप्शन','feat.pgp.desc':'सेटिंग्स में अपनी PGP पब्लिक की जोड़ें। भेजने वाले आपकी की से एन्क्रिप्ट करते हैं।',
-    'feat.enc.title':'फ़ाइलें और आवाज़ एन्क्रिप्टेड','feat.enc.desc':'हर फ़ाइल और वॉयस नोट AES-256-GCM से एन्क्रिप्टेड। ब्राउज़र में तुरंत डिक्रिप्ट।',
-    'feat.key.title':'Resend वैकल्पिक','feat.key.desc':'प्लेटफ़ॉर्म डिफ़ॉल्ट रूप से yo@hollr.to से भेजता है। कस्टम डिलीवरी के लिए Resend की जोड़ें।',
-    'feat.timer.title':'समयबद्ध कैनवास','feat.timer.desc':'एक निरंतर टाइमर प्रेषकों को समय याद दिलाता है।',
-    'feat.voice.title':'वॉयस रिकॉर्डिंग','feat.voice.desc':'ब्राउज़र में सीधे वॉयस नोट रिकॉर्ड करें। एन्क्रिप्टेड और ईमेल में लिंक।',
-    'feat.files.title':'फ़ाइल संलग्नक','feat.files.desc':'कोई भी फ़ाइल ड्रैग और ड्रॉप करें। एन्क्रिप्टेड और सुरक्षित रूप से अपलोड।',
-    'feat.i18n.title':'10 भाषाएं','feat.i18n.desc':'अंग्रेज़ी, फ्रेंच, जर्मन, इतालवी, स्पेनिश, डच, चीनी, हिंदी, जापानी, रूसी।',
-    'feat.dark.title':'डार्क और लाइट मोड','feat.dark.desc':'सिस्टम प्राथमिकता का अनुसरण करता है।',
-    'feat.oss.title':'पूरी तरह ओपन सोर्स','feat.oss.desc':'MIT लाइसेंस। Fork करें, स्व-होस्ट करें, विस्तार करें।',
-    'oss.title':'खुले में निर्मित','oss.desc':'hollr MIT लाइसेंस के तहत है। GitHub पर पूरा स्रोत।',
-    'oss.cta':'अपना हैंडल पाएं',
-    'cta.title':'आपका हैंडल इंतज़ार कर रहा है।','cta.sub':'अपना ईमेल दर्ज करें और हम एक मैजिक लिंक भेजेंगे।',
-    'cta.placeholder':'aap@example.com','cta.btn':'शुरू करें →',
-    'footer.copy':'❤️ + AI के साथ बनाया। 100% वाइब कोडिंग।',
-    'lang.title':'भाषा चुनें',
-    'signup.sent':'अपना इनबॉक्स जांचें — हमने एक मैजिक लिंक भेजा है!',
-    'signup.error':'कुछ गलत हो गया। कृपया पुनः प्रयास करें।',
+    'nav.how': 'यह कैसे काम करता है',
+    'nav.features': 'विशेषताएं',
+    'nav.api': 'API & MCP',
+    'nav.github': 'GitHub ↗',
+    'nav.cta': 'अपना handle पाएं',
+    'hero.badge': 'आपका खुला इनबॉक्स',
+    'hero.title.line1': 'Holla at me.',
+    'hero.title.line2': 'एन्क्रिप्टेड। सुरक्षित।',
+    'hero.sub': 'hollr आपका सार्वजनिक लिंक है। कोई भी भेज सकता है — आप तय करते हैं क्या आता है। PGP-एन्क्रिप्टेड। फ़ाइलें और आवाज़। X या ईमेल से साइन इन करें।',
+    'hero.cta1': 'अपना handle पाएं →',
+    'hero.cta2': 'GitHub पर देखें',
+    'filter.label': 'केवल अच्छा चुनें',
+    'filter.title1': 'हम शोर छानते हैं।',
+    'filter.title2': 'आप संकेत रखते हैं।',
+    'filter.body': 'आपका hollr लिंक सार्वजनिक है। स्पैम होता है — केवल वास्तविक, मानव-लिखित संदेश ही आते हैं। PGP एंड-टू-एंड एन्क्रिप्शन।',
+    'filter.feat1.title': 'PGP एंड-टू-एंड',
+    'filter.feat1.desc': 'संदेश प्रेषक के ब्राउज़र से भेजे जाने से पहले आपकी सार्वजनिक कुंजी से एन्क्रिप्ट किए जाते हैं। हम उन्हें कभी नहीं पढ़ते।',
+    'filter.feat2.title': 'मानव-सत्यापित',
+    'filter.feat2.desc': 'केवल वे संदेश जो canvas टाइमर और फ़ॉर्म से गुज़रते हैं, डिलीवर होते हैं। कोई बॉट नहीं, कोई बल्क नहीं।',
+    'inbox.title': 'लंबित hollrs',
+    'inbox.verified': 'मानव सत्यापित',
+    'inbox.pending': 'समीक्षा लंबित',
+    'inbox.filtered': 'AI फ़िल्टर्ड',
+    'inbox.msg1': '"हे — hollr पर आपके काम का बड़ा प्रशंसक हूं। किसी चीज़ पर मिलकर काम करना पसंद करूंगा…"',
+    'inbox.msg2': '"आपके सेटअप के बारे में एक त्वरित प्रश्न — मैं कुछ ऐसा ही काम कर रहा हूं और…"',
+    'inbox.msg3': '"बधाई हो! आपको एक विशेष क्रिप्टो अवसर के लिए चुना गया है—"',
+    'inbox.read': 'पढ़ें →',
+    'inbox.dismiss': 'खारिज करें',
+    'inbox.restore': 'पुनर्स्थापित करें',
+    'steps.label': 'यह कैसे काम करता है',
+    'steps.title': 'कहीं से भी Holla।',
+    'steps.1.title': 'अपना handle लें',
+    'steps.1.desc': 'X या ईमेल से साइन इन करें। hollr.to/आपकानाम तुरंत आपका है।',
+    'steps.2.title': 'अपना PIN सेट करें',
+    'steps.2.desc': '4-अंकीय PIN से अपनी सेटिंग्स सुरक्षित करें। कभी भी बदलें।',
+    'steps.3.title': 'अपना लिंक साझा करें',
+    'steps.3.desc': 'hollr.to/आपकानाम कहीं भी डालें। आपकी एन्क्रिप्टेड canvas लाइव है।',
+    'steps.4.title': 'सुरक्षित रूप से प्राप्त करें',
+    'steps.4.desc': 'PGP-एन्क्रिप्टेड संदेश, फ़ाइलें और आवाज़ नोट आपको डिलीवर।',
+    'api.label': 'डेवलपर्स के लिए बनाया',
+    'api.title1': 'आपके hollrs,',
+    'api.title2': 'जहां भी आपको चाहिए।',
+    'api.desc': 'hollr सिर्फ एक लिंक नहीं है। यह एक खुला मंच है। अपने इनकमिंग संदेशों को किसी भी सिस्टम में पाइप करें — CRM, Notion, टर्मिनल, या AI स्टैक।',
+    'api.rest.title': 'REST API',
+    'api.rest.desc': 'पूर्ण HTTP API। hollrs सूचीबद्ध करें, सामग्री प्राप्त करें, handle प्रबंधित करें।',
+    'api.webhooks.title': 'Webhooks',
+    'api.webhooks.desc': 'हर hollr आते ही किसी भी URL पर POST करें। Zapier, Make, आपका सर्वर — कोई पोलिंग नहीं।',
+    'api.mcp.badge': 'जल्द आ रहा है',
+    'api.mcp.title': 'MCP सर्वर',
+    'api.mcp.desc': 'Claude, Cursor या किसी भी AI टूल से Model Context Protocol के जरिए अपने hollrs पढ़ें।',
+    'delivery.label': 'आपके HOLLRS कहां आते हैं',
+    'delivery.title': 'आपके hollrs कहां आते हैं।',
+    'delivery.default': 'डिफ़ॉल्ट — शून्य सेटअप, तुरंत',
+    'delivery.resend': 'आपकी Resend API कुंजी',
+    'delivery.resend.sub': 'सीधे आपके इनबॉक्स में, कोई relay नहीं',
+    'delivery.webhook': 'Webhook URL',
+    'delivery.webhook.sub': 'आपके नियंत्रण के किसी भी endpoint पर POST',
+    'delivery.caption': 'हर विकल्प एक ही PGP-एन्क्रिप्टेड payload डिलीवर करता है। समान सुरक्षा। आपकी पसंद।',
+    'cta.label': 'आपका HOLLR लिंक इंतज़ार कर रहा है',
+    'cta.title': 'hollr.to/आपकानाम किसी और से पहले लें।',
+    'cta.cta1': 'अपना handle पाएं →',
+    'cta.cta2': 'GitHub पर देखें',
+    'modal.title': 'अपना hollr handle लें',
+    'modal.desc': 'X से कनेक्ट करें और आपका Twitter handle तुरंत आपका hollr लिंक बन जाता है। hollr.to/@आप। एन्क्रिप्टेड, कोई बिचौलिया नहीं।',
+    'modal.x': '𝕏 X के साथ जारी रखें',
+    'modal.or': 'या',
+    'modal.email.toggle': 'ईमेल से रजिस्टर करें ▾',
+    'modal.handle.placeholder': 'आपकाhandle',
+    'modal.email.placeholder': 'aap@example.com',
+    'modal.email.btn': 'handle लें →',
+    'modal.note': '⚠ X साइन-इन को प्राथमिकता मिलती है। यदि कोई बाद में X के जरिए वही handle लेता है, तो उसका होगा hollr.to/yourhandleX2। X पर पहले आने वाला जीतता है।',
+    'modal.privacy': 'हम केवल आपका सार्वजनिक X उपयोगकर्ता नाम पढ़ते हैं। कोई DM नहीं, कोई पोस्टिंग नहीं, कोई फ़ॉलोअर डेटा नहीं।',
   },
+
   ja: {
-    'nav.how':'仕組み','nav.features':'機能','nav.oss':'オープンソース','nav.cta':'ハンドルを取得',
-    'hero.badge':'無料 & オープンソース','hero.title':'あなたのメッセージキャンバス、\nあなたのハンドル。',
-    'hero.sub':'hollrは誰もが自分のハンドルに個人的なタイムド・メッセージキャンバスを持てるプラットフォームです。',
-    'hero.cta1':'ハンドルを取得 →','hero.cta2':'GitHubで見る',
-    'stats.free':'永久無料','stats.langs':'言語','stats.storage':'保存データ','stats.handles':'利用可能なハンドル',
-    'steps.label':'仕組み','steps.title':'60秒で稼働',
-    'steps.desc':'クレジットカード不要。サーバー不要。メールかXアカウント、ハンドル、PINだけで始められます。',
-    'steps.1.title':'XまたはメールでログIN','steps.1.desc':'X OAuthでログインするか、メールでマジックリンクを受け取る — パスワード不要。',
-    'steps.2.title':'ハンドルを選ぶ','steps.2.desc':'hollr.to/paulfxyzのようなものを選んでください。',
-    'steps.3.title':'PINを設定','steps.3.desc':'PINで設定を保護します。Resendキーは任意 — プラットフォームメールがデフォルトで機能します。',
-    'steps.4.title':'リンクを共有','steps.4.desc':'hollr.to/yourhandleをどこでも共有できます。暗号化されたキャンバスが稼働中。',
-    'preview.label':'キャンバス','preview.title':'集中できるメッセージ体験',
-    'preview.desc':'音声録音、ファイルアップロード付きのフルスクリーンタイムドキャンバス。',
-    'preview.record':'録音','preview.attach':'添付','preview.send':'送信',
-    'features.label':'機能','features.title':'必要なものすべて、余計なものなし',
-    'feat.x.title':'X＆メールログイン','feat.x.desc':'X (Twitter) OAuth 2.0 PKCEまたはマジックリンクでログイン。パスワード不要。',
-    'feat.pgp.title':'PGPエンドツーエンド暗号化','feat.pgp.desc':'設定でPGP公開鍵を追加。送信者があなたの鍵で暗号化します。',
-    'feat.enc.title':'ファイルと音声を暗号化','feat.enc.desc':'すべてのファイルと音声メモはAES-256-GCMで暗号化。ブラウザで即座に復号可能。',
-    'feat.key.title':'Resendは任意','feat.key.desc':'プラットフォームはデフォルトでyo@hollr.toから送信。Resendキーを追加してカスタム配信も可能。',
-    'feat.timer.title':'タイムドキャンバス','feat.timer.desc':'常時動くタイマーで送信者に経過時間を知らせます。',
-    'feat.voice.title':'音声録音','feat.voice.desc':'ブラウザで直接音声メモを録音。暗号化されてメールにリンク。',
-    'feat.files.title':'ファイル添付','feat.files.desc':'任意のファイルをドラッグ＆ドロップ。暗号化して安全にアップロード。',
-    'feat.i18n.title':'10言語','feat.i18n.desc':'英語、フランス語、ドイツ語、イタリア語、スペイン語、オランダ語、中国語、ヒンディー語、日本語、ロシア語。',
-    'feat.dark.title':'ダーク＆ライトモード','feat.dark.desc':'システム設定に従います。',
-    'feat.oss.title':'完全オープンソース','feat.oss.desc':'MITライセンス。フォーク、自己ホスト、拡張が可能。',
-    'oss.title':'オープンに構築','oss.desc':'hollrはMITライセンス。完全なソースコードはGitHubにあります。',
-    'oss.cta':'ハンドルを取得',
-    'cta.title':'あなたのハンドルが待っています。','cta.sub':'メールを入力するとマジックリンクを送ります。パスワード不要。',
-    'cta.placeholder':'あなた@example.com','cta.btn':'始める →',
-    'footer.copy':'❤️ + AIで構築。100% vibe coding。',
-    'lang.title':'言語を選択',
-    'signup.sent':'受信箱を確認してください — マジックリンクをお送りしました！',
-    'signup.error':'エラーが発生しました。再度お試しください。',
+    'nav.how': '仕組み',
+    'nav.features': '機能',
+    'nav.api': 'API & MCP',
+    'nav.github': 'GitHub ↗',
+    'nav.cta': 'ハンドルを取得',
+    'hero.badge': 'あなたのオープン受信箱',
+    'hero.title.line1': 'Holla at me.',
+    'hero.title.line2': '暗号化。セキュア。',
+    'hero.sub': 'hollr はあなたの公開リンクです。誰でも送れる — 何を通すかはあなたが決める。PGP 暗号化。ファイルと音声。X またはメールでサインイン。',
+    'hero.cta1': 'ハンドルを取得 →',
+    'hero.cta2': 'GitHub で見る',
+    'filter.label': '良いものだけを',
+    'filter.title1': 'ノイズはフィルタリング。',
+    'filter.title2': 'シグナルはあなたに。',
+    'filter.body': 'hollr リンクは公開です。スパムは起こりますが、本物の人間が書いたメッセージだけが届きます。PGP エンドツーエンド暗号化。',
+    'filter.feat1.title': 'PGP エンドツーエンド',
+    'filter.feat1.desc': 'メッセージは送信者のブラウザを離れる前にあなたの公開鍵で暗号化されます。私たちは読みません。',
+    'filter.feat2.title': '人間認証済み',
+    'filter.feat2.desc': 'キャンバスタイマーとフォームを通過したメッセージのみ配信されます。ボットなし、大量送信なし。',
+    'inbox.title': '保留中の hollrs',
+    'inbox.verified': '人間認証済み',
+    'inbox.pending': '審査中',
+    'inbox.filtered': 'AI フィルタ済み',
+    'inbox.msg1': '"こんにちは — hollr でのあなたの仕事の大ファンです。何か一緒にコラボしたいです…"',
+    'inbox.msg2': '"あなたのセットアップについて質問があります — 似たようなものを作っていて…"',
+    'inbox.msg3': '"おめでとうございます！特別な仮想通貨チャンスに選ばれました—"',
+    'inbox.read': '読む →',
+    'inbox.dismiss': '閉じる',
+    'inbox.restore': '復元',
+    'steps.label': '仕組み',
+    'steps.title': 'どこからでも Holla。',
+    'steps.1.title': 'ハンドルを取得',
+    'steps.1.desc': 'X またはメールでサインイン。hollr.to/あなたの名前がすぐに使えます。',
+    'steps.2.title': 'PIN を設定',
+    'steps.2.desc': '4桁の PIN で設定を保護します。いつでも変更可能。',
+    'steps.3.title': 'リンクを共有',
+    'steps.3.desc': 'hollr.to/あなたの名前をどこにでも。暗号化されたキャンバスが稼働中。',
+    'steps.4.title': '安全に受け取る',
+    'steps.4.desc': 'PGP 暗号化されたメッセージ、ファイル、音声メモがあなたに届きます。',
+    'api.label': '開発者のために構築',
+    'api.title1': 'あなたの hollrs、',
+    'api.title2': 'どこでも使えます。',
+    'api.desc': 'hollr は単なるリンクではありません。オープンプラットフォームです。受信メッセージを CRM、Notion、ターミナル、AI スタックなどに接続できます。',
+    'api.rest.title': 'REST API',
+    'api.rest.desc': '完全な HTTP API。hollrs の一覧、コンテンツ取得、ハンドル管理。その上に何でも構築。',
+    'api.webhooks.title': 'Webhooks',
+    'api.webhooks.desc': 'hollr が届いた瞬間に任意の URL へ POST。Zapier、Make、自前サーバー — ポーリング不要。',
+    'api.mcp.badge': '近日公開',
+    'api.mcp.title': 'MCP サーバー',
+    'api.mcp.desc': 'Model Context Protocol を使って Claude、Cursor、その他 AI ツールから直接 hollrs を読めます。',
+    'delivery.label': 'HOLLRS の届け先',
+    'delivery.title': 'hollrs の届け先。',
+    'delivery.default': 'デフォルト — ゼロ設定、即時',
+    'delivery.resend': 'あなたの Resend API キー',
+    'delivery.resend.sub': '中継なしで直接受信箱へ',
+    'delivery.webhook': 'Webhook URL',
+    'delivery.webhook.sub': 'あなたが管理するエンドポイントへ POST',
+    'delivery.caption': 'どのオプションも同じ PGP 暗号化ペイロードを配信します。同じセキュリティ。あなたが選ぶ。',
+    'cta.label': 'あなたの HOLLR リンクが待っています',
+    'cta.title': '誰かに取られる前に hollr.to/あなたの名前を取得しよう。',
+    'cta.cta1': 'ハンドルを取得 →',
+    'cta.cta2': 'GitHub で見る',
+    'modal.title': 'hollr ハンドルを取得',
+    'modal.desc': 'X と連携すると、Twitter ハンドルが即座に hollr リンクになります。hollr.to/@あなた。暗号化済み、仲介者なし。',
+    'modal.x': '𝕏 X で続ける',
+    'modal.or': 'または',
+    'modal.email.toggle': 'メールで登録する ▾',
+    'modal.handle.placeholder': 'あなたのhandle',
+    'modal.email.placeholder': 'you@example.com',
+    'modal.email.btn': 'ハンドルを取得 →',
+    'modal.note': '⚠ X サインインが優先されます。後から誰かが同じハンドルを X で取得した場合、そのハンドルは hollr.to/yourhandleX2 になります。X で先着した方が優先。',
+    'modal.privacy': 'あなたの公開 X ユーザー名のみ読み取ります。DM・投稿・フォロワーデータは一切取得しません。',
   },
+
   ru: {
-    'nav.how':'Как это работает','nav.features':'Функции','nav.oss':'Открытый код','nav.cta':'Получить хэндл',
-    'hero.badge':'Бесплатно и с открытым кодом','hero.title':'Ваш холст для сообщений,\nваш хэндл.',
-    'hero.sub':'hollr даёт каждому личный холст сообщений с таймером на своём хэндле.',
-    'hero.cta1':'Получить хэндл →','hero.cta2':'Смотреть на GitHub',
-    'stats.free':'Бесплатно навсегда','stats.langs':'Языков','stats.storage':'Хранимых данных','stats.handles':'Доступных хэндлов',
-    'steps.label':'Как это работает','steps.title':'Готово за 60 секунд',
-    'steps.desc':'Без кредитной карты. Без сервера. Только email или X-аккаунт, хэндл и PIN.',
-    'steps.1.title':'Войти через X или email','steps.1.desc':'Войдите через X OAuth или получите магическую ссылку по email — пароль не нужен.',
-    'steps.2.title':'Выберите хэндл','steps.2.desc':'Например, hollr.to/paulfxyz.',
-    'steps.3.title':'Установите PIN','steps.3.desc':'PIN защищает ваши настройки. Ключ Resend необязателен — платформенные письма работают по умолчанию.',
-    'steps.4.title':'Поделитесь ссылкой','steps.4.desc':'Разместите hollr.to/yourhandle где угодно. Ваш зашифрованный холст активен.',
-    'preview.label':'Холст','preview.title':'Опыт без отвлечений',
-    'preview.desc':'Полноэкранный холст с таймером, записью голоса и загрузкой файлов.',
-    'preview.record':'Запись','preview.attach':'Прикрепить','preview.send':'Отправить',
-    'features.label':'Функции','features.title':'Всё что нужно, ничего лишнего',
-    'feat.x.title':'Вход через X и email','feat.x.desc':'Войдите через X (Twitter) OAuth 2.0 PKCE или по магической ссылке. Без паролей.',
-    'feat.pgp.title':'PGP-шифрование end-to-end','feat.pgp.desc':'Добавьте свой PGP-публичный ключ в настройках. Отправители шифруют им сообщения.',
-    'feat.enc.title':'Файлы и голос зашифрованы','feat.enc.desc':'Каждый файл и голосовая заметка зашифрованы с AES-256-GCM. Расшифровка мгновенно в браузере.',
-    'feat.key.title':'Resend необязателен','feat.key.desc':'Платформа отправляет с yo@hollr.to по умолчанию. Добавьте свой ключ Resend для кастомной доставки.',
-    'feat.timer.title':'Холст с таймером','feat.timer.desc':'Постоянный таймер напоминает отправителям о времени.',
-    'feat.voice.title':'Голосовая запись','feat.voice.desc':'Запишите голосовую заметку в браузере. Зашифровано и ссылка в письме.',
-    'feat.files.title':'Вложения','feat.files.desc':'Перетащите любой файл. Зашифровано, безопасно загружено и ссылка в письме.',
-    'feat.i18n.title':'10 языков','feat.i18n.desc':'Английский, Французский, Немецкий, Итальянский, Испанский, Нидерландский, Китайский, Хинди, Японский, Русский.',
-    'feat.dark.title':'Тёмный и светлый режим','feat.dark.desc':'Следует системным настройкам.',
-    'feat.oss.title':'Полностью открытый код','feat.oss.desc':'Лицензия MIT. Форкайте, размещайте сами, расширяйте.',
-    'oss.title':'Открытая разработка','oss.desc':'hollr — MIT. Полный исходный код на GitHub.',
-    'oss.cta':'Получить хэндл',
-    'cta.title':'Ваш хэндл ждёт.','cta.sub':'Введите email и мы пришлём магическую ссылку.',
-    'cta.placeholder':'вы@пример.рф','cta.btn':'Начать →',
-    'footer.copy':'Создано с ❤️ + ИИ. 100% vibe coding.',
-    'lang.title':'Выбрать язык',
-    'signup.sent':'Проверьте почту — мы отправили магическую ссылку!',
-    'signup.error':'Что-то пошло не так. Попробуйте снова.',
+    'nav.how': 'Как это работает',
+    'nav.features': 'Функции',
+    'nav.api': 'API & MCP',
+    'nav.github': 'GitHub ↗',
+    'nav.cta': 'Получить хендл',
+    'hero.badge': 'ВАШ ОТКРЫТЫЙ ВХОДЯЩИЙ',
+    'hero.title.line1': 'Holla at me.',
+    'hero.title.line2': 'Зашифровано. Защищено.',
+    'hero.sub': 'hollr — ваша публичная ссылка. Кто угодно может написать — вы решаете, что пропустить. PGP-шифрование. Файлы и голос. Войти через X или email.',
+    'hero.cta1': 'Получить хендл →',
+    'hero.cta2': 'Смотреть на GitHub',
+    'filter.label': 'ТОЛЬКО ВАЖНОЕ',
+    'filter.title1': 'Мы фильтруем шум.',
+    'filter.title2': 'Вы сохраняете сигнал.',
+    'filter.body': 'Ваша hollr-ссылка публична. Спам случается — только настоящие сообщения от людей проходят. Сквозное PGP-шифрование.',
+    'filter.feat1.title': 'PGP сквозное шифрование',
+    'filter.feat1.desc': 'Сообщения шифруются вашим публичным ключом до отправки из браузера отправителя. Мы их не читаем.',
+    'filter.feat2.title': 'Верификация людей',
+    'filter.feat2.desc': 'Доставляются только сообщения, прошедшие таймер канвы и форму. Никаких ботов и массовой рассылки.',
+    'inbox.title': 'Входящие hollrs',
+    'inbox.verified': 'Человек Верифицирован',
+    'inbox.pending': 'Ожидает проверки',
+    'inbox.filtered': 'Фильтр ИИ',
+    'inbox.msg1': '"Привет — большой поклонник вашей работы над hollr. Хотел бы поработать вместе над чем-нибудь…"',
+    'inbox.msg2': '"Быстрый вопрос о вашем сетапе — я работаю над чем-то похожим и…"',
+    'inbox.msg3': '"Поздравляем! Вы выбраны для особой крипто-возможности—"',
+    'inbox.read': 'Читать →',
+    'inbox.dismiss': 'Отклонить',
+    'inbox.restore': 'Восстановить',
+    'steps.label': 'КАК ЭТО РАБОТАЕТ',
+    'steps.title': 'Holla откуда угодно.',
+    'steps.1.title': 'Получите хендл',
+    'steps.1.desc': 'Войдите через X или email. hollr.to/вашеимя сразу ваш.',
+    'steps.2.title': 'Установите PIN',
+    'steps.2.desc': 'Защитите настройки 4-значным PIN-кодом. Меняйте в любое время.',
+    'steps.3.title': 'Поделитесь ссылкой',
+    'steps.3.desc': 'Разместите hollr.to/вашеимя где угодно. Зашифрованная канва работает.',
+    'steps.4.title': 'Получайте безопасно',
+    'steps.4.desc': 'PGP-зашифрованные сообщения, файлы и голосовые заметки доставляются вам.',
+    'api.label': 'СОЗДАНО ДЛЯ РАЗРАБОТЧИКОВ',
+    'api.title1': 'Ваши hollrs,',
+    'api.title2': 'где бы вы ни были.',
+    'api.desc': 'hollr — не просто ссылка. Это открытая платформа. Направляйте входящие сообщения в любую систему — CRM, Notion, терминал или AI-стек.',
+    'api.rest.title': 'REST API',
+    'api.rest.desc': 'Полный HTTP API. Список hollrs, получение контента, управление хендлом. Стройте что угодно.',
+    'api.webhooks.title': 'Вебхуки',
+    'api.webhooks.desc': 'POST каждый hollr на любой URL в момент получения. Zapier, Make, свой сервер — без опроса.',
+    'api.mcp.badge': 'Скоро',
+    'api.mcp.title': 'MCP-сервер',
+    'api.mcp.desc': 'Читайте hollrs прямо из Claude, Cursor или любого AI-инструмента через Model Context Protocol.',
+    'delivery.label': 'КУДА ПРИХОДЯТ ВАШИ HOLLRS',
+    'delivery.title': 'Куда приходят ваши hollrs.',
+    'delivery.default': 'По умолчанию — без настройки, мгновенно',
+    'delivery.resend': 'Ваш API-ключ Resend',
+    'delivery.resend.sub': 'Прямо в ваш ящик, без ретрансляции',
+    'delivery.webhook': 'Webhook URL',
+    'delivery.webhook.sub': 'POST на любой подконтрольный вам эндпоинт',
+    'delivery.caption': 'Каждый вариант доставляет одинаковый PGP-зашифрованный пейлоад. Одинаковая защита. Ваш выбор.',
+    'cta.label': 'ВАШ HOLLR-ЛИНК ЖДЁТ',
+    'cta.title': 'Займите hollr.to/вашеимя, пока это не сделал другой.',
+    'cta.cta1': 'Получить хендл →',
+    'cta.cta2': 'Смотреть на GitHub',
+    'modal.title': 'Получите свой hollr-хендл',
+    'modal.desc': 'Подключитесь к X — ваш Twitter-хендл станет вашей hollr-ссылкой мгновенно. hollr.to/@вы. Зашифровано, без посредников.',
+    'modal.x': '𝕏 Продолжить с X',
+    'modal.or': 'ИЛИ',
+    'modal.email.toggle': 'Зарегистрироваться через email ▾',
+    'modal.handle.placeholder': 'вашханд',
+    'modal.email.placeholder': 'vy@primer.ru',
+    'modal.email.btn': 'Получить хендл →',
+    'modal.note': '⚠ Вход через X имеет приоритет. Если кто-то позже займёт тот же хендл через X, у него станет hollr.to/yourhandleX2. Первый на X побеждает.',
+    'modal.privacy': 'Мы читаем только ваш публичный X-логин. Никаких DM, публикаций или данных о подписчиках.',
   },
 };
 
-// ── State ─────────────────────────────────────────────────────────────────────
+// ── Language flags & codes ──────────────────────────────────────────────────
+const LANG_META = {
+  en: { flag: '🇬🇧', code: 'EN' },
+  fr: { flag: '🇫🇷', code: 'FR' },
+  de: { flag: '🇩🇪', code: 'DE' },
+  it: { flag: '🇮🇹', code: 'IT' },
+  es: { flag: '🇪🇸', code: 'ES' },
+  nl: { flag: '🇳🇱', code: 'NL' },
+  zh: { flag: '🇨🇳', code: 'ZH' },
+  hi: { flag: '🇮🇳', code: 'HI' },
+  ja: { flag: '🇯🇵', code: 'JA' },
+  ru: { flag: '🇷🇺', code: 'RU' },
+};
 
-let currentLang  = 'en';
-let currentTheme = 'dark';
-
-// ── Detect language ───────────────────────────────────────────────────────────
-
-function detectLang() {
-  const nav = navigator.language || 'en';
-  const code = nav.slice(0,2).toLowerCase();
-  return LANGS.find(l => l.code === code) ? code : 'en';
-}
-
-// ── Apply i18n ────────────────────────────────────────────────────────────────
+let currentLang = localStorage.getItem('hollr_lang') || 'en';
 
 function applyStrings(lang) {
   const s = STRINGS[lang] || STRINGS.en;
   document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.dataset.i18n;
-    if (s[key] !== undefined) {
-      // Some strings contain \n for line breaks
-      el.innerHTML = s[key].replace(/\n/g, '<br>');
-    }
+    const key = el.getAttribute('data-i18n');
+    if (s[key] !== undefined) el.textContent = s[key];
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    const key = el.dataset.i18nPlaceholder;
-    if (s[key]) el.placeholder = s[key];
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (s[key] !== undefined) el.placeholder = s[key];
   });
-  // Update active state in grid
-  document.querySelectorAll('.lang-option').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.code === lang);
-  });
-}
-
-function setLang(lang) {
-  currentLang = lang;
+  // Update html lang
   document.documentElement.lang = lang;
-  applyStrings(lang);
+  // Update lang picker button
+  const meta = LANG_META[lang] || LANG_META.en;
+  document.getElementById('langFlag').textContent = meta.flag;
+  document.getElementById('langCode').textContent = meta.code;
+  // Sync active state
+  document.querySelectorAll('.lang-option').forEach(opt => {
+    opt.classList.toggle('active', opt.dataset.lang === lang);
+  });
 }
 
-// ── Theme ─────────────────────────────────────────────────────────────────────
+// ── Nav: sticky scroll ──────────────────────────────────────────────────────
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 12);
+}, { passive: true });
 
-function applyTheme(theme) {
-  currentTheme = theme;
-  document.documentElement.setAttribute('data-theme', theme);
-  const btn = document.getElementById('themeToggle');
-  if (theme === 'dark') {
-    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
-    btn.title = 'Switch to light mode';
-  } else {
-    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`;
-    btn.title = 'Switch to dark mode';
+// ── Theme toggle ────────────────────────────────────────────────────────────
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+
+function updateThemeIcon() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  themeIcon.textContent = isDark ? '☀️' : '🌙';
+}
+
+themeToggle.addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('hollr_theme', next);
+  updateThemeIcon();
+});
+
+updateThemeIcon();
+
+// ── Language picker ─────────────────────────────────────────────────────────
+const langWrapper = document.getElementById('langWrapper');
+const langBtn = document.getElementById('langBtn');
+
+langBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const isOpen = langWrapper.classList.toggle('open');
+  langBtn.setAttribute('aria-expanded', isOpen);
+});
+
+document.querySelectorAll('.lang-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    currentLang = opt.dataset.lang;
+    localStorage.setItem('hollr_lang', currentLang);
+    applyStrings(currentLang);
+    langWrapper.classList.remove('open');
+    langBtn.setAttribute('aria-expanded', false);
+  });
+});
+
+document.addEventListener('click', (e) => {
+  if (!langWrapper.contains(e.target)) {
+    langWrapper.classList.remove('open');
+    langBtn.setAttribute('aria-expanded', false);
   }
-}
-
-document.getElementById('themeToggle').addEventListener('click', () => {
-  applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
 });
 
-// ── Language modal ────────────────────────────────────────────────────────────
+// ── Hamburger ───────────────────────────────────────────────────────────────
+const hamburger = document.getElementById('hamburger');
+const navMobile = document.getElementById('navMobile');
 
-function buildLangGrid() {
-  const grid = document.getElementById('langGrid');
-  grid.innerHTML = LANGS.map(l => `
-    <button class="lang-option${l.code === currentLang ? ' active' : ''}"
-            data-code="${l.code}"
-            onclick="pickLang('${l.code}')"
-            title="${l.name}">
-      ${l.flag}
-      <span>${l.code.toUpperCase()}</span>
-    </button>`).join('');
-}
-
-function pickLang(code) {
-  setLang(code);
-  document.getElementById('langModal').classList.remove('open');
-}
-
-document.getElementById('langToggle').addEventListener('click', () => {
-  buildLangGrid();
-  document.getElementById('langModal').classList.add('open');
+hamburger.addEventListener('click', () => {
+  const isOpen = navMobile.classList.toggle('open');
+  hamburger.setAttribute('aria-expanded', isOpen);
 });
 
-document.getElementById('langModal').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+navMobile.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    navMobile.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', false);
+  });
 });
 
-// ── Handle demo typewriter ────────────────────────────────────────────────────
+// ── Modal ───────────────────────────────────────────────────────────────────
+const modalOverlay = document.getElementById('modalOverlay');
+const modalClose = document.getElementById('modalClose');
+const emailToggle = document.getElementById('emailToggle');
+const emailForm = document.getElementById('emailForm');
+const emailToggleArrow = document.getElementById('emailToggleArrow');
 
-const handles = ['paulfxyz', 'sarah', 'devjohn', 'thewriter', 'ceomark', 'hello'];
-let hi = 0;
-
-function cycleHandle() {
-  const el = document.getElementById('demoHandle');
-  el.style.opacity = '0';
-  setTimeout(() => {
-    hi = (hi + 1) % handles.length;
-    el.textContent = handles[hi];
-    el.style.opacity = '1';
-    el.style.transition = 'opacity 0.4s ease';
-  }, 300);
+function openModal() {
+  modalOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  modalClose.focus();
 }
-setInterval(cycleHandle, 2200);
 
-// ── Preview timer ─────────────────────────────────────────────────────────────
-
-let previewSecs = 0;
-function tickPreview() {
-  previewSecs++;
-  const m = String(Math.floor(previewSecs / 60)).padStart(2, '0');
-  const s = String(previewSecs % 60).padStart(2, '0');
-  const el = document.getElementById('previewTimer');
-  if (el) el.textContent = `${m}:${s}`;
+function closeModal() {
+  modalOverlay.classList.remove('open');
+  document.body.style.overflow = '';
 }
-setInterval(tickPreview, 1000);
 
-// ── Signup form ───────────────────────────────────────────────────────────────
+document.querySelectorAll('[data-modal]').forEach(el => {
+  el.addEventListener('click', openModal);
+});
 
-async function handleSignup(e) {
-  e.preventDefault();
-  const email   = document.getElementById('signupEmail').value.trim();
-  const status  = document.getElementById('signupStatus');
-  const btn     = e.target.querySelector('button[type="submit"]');
-  const s       = STRINGS[currentLang] || STRINGS.en;
+modalClose.addEventListener('click', closeModal);
 
-  btn.disabled    = true;
-  btn.textContent = '…';
+modalOverlay.addEventListener('click', (e) => {
+  if (e.target === modalOverlay) closeModal();
+});
 
-  try {
-    const API = 'https://api.hollr.to';
-    const res  = await fetch(`${API}/api/auth/magic-link`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ email }),
-    });
-    const data = await res.json();
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
 
-    if (res.ok && data.ok) {
-      status.textContent = s['signup.sent'];
-      status.style.color = 'var(--accent)';
-    } else {
-      status.textContent = data.error || s['signup.error'];
-      status.style.color = 'var(--color-error, #c00)';
+emailToggle.addEventListener('click', () => {
+  const isOpen = emailForm.classList.toggle('open');
+  emailToggle.setAttribute('aria-expanded', isOpen);
+  emailToggleArrow.style.transform = isOpen ? 'rotate(180deg)' : '';
+});
+
+// Also handle mobile modal CTAs
+document.querySelectorAll('[data-modal]').forEach(el => {
+  el.addEventListener('click', () => {
+    navMobile.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', false);
+  });
+});
+
+// ── Scroll reveal ───────────────────────────────────────────────────────────
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
     }
-  } catch {
-    status.textContent = s['signup.error'];
-    status.style.color = 'var(--color-error, #c00)';
-  }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
-  status.style.display = 'block';
-  btn.disabled = false;
-  btn.textContent = s['cta.btn'];
-}
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-
-(function init() {
-  // Theme: respect system preference
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  applyTheme(prefersDark ? 'dark' : 'light');
-
-  // Language: detect from browser
-  const lang = detectLang();
-  setLang(lang);
-})();
+// ── Init i18n ───────────────────────────────────────────────────────────────
+applyStrings(currentLang);
 </script>
 </body>
 </html>
