@@ -5,27 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign in — hollr</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>🐺</text></svg>">
-  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&f[]=satoshi@400,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@300..600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:      #0d0d0d;
-      --surface: #141414;
-      --border:  #2a2a2a;
-      --text:    #e8e8e6;
-      --muted:   #888886;
-      --accent:  #ff6b35;
-      --error:   #e05252;
-      --success: #52c07a;
-      --font-d:  'Cabinet Grotesk', sans-serif;
-      --font-b:  'Satoshi', sans-serif;
+      --bg:      #f9f6f1;
+      --surface: #ffffff;
+      --border:  #e8e1d8;
+      --text:    #1a1814;
+      --muted:   #8a837a;
+      --accent:  #1a1814;
+      --amber:   #c96a2a;
+      --error:   #c0392b;
+      --success: #2d9e6b;
+      --serif:   'Fraunces', Georgia, serif;
+      --sans:    'Inter', system-ui, sans-serif;
     }
-    [data-theme="light"] {
-      --bg: #fafaf8; --surface: #fff; --border: #e5e5e0;
-      --text: #1a1a18; --muted: #6b6b68;
+    [data-theme="dark"] {
+      --bg:      #181510;
+      --surface: #211e19;
+      --border:  #302c25;
+      --text:    #f0ece4;
+      --muted:   #7a7468;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: var(--font-b);
+      font-family: var(--sans);
       background: var(--bg);
       color: var(--text);
       min-height: 100dvh;
@@ -42,181 +46,241 @@
       padding: 48px 40px;
       max-width: 460px;
       width: 100%;
+      box-shadow: 0 4px 32px rgba(0,0,0,.06);
     }
-    .wolf { font-size: 48px; margin-bottom: 20px; display: block; text-align: center; }
+
+    /* Logo / icon */
+    .logo {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-bottom: 28px; color: var(--text); text-decoration: none;
+    }
+    .logo svg { flex-shrink: 0; }
+    .logo-text { font-family: var(--serif); font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+
     h1 {
-      font-family: var(--font-d);
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 10px;
-      letter-spacing: -0.02em;
+      font-family: var(--serif);
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -.02em;
+      text-align: center;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+    p.sub {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+      margin-bottom: 28px;
       text-align: center;
     }
-    p.sub { color: var(--muted); font-size: 15px; line-height: 1.6; margin-bottom: 24px; text-align: center; }
 
     /* Spinner */
     .spinner {
-      width: 36px; height: 36px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
+      width: 32px; height: 32px;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--amber);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      animation: spin 0.75s linear infinite;
       margin: 20px auto;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .status { font-size: 14px; color: var(--muted); text-align: center; margin-top: 8px; }
-
-    /* Error */
-    .error-msg { color: var(--error); font-size: 15px; margin-top: 12px; text-align: center; }
-
-    /* Sign-in choice screen */
-    .signin-wrap { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
-    .divider {
-      display: flex; align-items: center; gap: 12px;
-      color: var(--muted); font-size: 13px; margin: 4px 0;
-    }
-    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .status-text { font-size: 13px; color: var(--muted); text-align: center; margin-top: 6px; }
 
     /* Buttons */
     .btn {
-      display: flex; align-items: center; justify-content: center; gap: 10px;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
       padding: 13px 20px;
       border-radius: 10px;
-      font-family: var(--font-b);
-      font-size: 15px;
+      font-family: var(--sans);
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       border: none;
-      transition: opacity 150ms, transform 100ms;
+      transition: opacity 120ms, transform 80ms;
       text-decoration: none;
       width: 100%;
+      letter-spacing: -.01em;
     }
-    .btn:hover { opacity: 0.88; }
-    .btn:active { transform: scale(0.98); }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-x {
-      background: #000; color: #fff;
-      border: 1px solid #333;
-    }
+    .btn:hover:not(:disabled) { opacity: 0.85; }
+    .btn:active:not(:disabled) { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary  { background: var(--accent); color: #f9f6f1; }
+    .btn-x        { background: #000; color: #fff; border: 1px solid #222; }
     [data-theme="light"] .btn-x { background: #111; }
-    .btn-email { background: var(--border); color: var(--text); }
-    [data-theme="light"] .btn-email { background: #f0f0ee; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-ghost     {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover:not(:disabled) { background: var(--border); opacity: 1; }
 
-    /* Email input row */
-    .email-form { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+    /* Divider */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      color: var(--muted); font-size: 12px; margin: 12px 0;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* Inputs */
+    .form-stack { display: flex; flex-direction: column; gap: 10px; }
     .input {
       width: 100%;
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 12px 16px;
-      font-family: var(--font-b);
-      font-size: 15px;
+      font-family: var(--sans);
+      font-size: 14px;
       color: var(--text);
       outline: none;
       transition: border-color 150ms;
     }
-    .input:focus { border-color: var(--accent); }
+    .input:focus { border-color: var(--amber); }
+    .input::placeholder { color: var(--muted); }
+
+    /* Handle row */
+    .handle-row {
+      display: flex; align-items: center;
+      border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+      transition: border-color 150ms;
+      background: var(--bg);
+    }
+    .handle-row:focus-within { border-color: var(--amber); }
+    .handle-prefix {
+      padding: 12px 14px;
+      background: var(--border);
+      font-size: 13px; color: var(--muted);
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .handle-row .input { border: none; border-radius: 0; background: transparent; }
+
+    /* Form labels */
+    .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+    label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+    .avail-msg { font-size: 12px; min-height: 15px; }
+    .avail-ok  { color: var(--success); }
+    .avail-err { color: var(--error); }
+    .hint { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .hint a { color: var(--amber); }
+    .opt-tag {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      background: var(--border); color: var(--muted);
+      border-radius: 4px; padding: 1px 5px; margin-left: 5px;
+      letter-spacing: .04em; vertical-align: middle; text-transform: uppercase;
+    }
+    textarea.input { resize: vertical; min-height: 80px; font-family: monospace; font-size: 12px; }
+    .section-sep {
+      display: flex; align-items: center; gap: 10px; margin: 20px 0 14px;
+      font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em;
+    }
+    .section-sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .form-err { font-size: 13px; color: var(--error); min-height: 16px; margin-top: 4px; display: none; }
+    .form-err.show { display: block; }
+
+    /* Info box */
+    .info-box {
+      background: color-mix(in srgb, var(--amber) 10%, transparent);
+      border: 1px solid color-mix(in srgb, var(--amber) 30%, transparent);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.55;
+      margin-bottom: 20px;
+    }
+    .info-box strong { color: var(--amber); }
+
+    /* Back link */
     .back-link {
-      font-size: 13px; color: var(--muted); text-align: center;
-      cursor: pointer; margin-top: 8px;
-      background: none; border: none; font-family: var(--font-b); text-decoration: underline;
+      font-size: 13px; color: var(--muted); text-align: center; display: block;
+      cursor: pointer; margin-top: 12px; background: none; border: none;
+      font-family: var(--sans); text-decoration: underline; width: 100%;
     }
     .back-link:hover { color: var(--text); }
 
-    /* Onboarding form */
-    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
-    label { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .03em; }
-    .handle-row { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color 150ms; }
-    .handle-row:focus-within { border-color: var(--accent); }
-    .handle-prefix { padding: 12px 14px; background: var(--border); font-size: 14px; color: var(--muted); white-space: nowrap; }
-    .handle-row .input { border: none; border-radius: 0; flex: 1; }
-    .avail-msg { font-size: 12px; min-height: 16px; }
-    .avail-ok  { color: var(--success); }
-    .avail-err { color: var(--error); }
-    .hint { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
-    .hint a { color: var(--accent); }
-    .optional-tag {
-      display: inline-block; font-size: 10px; font-weight: 700;
-      background: var(--border); color: var(--muted);
-      border-radius: 4px; padding: 2px 6px; margin-left: 6px;
-      letter-spacing: .04em; vertical-align: middle;
+    @media (max-width: 480px) {
+      .card { padding: 36px 24px; }
+      h1 { font-size: 22px; }
     }
-    textarea.input { resize: vertical; min-height: 90px; font-size: 13px; font-family: monospace; }
-    .form-err { font-size: 14px; color: var(--error); min-height: 18px; margin-top: 4px; display: none; }
-    .form-err.show { display: block; }
-    .section-title {
-      font-family: var(--font-d); font-size: 12px; font-weight: 800;
-      letter-spacing: .08em; color: var(--muted);
-      text-transform: uppercase; margin: 24px 0 14px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
   </style>
 </head>
 <body>
 <div class="card">
 
-  <!-- State: verifying magic link token -->
+  <!-- Logo -->
+  <a href="/" class="logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M3 8.5H7.5L15 5V19L7.5 15.5H3V8.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M7.5 15.5V20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M18 9.5C18.8 10.3 19.5 11.1 19.5 12C19.5 12.9 18.8 13.7 18 14.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <span class="logo-text">hollr</span>
+  </a>
+
+  <!-- ── STATE: Verifying ── -->
   <div id="stateVerifying">
-    <span class="wolf">🐺</span>
     <h1>Signing you in…</h1>
     <div class="spinner"></div>
-    <p class="status" id="statusMsg">Verifying your link…</p>
+    <p class="status-text" id="statusMsg">Verifying your link…</p>
   </div>
 
-  <!-- State: error -->
+  <!-- ── STATE: Error ── -->
   <div id="stateError" style="display:none">
-    <span class="wolf">😬</span>
     <h1>Link expired</h1>
-    <p class="sub">This link is invalid or has already been used.</p>
-    <a href="/" class="btn btn-primary" style="margin-top:4px">Back to hollr.to →</a>
+    <p class="sub" id="errorMsg">This link is invalid or has already been used.<br>Links expire after 15 minutes.</p>
+    <a href="/" class="btn btn-primary">Back to hollr.to →</a>
   </div>
 
-  <!-- State: choose sign-in method (no token in URL) -->
+  <!-- ── STATE: Choose sign-in ── -->
   <div id="stateChoose" style="display:none">
-    <span class="wolf">🐺</span>
     <h1>Sign in to hollr</h1>
-    <p class="sub">No account? One will be created automatically.</p>
-
-    <div class="signin-wrap">
-      <a id="btnX" href="#" class="btn btn-x" onclick="startXLogin(event)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+    <p class="sub">No account? One will be created automatically.<br>Pick your handle right after.</p>
+    <div class="form-stack">
+      <button id="btnX" class="btn btn-x" onclick="startXLogin()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
         </svg>
         Continue with X
-      </a>
-
+      </button>
       <div class="divider">or</div>
-
       <div id="emailSection">
-        <div class="email-form" id="emailForm" style="display:none">
+        <div id="emailForm" style="display:none" class="form-stack">
           <input type="email" class="input" id="emailInput" placeholder="your@email.com" autocomplete="email">
           <button class="btn btn-primary" onclick="sendMagicLink()">Send magic link →</button>
+          <p class="status-text" id="emailStatus" style="min-height:16px"></p>
           <button class="back-link" onclick="showEmailBtn()">← other options</button>
-          <p class="status" id="emailStatus" style="min-height:18px"></p>
         </div>
-        <button id="btnEmail" class="btn btn-email" onclick="showEmailForm()">
+        <button id="btnEmail" class="btn btn-ghost" onclick="showEmailForm()">
           ✉️ Continue with email
         </button>
       </div>
     </div>
   </div>
 
-  <!-- State: magic link sent -->
+  <!-- ── STATE: Magic link sent ── -->
   <div id="stateSent" style="display:none">
-    <span class="wolf">📬</span>
-    <h1>Check your inbox</h1>
-    <p class="sub">We sent a magic link to <strong id="sentTo"></strong>.<br>Click it to sign in — it expires in 15 minutes.</p>
-    <button class="btn btn-email" onclick="showChoose()" style="margin-top:8px">Try a different address</button>
+    <h1>📬 Check your inbox</h1>
+    <p class="sub">We sent a magic link to <strong id="sentTo"></strong>.<br>Click it to sign in — expires in 15 minutes.</p>
+    <button class="btn btn-ghost" onclick="showChoose()">Try a different address</button>
   </div>
 
-  <!-- State: onboarding (new user, pick handle) -->
+  <!-- ── STATE: Need email (X users without one) ── -->
+  <div id="stateNeedEmail" style="display:none">
+    <h1>One more thing</h1>
+    <p class="sub">You signed in with X. Add an email address so we can send you message notifications and help you recover your PIN if needed.</p>
+    <div class="form-stack">
+      <input type="email" class="input" id="xEmailInput" placeholder="your@email.com" autocomplete="email">
+      <p class="status-text" id="xEmailStatus" style="min-height:16px"></p>
+      <button class="btn btn-primary" id="xEmailBtn" onclick="saveXEmail()">Continue →</button>
+      <button class="back-link" onclick="skipXEmail()">Skip for now (notifications disabled)</button>
+    </div>
+  </div>
+
+  <!-- ── STATE: Onboarding ── -->
   <div id="stateOnboarding" style="display:none">
-    <span class="wolf">🎉</span>
-    <h1 style="text-align:center">Welcome to hollr!</h1>
-    <p class="sub">Set up your personal canvas in under a minute.</p>
+    <h1>Claim your handle</h1>
+    <p class="sub">Set up your personal canvas in seconds. You can change all settings later.</p>
 
     <form id="onboardForm">
       <!-- Handle -->
@@ -230,130 +294,249 @@
         <div class="avail-msg" id="availMsg"></div>
       </div>
 
-      <!-- PIN -->
+      <!-- PIN — optional, defaults to 1234 -->
       <div class="form-group">
-        <label>Security PIN <span style="font-size:11px;color:var(--muted);font-weight:400">(4–8 digits)</span></label>
-        <input type="password" class="input" id="pinInput" placeholder="••••" maxlength="8"
-               pattern="[0-9]{4,8}" inputmode="numeric" autocomplete="new-password" required>
-        <p class="hint">Required to change your settings later.</p>
+        <label>Security PIN <span class="opt-tag">optional</span></label>
+        <input type="password" class="input" id="pinInput" placeholder="Leave blank → default is 1234"
+               maxlength="8" pattern="[0-9]{4,8}" inputmode="numeric" autocomplete="new-password">
+        <p class="hint">Locks your settings page. Default is <strong>1234</strong> — you'll be asked to change it when you open settings for the first time.</p>
       </div>
 
-      <div class="section-title">Optional</div>
+      <div class="section-sep">Optional</div>
 
       <!-- Resend key -->
       <div class="form-group">
-        <label>Resend API key <span class="optional-tag">OPTIONAL</span></label>
+        <label>Resend API key <span class="opt-tag">optional</span></label>
         <input type="password" class="input" id="resendKey" placeholder="re_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-        <p class="hint">
-          Get one free at <a href="https://resend.com" target="_blank">resend.com</a>.
-          Without it, messages are delivered via <strong>yo@hollr.to</strong>.
-        </p>
-      </div>
-
-      <!-- From email -->
-      <div class="form-group">
-        <label>From address <span class="optional-tag">OPTIONAL</span></label>
-        <input type="email" class="input" id="fromEmail" placeholder="you@yourdomain.com" autocomplete="email">
-        <p class="hint">Must be verified in your Resend account. Used as the sender on incoming messages.</p>
+        <p class="hint">Without it, messages arrive via <strong>yo@hollr.to</strong>. Get a free key at <a href="https://resend.com" target="_blank">resend.com</a>.</p>
       </div>
 
       <!-- PGP key -->
       <div class="form-group">
-        <label>PGP public key <span class="optional-tag">OPTIONAL</span></label>
-        <textarea class="input" id="pgpKey" rows="4"
-                  placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----&#10;...&#10;-----END PGP PUBLIC KEY BLOCK-----"></textarea>
-        <p class="hint">If set, senders can encrypt messages end-to-end with your PGP key. Only you can read them.</p>
+        <label>PGP public key <span class="opt-tag">optional</span></label>
+        <textarea class="input" id="pgpKey" rows="3"
+                  placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----"></textarea>
+        <p class="hint">Senders will encrypt messages end-to-end with your key. Only you can read them.</p>
       </div>
 
-      <button type="submit" class="btn btn-primary" id="claimBtn">Launch my canvas →</button>
+      <button type="submit" class="btn btn-primary" id="claimBtn" style="margin-top:8px">
+        Launch my canvas →
+      </button>
       <div class="form-err" id="formErr"></div>
     </form>
+  </div>
+
+  <!-- ── STATE: PIN change required ── -->
+  <div id="statePinChange" style="display:none">
+    <h1>Set a new PIN</h1>
+    <div class="info-box">
+      Your current PIN is the default <strong>1234</strong>. Choose something only you know before you start receiving messages.
+    </div>
+    <div class="form-stack">
+      <input type="password" class="input" id="newPinInput"
+             placeholder="New PIN (4–8 digits)" maxlength="8"
+             pattern="[0-9]{4,8}" inputmode="numeric" autocomplete="new-password">
+      <input type="password" class="input" id="newPinConfirm"
+             placeholder="Confirm PIN" maxlength="8"
+             pattern="[0-9]{4,8}" inputmode="numeric" autocomplete="new-password">
+      <p class="status-text" id="pinChangeStatus" style="min-height:16px"></p>
+      <button class="btn btn-primary" id="savePinBtn" onclick="saveNewPin()">Set PIN & open my canvas →</button>
+      <button class="back-link" onclick="skipPinChange()">Skip — I'll change it in settings</button>
+    </div>
   </div>
 
 </div>
 
 <script>
-/* ════════════════════════════════════════════════════════
-   hollr — auth/verify.html  (v4.0.0)
-   Handles:
-   1. ?token=  → magic link verification
-   2. ?x_session= → X OAuth callback
-   3. No params → sign-in choice screen (email / X)
-   ════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════
+   hollr — auth/verify.html (v4.2.0)
+
+   Flow states:
+   ┌─────────────────────────────────────────────────────────────┐
+   │ ?token=XXX          → verifyMagicToken() → onboarding or   │
+   │                        redirect to /handle                  │
+   │ ?x_session=XXX      → handleXCallback() → needsEmail? →    │
+   │                        onboarding or redirect to /handle    │
+   │ ?x_error=XXX        → stateError                           │
+   │ ?pin_reset=1        → after magic link, force PIN change    │
+   │ (nothing)           → stateChoose (email / X buttons)      │
+   └─────────────────────────────────────────────────────────────┘
+════════════════════════════════════════════════════════════════ */
 
 const API = 'https://api.hollr.to';
 const $ = id => document.getElementById(id);
 
-// ── Theme ────────────────────────────────────────────────────────────────────
+// ── Theme (match landing page) ────────────────────────────────
 (function () {
-  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  let saved;
+  try { saved = localStorage.getItem('hollr-theme'); } catch {}
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
 })();
 
-// ── State helpers ─────────────────────────────────────────────────────────────
-const STATES = ['stateVerifying','stateError','stateChoose','stateSent','stateOnboarding'];
-function showState(id) { STATES.forEach(s => $(s).style.display = s === id ? '' : 'none'); }
+// ── State machine ─────────────────────────────────────────────
+const ALL_STATES = [
+  'stateVerifying', 'stateError', 'stateChoose', 'stateSent',
+  'stateNeedEmail', 'stateOnboarding', 'statePinChange',
+];
+function showState(id) {
+  ALL_STATES.forEach(s => $(s).style.display = s === id ? '' : 'none');
+}
 
-// ── Entry point ──────────────────────────────────────────────────────────────
+// Session token in-memory (also in sessionStorage for canvas page)
+let _sessionToken = null;
+let _pendingHandle = null; // pre-filled from landing modal
+let _isAfterPinReset = false;
+
+function setSession(tok) {
+  _sessionToken = tok;
+  try { sessionStorage.setItem('hollr_session', tok); } catch {}
+}
+
+// ── Entry point ───────────────────────────────────────────────
 const params = new URLSearchParams(location.search);
+_isAfterPinReset = params.get('pin_reset') === '1';
+
+// Pre-fill handle from landing modal (stored in sessionStorage)
+try { _pendingHandle = sessionStorage.getItem('hollr_pending_handle') || null; } catch {}
 
 if (params.get('token')) {
-  // Magic link verification
   verifyMagicToken(params.get('token'));
 } else if (params.get('x_session')) {
-  // X OAuth callback
-  handleXCallback(params.get('x_session'), params.get('is_new') === 'true', params.get('x_username'));
+  handleXCallback(
+    params.get('x_session'),
+    params.get('is_new') === 'true',
+    params.get('needs_email') === '1',
+    params.get('x_username') || '',
+  );
 } else if (params.get('x_error')) {
   showState('stateError');
-  $('stateError').querySelector('p').textContent = 'X sign-in was cancelled or failed. Please try again.';
-  showState('stateError');
+  $('errorMsg').textContent = 'X sign-in was cancelled or failed. Please try again.';
 } else {
-  // No token — show sign-in options
   showState('stateChoose');
 }
 
-// ── Magic link verification ──────────────────────────────────────────────────
+// ── Magic link verification ────────────────────────────────────
 async function verifyMagicToken(tok) {
   $('statusMsg').textContent = 'Verifying…';
   try {
     const res  = await fetch(`${API}/api/auth/verify/${tok}`);
     const data = await res.json();
-    if (!res.ok || !data.ok) { showState('stateError'); return; }
-    sessionStorage.setItem('hollr_session', data.session_token);
+
+    if (!res.ok || !data.ok) {
+      showState('stateError');
+      return;
+    }
+
+    setSession(data.session_token);
+
+    // Returning user with a handle → redirect to their canvas
     if (!data.is_new_user && data.user?.handle) {
       $('statusMsg').textContent = 'Welcome back! Redirecting…';
-      setTimeout(() => { location.href = `/${data.user.handle}`; }, 600);
-    } else {
-      startOnboarding(data.session_token);
+      // If PIN was reset, go to canvas and prompt change there
+      if (data.is_pin_reset || _isAfterPinReset) {
+        $('statusMsg').textContent = 'PIN reset — redirecting to your canvas…';
+        setTimeout(() => { location.href = `/${data.user.handle}?pin_reset=1`; }, 700);
+      } else if (data.user.pin_is_default) {
+        // Has a handle but still on default PIN → redirect, canvas will nudge
+        setTimeout(() => { location.href = `/${data.user.handle}`; }, 700);
+      } else {
+        setTimeout(() => { location.href = `/${data.user.handle}`; }, 600);
+      }
+      return;
     }
-  } catch { showState('stateError'); }
+
+    // New user or no handle yet → onboarding
+    startOnboarding(data.session_token);
+  } catch {
+    showState('stateError');
+  }
 }
 
-// ── X OAuth callback ─────────────────────────────────────────────────────────
-function handleXCallback(sessionTok, isNew, xUsername) {
-  sessionStorage.setItem('hollr_session', sessionTok);
+// ── X OAuth callback ───────────────────────────────────────────
+function handleXCallback(sessionTok, isNew, needsEmail, xUsername) {
+  setSession(sessionTok);
+
   if (!isNew) {
-    $('statusMsg').textContent = `Welcome back, @${xUsername}! Redirecting…`;
+    // Returning X user
+    $('statusMsg').textContent = `Welcome back${xUsername ? ', @' + xUsername : ''}! Redirecting…`;
     showState('stateVerifying');
-    // Need to look up the handle to redirect properly
     fetch(`${API}/api/me`, { headers: { Authorization: `Bearer ${sessionTok}` } })
       .then(r => r.json())
       .then(data => {
-        if (data.handle) { location.href = `/${data.handle}`; }
-        else { startOnboarding(sessionTok); }
+        if (data.handle) {
+          location.href = `/${data.handle}`;
+        } else {
+          startOnboarding(sessionTok, xUsername);
+        }
       })
-      .catch(() => startOnboarding(sessionTok));
+      .catch(() => startOnboarding(sessionTok, xUsername));
+    return;
+  }
+
+  // New X user
+  if (needsEmail) {
+    // Show email collection step before onboarding
+    showState('stateNeedEmail');
+    $('xEmailInput').focus();
   } else {
     startOnboarding(sessionTok, xUsername);
   }
 }
 
-// ── Sign-in choice screen ────────────────────────────────────────────────────
-function startXLogin(e) {
-  e.preventDefault();
-  $('btnX').textContent = 'Redirecting to X…';
-  $('btnX').style.opacity = '0.6';
-  location.href = `${API}/api/auth/x`;
+// ── Collect email for X-only users ────────────────────────────
+async function saveXEmail() {
+  const email = $('xEmailInput').value.trim();
+  const statusEl = $('xEmailStatus');
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    statusEl.textContent = 'Please enter a valid email address.';
+    statusEl.style.color = 'var(--error)';
+    return;
+  }
+
+  const btn = $('xEmailBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  statusEl.textContent = '';
+
+  try {
+    const res  = await fetch(`${API}/api/settings/email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${_sessionToken}` },
+      body: JSON.stringify({ pin: '1234', email }),
+    });
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      // Email saved — now go to onboarding
+      startOnboarding(_sessionToken);
+    } else {
+      statusEl.textContent = data.error || 'Could not save email. Try again.';
+      statusEl.style.color = 'var(--error)';
+      btn.disabled = false; btn.textContent = 'Continue →';
+    }
+  } catch {
+    statusEl.textContent = 'Network error. Please try again.';
+    statusEl.style.color = 'var(--error)';
+    btn.disabled = false; btn.textContent = 'Continue →';
+  }
+}
+
+function skipXEmail() {
+  // Skip email — go straight to onboarding (notifications won't work until they add email in settings)
+  startOnboarding(_sessionToken);
+}
+
+// ── Sign-in choice helpers ─────────────────────────────────────
+function startXLogin() {
+  const btn = $('btnX');
+  btn.disabled = true;
+  btn.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="animation:spin .7s linear infinite">
+      <path d="M12 2a10 10 0 0 1 10 10"/>
+    </svg>
+    Redirecting to X…`;
+  setTimeout(() => { location.href = `${API}/api/auth/x`; }, 300);
 }
 
 function showEmailForm() {
@@ -370,15 +553,28 @@ function showEmailBtn() {
 
 function showChoose() { showState('stateChoose'); showEmailBtn(); }
 
+document.addEventListener('DOMContentLoaded', () => {
+  const ei = $('emailInput');
+  if (ei) ei.addEventListener('keydown', e => { if (e.key === 'Enter') sendMagicLink(); });
+  const xi = $('xEmailInput');
+  if (xi) xi.addEventListener('keydown', e => { if (e.key === 'Enter') saveXEmail(); });
+  const pi = $('newPinInput');
+  if (pi) pi.addEventListener('keydown', e => { if (e.key === 'Enter') saveNewPin(); });
+});
+
 async function sendMagicLink() {
   const email = $('emailInput').value.trim();
+  const statusEl = $('emailStatus');
+
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    $('emailStatus').textContent = 'Please enter a valid email address.';
-    $('emailStatus').style.color = 'var(--error)';
+    statusEl.textContent = 'Please enter a valid email.';
+    statusEl.style.color = 'var(--error)';
     return;
   }
-  $('emailStatus').textContent = 'Sending…';
-  $('emailStatus').style.color = 'var(--muted)';
+
+  statusEl.textContent = 'Sending…';
+  statusEl.style.color = 'var(--muted)';
+
   try {
     const res  = await fetch(`${API}/api/auth/magic-link`, {
       method: 'POST',
@@ -390,28 +586,34 @@ async function sendMagicLink() {
       $('sentTo').textContent = email;
       showState('stateSent');
     } else {
-      $('emailStatus').textContent = data.error || 'Failed to send. Please try again.';
-      $('emailStatus').style.color = 'var(--error)';
+      statusEl.textContent = data.error || 'Failed. Please try again.';
+      statusEl.style.color = 'var(--error)';
     }
   } catch {
-    $('emailStatus').textContent = 'Network error. Please try again.';
-    $('emailStatus').style.color = 'var(--error)';
+    statusEl.textContent = 'Network error. Please try again.';
+    statusEl.style.color = 'var(--error)';
   }
 }
 
-// Allow pressing Enter in email input
-document.addEventListener('DOMContentLoaded', () => {
-  const ei = $('emailInput');
-  if (ei) ei.addEventListener('keydown', e => { if (e.key === 'Enter') sendMagicLink(); });
-});
-
-// ── Onboarding form ──────────────────────────────────────────────────────────
+// ── Onboarding ─────────────────────────────────────────────────
 function startOnboarding(sessionToken, prefillUsername) {
+  _sessionToken = sessionToken;
   showState('stateOnboarding');
-  if (prefillUsername) {
-    const hi = $('handleInput');
-    if (hi) hi.value = prefillUsername.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30);
+
+  const hi = $('handleInput');
+
+  // Pre-fill from landing modal (sessionStorage) or X username
+  if (_pendingHandle && /^[a-zA-Z0-9_-]{2,30}$/.test(_pendingHandle)) {
+    hi.value = _pendingHandle;
+    // Clear so refreshes don't re-use a stale value
+    try { sessionStorage.removeItem('hollr_pending_handle'); } catch {}
+    // Trigger availability check
+    hi.dispatchEvent(new Event('input'));
+  } else if (prefillUsername) {
+    hi.value = prefillUsername.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30);
+    hi.dispatchEvent(new Event('input'));
   }
+
   setupOnboarding(sessionToken);
 }
 
@@ -420,6 +622,7 @@ function setupOnboarding(sessionToken) {
   let checkTimer = null;
   let handleOk   = false;
 
+  // ── Handle availability check ──
   handleInput.addEventListener('input', () => {
     clearTimeout(checkTimer);
     const h = handleInput.value.trim();
@@ -427,6 +630,13 @@ function setupOnboarding(sessionToken) {
     $('availMsg').className   = 'avail-msg';
     handleOk = false;
     if (h.length < 2) return;
+    if (!/^[a-zA-Z0-9_-]{2,30}$/.test(h)) {
+      $('availMsg').textContent = 'Letters, numbers, _ and - only (2–30 chars)';
+      $('availMsg').className   = 'avail-msg avail-err';
+      return;
+    }
+    $('availMsg').textContent = 'Checking…';
+    $('availMsg').className   = 'avail-msg';
     checkTimer = setTimeout(async () => {
       try {
         const res  = await fetch(`${API}/api/handle/check`, {
@@ -436,57 +646,70 @@ function setupOnboarding(sessionToken) {
         });
         const data = await res.json();
         if (data.available) {
-          $('availMsg').textContent = `✓ ${h} is available!`;
+          $('availMsg').textContent = `✓ hollr.to/${h} is yours for the taking!`;
           $('availMsg').className   = 'avail-msg avail-ok';
           handleOk = true;
         } else {
-          $('availMsg').textContent = data.reason || `✗ ${h} is already taken`;
+          $('availMsg').textContent = data.reason || `✗ hollr.to/${h} is already taken`;
           $('availMsg').className   = 'avail-msg avail-err';
         }
-      } catch {}
+      } catch {
+        $('availMsg').textContent = '';
+      }
     }, 450);
   });
 
-  $('onboardForm').addEventListener('submit', async (e) => {
+  // ── Submit ──
+  $('onboardForm').addEventListener('submit', async e => {
     e.preventDefault();
     const btn = $('claimBtn');
     $('formErr').className = 'form-err';
 
-    const handle     = handleInput.value.trim();
-    const pin        = $('pinInput').value.trim();
-    const resendKey  = $('resendKey').value.trim();
-    const fromEmail  = $('fromEmail').value.trim();
-    const pgpKey     = $('pgpKey').value.trim();
+    const handle  = handleInput.value.trim();
+    const pin     = $('pinInput').value.trim();
+    const resendK = $('resendKey').value.trim();
+    const pgpKey  = $('pgpKey').value.trim();
 
-    if (!handle)              { showFormErr('Please choose a handle.'); return; }
-    if (!handleOk)            { showFormErr('That handle is not available.'); return; }
-    if (!pin || pin.length < 4) { showFormErr('PIN must be at least 4 digits.'); return; }
+    if (!handle)   { showFormErr('Please choose a handle.'); return; }
+    if (!handleOk) { showFormErr('That handle is not available.'); return; }
+    if (pin && !/^\d{4,8}$/.test(pin)) {
+      showFormErr('PIN must be 4–8 digits.'); return;
+    }
     if (pgpKey && !pgpKey.includes('BEGIN PGP PUBLIC KEY')) {
-      showFormErr('PGP key must be an armoured public key block.'); return;
+      showFormErr('PGP key must be a valid armoured public key block.'); return;
     }
 
     btn.disabled    = true;
     btn.textContent = 'Claiming…';
 
     try {
-      const res = await fetch(`${API}/api/handle/claim`, {
+      const body = { handle };
+      if (pin)     body.pin            = pin;
+      if (resendK) body.resend_key     = resendK;
+      if (pgpKey)  body.pgp_public_key = pgpKey;
+
+      const res  = await fetch(`${API}/api/handle/claim`, {
         method: 'POST',
         headers: {
           'Content-Type':  'application/json',
           'Authorization': `Bearer ${sessionToken}`,
         },
-        body: JSON.stringify({
-          handle,
-          pin,
-          resend_key:     resendKey || undefined,
-          from_email:     fromEmail || undefined,
-          pgp_public_key: pgpKey    || undefined,
-        }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
+
       if (res.ok && data.ok) {
-        btn.textContent = '🎉 Launching…';
-        setTimeout(() => { location.href = `/${handle}`; }, 500);
+        // If user left PIN blank → default 1234 → prompt change before canvas
+        if (data.pin_is_default) {
+          btn.textContent = '🎉 Almost there…';
+          showState('statePinChange');
+          $('newPinInput').focus();
+          // Store handle so PIN change step can redirect after
+          window.__pendingRedirectHandle = handle;
+        } else {
+          btn.textContent = '🎉 Launching…';
+          setTimeout(() => { location.href = `/${handle}`; }, 500);
+        }
       } else {
         showFormErr(data.error || 'Something went wrong.');
         btn.disabled    = false;
@@ -504,6 +727,67 @@ function setupOnboarding(sessionToken) {
     $('formErr').className   = 'form-err show';
   }
 }
+
+// ── PIN change (after onboarding with default PIN) ─────────────
+async function saveNewPin() {
+  const newPin  = $('newPinInput').value.trim();
+  const confirm = $('newPinConfirm').value.trim();
+  const statusEl = $('pinChangeStatus');
+  const btn = $('savePinBtn');
+
+  if (!newPin || !/^\d{4,8}$/.test(newPin)) {
+    statusEl.textContent = 'PIN must be 4–8 digits.';
+    statusEl.style.color = 'var(--error)';
+    return;
+  }
+  if (newPin === '1234') {
+    statusEl.textContent = 'Please choose something other than 1234.';
+    statusEl.style.color = 'var(--error)';
+    return;
+  }
+  if (newPin !== confirm) {
+    statusEl.textContent = 'PINs don\'t match.';
+    statusEl.style.color = 'var(--error)';
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+  statusEl.textContent = '';
+
+  try {
+    const res = await fetch(`${API}/api/settings/change-pin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${_sessionToken}` },
+      body: JSON.stringify({ current_pin: '1234', new_pin: newPin }),
+    });
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      const handle = window.__pendingRedirectHandle || null;
+      btn.textContent = '🎉 Opening your canvas…';
+      setTimeout(() => { location.href = handle ? `/${handle}` : '/'; }, 600);
+    } else {
+      statusEl.textContent = data.error || 'Could not save PIN. Try again.';
+      statusEl.style.color = 'var(--error)';
+      btn.disabled = false; btn.textContent = 'Set PIN & open my canvas →';
+    }
+  } catch {
+    statusEl.textContent = 'Network error. Please try again.';
+    statusEl.style.color = 'var(--error)';
+    btn.disabled = false; btn.textContent = 'Set PIN & open my canvas →';
+  }
+}
+
+function skipPinChange() {
+  const handle = window.__pendingRedirectHandle || '/';
+  location.href = handle ? `/${handle}` : '/';
+}
+
+/* spin animation for X loading state */
+(function() {
+  const s = document.createElement('style');
+  s.textContent = '@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}';
+  document.head.appendChild(s);
+})();
 </script>
 </body>
 </html>

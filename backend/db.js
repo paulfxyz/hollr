@@ -46,11 +46,12 @@ db.exec(`
   );
 
   CREATE TABLE IF NOT EXISTS magic_links (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    email      TEXT    NOT NULL,
-    token      TEXT    NOT NULL UNIQUE,
-    expires_at INTEGER NOT NULL,
-    used       INTEGER NOT NULL DEFAULT 0
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    email        TEXT    NOT NULL,
+    token        TEXT    NOT NULL UNIQUE,
+    expires_at   INTEGER NOT NULL,
+    used         INTEGER NOT NULL DEFAULT 0,
+    is_pin_reset INTEGER NOT NULL DEFAULT 0
   );
 
   CREATE TABLE IF NOT EXISTS sessions (
@@ -84,11 +85,15 @@ db.exec(`
 // ── Runtime migrations (add columns added in v4.2.0 to existing DBs) ─────────
 
 const v4Columns = [
-  { table: 'users', col: 'x_id',          def: 'TEXT' },
-  { table: 'users', col: 'x_username',    def: 'TEXT' },
-  { table: 'users', col: 'x_token',       def: 'TEXT' },
-  { table: 'users', col: 'x_token_secret',def: 'TEXT' },
-  { table: 'users', col: 'pgp_public_key',def: 'TEXT' },
+  { table: 'users',       col: 'x_id',          def: 'TEXT' },
+  { table: 'users',       col: 'x_username',    def: 'TEXT' },
+  { table: 'users',       col: 'x_token',       def: 'TEXT' },
+  { table: 'users',       col: 'x_token_secret',def: 'TEXT' },
+  { table: 'users',       col: 'pgp_public_key',def: 'TEXT' },
+  // v4.1.0
+  { table: 'users',       col: 'pin_is_default',def: 'INTEGER NOT NULL DEFAULT 0' },
+  // v4.2.0
+  { table: 'magic_links', col: 'is_pin_reset',  def: 'INTEGER NOT NULL DEFAULT 0' },
 ];
 
 for (const { table, col, def } of v4Columns) {

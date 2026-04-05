@@ -4416,61 +4416,36 @@ function applyLang(code) {
     }
   });
 
-  emailForm && emailForm.addEventListener('submit', async e => {
+  emailForm && emailForm.addEventListener('submit', e => {
     e.preventDefault();
     const handle    = (emailForm.querySelector('[name="handle"]')?.value || '').trim();
     const email     = (emailForm.querySelector('[name="email"]')?.value  || '').trim();
     const submitBtn = emailForm.querySelector('button[type="submit"]');
+
     if (!handle || !email) return;
 
-    // Validate handle format
+    // Validate handle format inline
     if (!/^[a-zA-Z0-9_-]{2,30}$/.test(handle)) {
-      const errEl = emailForm.querySelector('.email-form__error') || (() => {
-        const d = document.createElement('p');
-        d.className = 'email-form__error';
-        d.style.cssText = 'color:#c0392b;font-size:0.8rem;margin-top:4px';
-        emailForm.appendChild(d); return d;
-      })();
-      errEl.textContent = 'Handle must be 2–30 characters (letters, numbers, _ or -).';
+      let errEl = emailForm.querySelector('.email-form__error');
+      if (!errEl) {
+        errEl = document.createElement('p');
+        errEl.className = 'email-form__error';
+        errEl.style.cssText = 'color:#c0392b;font-size:0.8rem;margin-top:4px';
+        emailForm.appendChild(errEl);
+      }
+      errEl.textContent = 'Handle must be 2–30 characters (letters, numbers, _ or -)';
       return;
     }
 
-    // Store handle in sessionStorage so auth/verify can pre-fill it
+    // Store desired handle so auth/verify can pre-fill it during onboarding
     try { sessionStorage.setItem('hollr_pending_handle', handle); } catch {}
 
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending…'; }
-
-    try {
-      const res  = await fetch('https://api.hollr.to/api/auth/magic-link', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (res.ok && data.ok) {
-        // Show success — magic link sent; direct them to check email
-        if (connectEl) connectEl.style.display = 'none';
-        if (successEl) {
-          successEl.hidden = false;
-          const successTitle = document.getElementById('modal-success-title');
-          const successBody  = document.getElementById('modal-success-body');
-          if (successTitle) successTitle.textContent = 'Check your inbox!';
-          if (successBody)  successBody.textContent  = `We sent a magic link to ${email}. Click it to claim hollr.to/${handle}.`;
-          if (successHandle) successHandle.textContent = 'hollr.to/' + handle;
-        }
-      } else {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Claim handle →'; }
-        const errEl = emailForm.querySelector('.email-form__error') || (() => {
-          const d = document.createElement('p');
-          d.className = 'email-form__error';
-          d.style.cssText = 'color:#c0392b;font-size:0.8rem;margin-top:4px';
-          emailForm.appendChild(d); return d;
-        })();
-        errEl.textContent = data.error || 'Something went wrong. Please try again.';
-      }
-    } catch {
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Claim handle →'; }
-    }
+    // Send them to the dedicated sign-in page which handles the full flow:
+    // email → magic link → verify → onboarding → /handle
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Taking you there…'; }
+    setTimeout(() => {
+      window.location.href = '/auth/verify';
+    }, 200);
   });
 
   /* ── Reset email form on modal close ── */
