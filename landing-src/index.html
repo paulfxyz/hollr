@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hollr — holla at me.</title>
+  <meta name="description" content="Your personal hollr link, encrypted end-to-end. Works instantly — messages land at yo@hollr.to or your own inbox. Free & open source." />
+  <meta property="og:title" content="hollr — holla at me." />
+  <meta property="og:description" content="Claim your handle, share your link. Messages arrive PGP-encrypted — zero setup, or bring your own Resend key. Free & open source." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://hollr.to" />
+
+  <!-- Fonts: Fraunces (display, wide+warm) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Inter:wght@300..600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <header class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="/" class="nav__logo" aria-label="hollr home">
+        <svg class="nav__logomark" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 8.5H7.5L15 5V19L7.5 15.5H3V8.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M7.5 15.5V20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M18 9.5C18.9 10.4 19.5 11.6 19.5 13C19.5 14.4 18.9 15.6 18 16.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M16.2 11.3C16.7 11.8 17 12.4 17 13C17 13.6 16.7 14.2 16.2 14.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <span>hollr</span>
+      </a>
+
+      <nav class="nav__links" aria-label="Primary navigation">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#api">API &amp; MCP</a>
+        <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener">GitHub &#8599;</a>
+      </nav>
+
+      <div class="nav__actions">
+        <button class="lang-btn" id="lang-btn" aria-label="Change language" title="Language">
+          <span class="lang-btn__flag" id="lang-flag">&#x1F1EC;&#x1F1E7;</span>
+          <span class="lang-btn__code" id="lang-code">EN</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="lang-btn__chevron"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <button class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+        <button class="btn btn--primary" data-modal-open>Get your hollr link</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- HERO — Editorial monument layout -->
+    <section class="hero">
+
+      <!-- DISPLAY WORD — bleeds edge to edge -->
+      <div class="hero__monument" aria-hidden="true">
+        <span class="hero__monument-word">HOLLER.</span>
+      </div>
+
+      <div class="hero__inner">
+
+        <!-- LEFT: editorial text column -->
+        <div class="hero__text-col">
+          <div class="hero__pill">
+            <span class="pill__dot"></span>
+            Free &amp; open source — no cap
+          </div>
+          <h1 class="hero__headline" data-i18n="hero_h1">
+            <span class="hero__h1-line hero__h1-line--1">Holla</span>
+            <span class="hero__h1-line hero__h1-line--2">at me.</span>
+            <em class="hero__h1-em">Encrypted<br>on arrival.</em>
+          </h1>
+          <p class="hero__sub" data-i18n="hero_sub">
+            Your personal hollr link. Anyone can write, drop a voice note, or attach files — straight to your inbox, PGP-encrypted before it leaves their screen.
+          </p>
+          <div class="hero__actions">
+            <button class="btn btn--primary btn--hero" data-modal-open>
+              Get your hollr link
+              <span class="btn-arrow" aria-hidden="true">&rarr;</span>
+            </button>
+            <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener" class="btn btn--ghost btn--lg">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub
+            </a>
+          </div>
+        </div>
+
+        <!-- RIGHT: illustration column -->
+        <div class="hero__illustration-col">
+          <!-- ENCRYPTED stamp -->
+          <div class="hero__stamp" aria-hidden="true">PGP ENCRYPTED</div>
+
+        <!-- 2. Illustration — full width -->
+        <div class="hero__illustration" aria-hidden="true">
+            <div class="canvas-mock">
+
+              <!-- Browser chrome -->
+              <div class="canvas-mock__bar">
+                <span class="canvas-mock__dot canvas-mock__dot--red"></span>
+                <span class="canvas-mock__dot canvas-mock__dot--yellow"></span>
+                <span class="canvas-mock__dot canvas-mock__dot--green"></span>
+                <span class="canvas-mock__url">hollr.to/<strong>elon</strong></span>
+              </div>
+
+              <!-- Canvas page -->
+              <div class="canvas-mock__page">
+
+                <!-- Writing-in-progress card -->
+                <div class="canvas-mock__card canvas-mock__card--writing">
+
+                  <!-- Card header -->
+                  <div class="canvas-mock__card-header">
+                    <p class="canvas-mock__label">MESSAGE TO YOURNAME</p>
+                    <span class="canvas-mock__writing-badge">
+                      <span class="canvas-mock__writing-dot"></span>
+                      Writing
+                    </span>
+                  </div>
+
+                  <!-- Live textarea -->
+                  <div class="canvas-mock__textarea">
+                    <p class="canvas-mock__typed" id="mock-typed-text"></p><span class="canvas-mock__cursor" id="mock-cursor">|</span>
+                  </div>
+
+                  <!-- Bottom toolbar -->
+                  <div class="canvas-mock__toolbar">
+                    <div class="canvas-mock__toolbar-left">
+                      <button class="canvas-mock__tool-btn" tabindex="-1">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                      </button>
+                      <button class="canvas-mock__tool-btn" tabindex="-1">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                      </button>
+                      <span class="canvas-mock__wordcount" id="mock-wordcount">0 words</span>
+                    </div>
+                    <button class="canvas-mock__send-btn" tabindex="-1">
+                      Send
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Floating timer panel -->
+                <div class="canvas-mock__timer">
+                  <p class="canvas-mock__timer-label">TIMER</p>
+                  <p class="canvas-mock__timer-val">
+                    <span class="canvas-mock__timer-pulse"></span>
+                    <span id="mock-timer-display">01:47</span>
+                  </p>
+                  <p class="canvas-mock__timer-ms" id="mock-timer-ms">.28</p>
+                  <button class="canvas-mock__pause" tabindex="-1">Pause</button>
+                  <div class="canvas-mock__timer-divider"></div>
+                  <button class="canvas-mock__tool-link" tabindex="-1">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/></svg>
+                    Voice
+                  </button>
+                  <button class="canvas-mock__tool-link" tabindex="-1">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    File
+                  </button>
+                </div>
+
+              </div>
+            </div>
+        </div>
+
+        </div><!-- /hero__illustration-col -->
+
+      </div><!-- /hero__inner -->
+    </section>
+
+    <!-- STATS STRIP -->
+    <div class="stats-strip" id="stats-strip">
+      <div class="stats-inner">
+        <div class="stat">
+          <span class="stat__val">100%</span>
+          <span class="stat__label">Always free, no cap</span>
+        </div>
+        <div class="stat__divider"></div>
+        <div class="stat">
+          <span class="stat__val">0</span>
+          <span class="stat__label">Messages stored by us</span>
+        </div>
+        <div class="stat__divider"></div>
+        <div class="stat">
+          <span class="stat__val">10</span>
+          <span class="stat__label">Languages — worldwide</span>
+        </div>
+        <div class="stat__divider"></div>
+        <div class="stat">
+          <span class="stat__val">&infin;</span>
+          <span class="stat__label">Handles to claim</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS — Editorial numbered list -->
+    <section class="section" id="how">
+      <div class="container">
+        <div class="section__intro">
+          <p class="eyebrow">How it works</p>
+          <h2 class="section__title">From zero to<br><em>hollr.to/you</em> in 60 seconds.</h2>
+          <p class="section__sub">No app to download, no credit card, no DM requests sitting unread. Just a link people can actually use to reach you.</p>
+        </div>
+
+        <ol class="steps-list" role="list">
+          <li class="step-row js-reveal">
+            <span class="step-row__num">01</span>
+            <div class="step-row__content">
+              <h3>Drop your email</h3>
+              <p>A magic link hits your inbox. No password, no account setup. One click and you're in.</p>
+            </div>
+            <p class="step-row__aside">No passwords to forget, no data to leak. Magic links expire after one use — nothing lingers.</p>
+          </li>
+          <li class="step-row js-reveal">
+            <span class="step-row__num">02</span>
+            <div class="step-row__content">
+              <h3>Claim your handle</h3>
+              <p><code class="inline-code">hollr.to/yourname</code> — first come, first served. Your canvas goes live the second you pick it.</p>
+            </div>
+            <p class="step-row__aside">Your handle is your street address online. Put it in your bio, your email footer, your business card. It's yours.</p>
+          </li>
+          <li class="step-row js-reveal">
+            <span class="step-row__num">03</span>
+            <div class="step-row__content">
+              <h3>Works out of the box</h3>
+              <p>Messages arrive at <code class="inline-code">yo@hollr.to</code> by default — zero setup. Or plug in your own Resend key and they go straight to you.</p>
+            </div>
+            <p class="step-row__aside">Either way, every hollr is PGP-encrypted before it leaves the sender's browser. We deliver the ciphertext — nothing sits in plaintext, ever.</p>
+          </li>
+          <li class="step-row js-reveal">
+            <span class="step-row__num">04</span>
+            <div class="step-row__content">
+              <h3>Put it out there</h3>
+              <p>Bio, email sig, business card, anywhere. Now anyone can holler at you — and actually reach you.</p>
+            </div>
+            <p class="step-row__aside">No app to install, no account needed to send. Your senders just open the link and start writing. That's it.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- WHAT YOUR SENDERS SEE — 3 Panels -->
+    <section class="section senders-section" id="senders">
+      <div class="container">
+        <div class="section__intro section__intro--center">
+          <p class="eyebrow">What they see when they holler</p>
+          <h2 class="section__title">Not a form.<br><em>A canvas.</em></h2>
+          <p class="section__sub">When someone visits your hollr link, they get a quiet, focused writing space. No ads, no distractions, no follower counts. Just them and their words.</p>
+        </div>
+
+        <div class="senders-grid">
+          <!-- Panel 1: The Writing Space -->
+          <div class="sender-panel js-reveal">
+            <div class="sender-panel__visual">
+              <svg viewBox="0 0 320 260" fill="none" xmlns="http://www.w3.org/2000/svg" class="sender-svg">
+                <!-- Card bg -->
+                <rect x="10" y="10" width="300" height="240" rx="10" fill="var(--mock-card, #ffffff)" stroke="var(--mock-border, #e8e1d8)" stroke-width="1"/>
+                <!-- Label -->
+                <text x="28" y="38" font-family="Inter, sans-serif" font-size="8" fill="var(--mock-muted, #8a837a)" letter-spacing="1" font-weight="500">MESSAGE TO YOURNAME</text>
+                <!-- Headline -->
+                <text x="28" y="66" font-family="Georgia, serif" font-size="17" fill="var(--mock-text, #1a1814)" font-weight="500">Say something worth writing.</text>
+                <!-- Divider -->
+                <line x1="28" y1="82" x2="292" y2="82" stroke="var(--mock-border, #e8e1d8)" stroke-width="0.8"/>
+                <!-- Steps -->
+                <circle cx="40" cy="104" r="9" fill="var(--mock-text, #1a1814)"/>
+                <text x="37.5" y="108" font-family="Inter, sans-serif" font-size="9" fill="var(--mock-card, #ffffff)" font-weight="600" text-anchor="middle">1</text>
+                <text x="58" y="107" font-family="Inter, sans-serif" font-size="9.5" fill="var(--mock-text, #1a1814)" font-weight="500">Hit Start — the timer begins</text>
+
+                <circle cx="40" cy="130" r="9" fill="var(--mock-text, #1a1814)"/>
+                <text x="37.5" y="134" font-family="Inter, sans-serif" font-size="9" fill="var(--mock-card, #ffffff)" font-weight="600" text-anchor="middle">2</text>
+                <text x="58" y="133" font-family="Inter, sans-serif" font-size="9.5" fill="var(--mock-text, #1a1814)" font-weight="500">Write freely. Attach files or voice.</text>
+
+                <circle cx="40" cy="156" r="9" fill="var(--mock-text, #1a1814)"/>
+                <text x="37.5" y="160" font-family="Inter, sans-serif" font-size="9" fill="var(--mock-card, #ffffff)" font-weight="600" text-anchor="middle">3</text>
+                <text x="58" y="159" font-family="Inter, sans-serif" font-size="9.5" fill="var(--mock-text, #1a1814)" font-weight="500">Send when ready</text>
+
+                <!-- CTA -->
+                <rect x="28" y="178" width="264" height="34" rx="7" fill="var(--mock-text, #1a1814)"/>
+                <text x="160" y="199" font-family="Inter, sans-serif" font-size="11" fill="var(--mock-card, #ffffff)" font-weight="500" text-anchor="middle">&#9654;  Start writing</text>
+
+                <!-- Caption -->
+                <text x="160" y="230" font-family="Inter, sans-serif" font-size="7.5" fill="var(--mock-muted, #8a837a)" text-anchor="middle" opacity="0.7">Timer starts immediately</text>
+              </svg>
+            </div>
+            <h3 class="sender-panel__title">The canvas</h3>
+            <p class="sender-panel__body">Three steps, one button. No clutter, no followers count, no blue checkmarks. Just "say something worth writing."</p>
+          </div>
+
+          <!-- Panel 2: The Timer -->
+          <div class="sender-panel js-reveal">
+            <div class="sender-panel__visual">
+              <svg viewBox="0 0 320 260" fill="none" xmlns="http://www.w3.org/2000/svg" class="sender-svg">
+                <!-- Parchment bg -->
+                <rect x="10" y="10" width="300" height="240" rx="10" fill="var(--mock-bg, #f9f6f1)" stroke="var(--mock-border, #e8e1d8)" stroke-width="1"/>
+                <!-- Timer panel -->
+                <rect x="85" y="35" width="150" height="190" rx="12" fill="var(--mock-card, #ffffff)" stroke="var(--mock-border, #e8e1d8)" stroke-width="1"/>
+                <!-- Timer label -->
+                <text x="160" y="65" font-family="'SF Mono', monospace" font-size="9" fill="var(--mock-muted, #8a837a)" text-anchor="middle" letter-spacing="1" font-weight="500">TIMER</text>
+                <!-- Pulse dot -->
+                <circle cx="115" cy="94" r="4" fill="var(--mock-amber, #c96a2a)" opacity="0.8">
+                  <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/>
+                  <animate attributeName="r" values="4;3;4" dur="2s" repeatCount="indefinite"/>
+                </circle>
+                <!-- Time display -->
+                <text x="160" y="104" font-family="'SF Mono', 'Courier New', monospace" font-size="36" fill="var(--mock-text, #1a1814)" text-anchor="middle" font-weight="500">03:27</text>
+                <text x="160" y="122" font-family="'SF Mono', monospace" font-size="14" fill="var(--mock-muted, #8a837a)" text-anchor="middle">.84</text>
+                <!-- Pause button -->
+                <rect x="115" y="138" width="90" height="28" rx="6" fill="var(--mock-border, #e8e1d8)"/>
+                <text x="160" y="156" font-family="Inter, sans-serif" font-size="10.5" fill="var(--mock-muted, #8a837a)" text-anchor="middle" font-weight="500">Pause</text>
+                <!-- Links -->
+                <text x="160" y="185" font-family="Inter, sans-serif" font-size="9" fill="var(--mock-amber, #c96a2a)" text-anchor="middle">Attach file</text>
+                <text x="160" y="200" font-family="Inter, sans-serif" font-size="9" fill="var(--mock-amber, #c96a2a)" text-anchor="middle">Record voice</text>
+              </svg>
+            </div>
+            <h3 class="sender-panel__title">The clock</h3>
+            <p class="sender-panel__body">The timer only runs while they're actually writing — not idling. Every second on that clock is a second spent on you.</p>
+          </div>
+
+          <!-- Panel 3: Send & Receive -->
+          <div class="sender-panel js-reveal">
+            <div class="sender-panel__visual">
+              <svg viewBox="0 0 320 260" fill="none" xmlns="http://www.w3.org/2000/svg" class="sender-svg">
+                <!-- Background -->
+                <rect x="10" y="10" width="300" height="240" rx="10" fill="var(--mock-bg, #f9f6f1)" stroke="var(--mock-border, #e8e1d8)" stroke-width="1"/>
+                <!-- Success card -->
+                <rect x="60" y="40" width="200" height="170" rx="12" fill="var(--mock-card, #ffffff)" stroke="var(--mock-border, #e8e1d8)" stroke-width="1"/>
+                <!-- Check circle -->
+                <circle cx="160" cy="82" r="22" fill="none" stroke="var(--mock-amber, #c96a2a)" stroke-width="2"/>
+                <polyline points="148,82 156,90 172,74" stroke="var(--mock-amber, #c96a2a)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <!-- Sent text -->
+                <text x="160" y="122" font-family="Georgia, serif" font-size="16" fill="var(--mock-text, #1a1814)" text-anchor="middle" font-weight="500">Message sent</text>
+                <text x="160" y="142" font-family="Inter, sans-serif" font-size="9.5" fill="var(--mock-muted, #8a837a)" text-anchor="middle">3 minutes, 27 seconds of writing</text>
+                <text x="160" y="157" font-family="Inter, sans-serif" font-size="9.5" fill="var(--mock-muted, #8a837a)" text-anchor="middle">Delivered via yo@hollr.to or your key</text>
+                <!-- Timer display -->
+                <text x="160" y="185" font-family="'SF Mono', monospace" font-size="11" fill="var(--mock-amber, #c96a2a)" text-anchor="middle" font-weight="500">03:27.84</text>
+                <!-- Lock icon bottom -->
+                <rect x="130" y="220" width="60" height="20" rx="10" fill="var(--mock-card, #ffffff)" stroke="var(--mock-border, #e8e1d8)" stroke-width="0.8"/>
+                <text x="160" y="233" font-family="Inter, sans-serif" font-size="7.5" fill="var(--mock-muted, #8a837a)" text-anchor="middle">AES-256</text>
+              </svg>
+            </div>
+            <h3 class="sender-panel__title">Hollr received</h3>
+            <p class="sender-panel__body">PGP-encrypted before it left their browser, routed through yo@hollr.to or your own Resend key. It lands in your inbox — and nowhere else.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES — 2-col grid -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section__intro section__intro--center">
+          <p class="eyebrow">What hollr brings</p>
+          <h2 class="section__title">No noise.<br><em>Just signal.</em></h2>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card js-reveal">
+            <div class="feature-card__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <h3 class="feature-card__title">Zero setup. Or full control.</h3>
+            <p class="feature-card__body">By default, hollrs arrive at <code class="inline-code">yo@hollr.to</code> — instant, no config. Bring your own Resend key and messages go straight to you. Same encryption, your choice.</p>
+          </div>
+
+          <div class="feature-card js-reveal">
+            <div class="feature-card__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h3 class="feature-card__title">Timed canvas</h3>
+            <p class="feature-card__body">The clock runs while they write, stops while they idle. No ghost drafts, no half-baked messages. This makes people actually think before they holler.</p>
+          </div>
+
+          <div class="feature-card js-reveal">
+            <div class="feature-card__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>
+            </div>
+            <h3 class="feature-card__title">Voice hollrs</h3>
+            <p class="feature-card__body">Sometimes you just need to hear someone's voice. Record in-browser, no app needed. Audio arrives as a download link straight in your inbox.</p>
+          </div>
+
+          <div class="feature-card js-reveal">
+            <div class="feature-card__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3 class="feature-card__title">Locked down, always</h3>
+            <p class="feature-card__body">Your Resend key (if provided) is encrypted at rest with AES-256-CBC + PBKDF2. PIN-protected. Every hollr is PGP-encrypted at source. Nothing sits in plaintext — not even close.</p>
+          </div>
+
+          <div class="feature-card js-reveal">
+            <div class="feature-card__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 2a14.5 14.5 0 0 0 0 20M12 2a14.5 14.5 0 0 1 0 20M2 12h20"/></svg>
+            </div>
+            <h3 class="feature-card__title">10 languages</h3>
+            <p class="feature-card__body">EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU. The canvas auto-detects your sender's language. Holla in any tongue.</p>
+          </div>
+
+          <div class="feature-card js-reveal">
+            <div class="feature-card__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <h3 class="feature-card__title">Fully open source</h3>
+            <p class="feature-card__body">MIT licensed. The code is on GitHub. Fork it, audit it, self-host it on Fly.io. No black boxes, no trust required.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECURITY — PGP-first, Keybase-style -->
+    <section class="sec-section" id="privacy">
+      <div class="container">
+
+        <!-- Header -->
+        <div class="sec-header js-reveal">
+          <p class="eyebrow eyebrow--light">No snitching, ever</p>
+          <h2 class="sec-title">Encrypted on the street.<br><em>Private in your hands.</em></h2>
+          <p class="sec-sub">Every hollr — message, voice note, file — is PGP-encrypted in the sender's browser before it moves an inch. By the time it lands in your inbox, nobody else has seen it. Not us. Not anyone.</p>
+        </div>
+
+        <!-- Encryption flow diagram -->
+        <div class="sec-flow js-reveal" aria-label="Encryption flow">
+
+          <div class="sec-flow__node sec-flow__node--sender">
+            <div class="sec-flow__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <p class="sec-flow__label">Sender types</p>
+            <p class="sec-flow__sub">Message composed in browser</p>
+          </div>
+
+          <div class="sec-flow__arrow">
+            <div class="sec-flow__arrow-line"></div>
+            <div class="sec-flow__arrow-badge">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              PGP
+            </div>
+          </div>
+
+          <div class="sec-flow__node">
+            <div class="sec-flow__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <p class="sec-flow__label">Encrypted in browser</p>
+            <p class="sec-flow__sub">Your public key, client-side</p>
+          </div>
+
+          <div class="sec-flow__arrow">
+            <div class="sec-flow__arrow-line"></div>
+            <div class="sec-flow__arrow-badge">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 12 18"/><path d="M1 1l22 22"/></svg>
+              TLS
+            </div>
+          </div>
+
+          <div class="sec-flow__node">
+            <div class="sec-flow__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <p class="sec-flow__label">Via yo@hollr.to</p>
+            <p class="sec-flow__sub">Or your own Resend key</p>
+          </div>
+
+          <div class="sec-flow__arrow">
+            <div class="sec-flow__arrow-line"></div>
+            <div class="sec-flow__arrow-badge">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              PGP
+            </div>
+          </div>
+
+          <div class="sec-flow__node sec-flow__node--you">
+            <div class="sec-flow__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <p class="sec-flow__label">Your inbox</p>
+            <p class="sec-flow__sub">Only you can decrypt</p>
+          </div>
+
+        </div>
+
+        <!-- 4 claims grid -->
+        <div class="sec-claims js-reveal">
+
+          <div class="sec-claim">
+            <div class="sec-claim__num">01</div>
+            <h3 class="sec-claim__title">PGP in the browser, before it moves</h3>
+            <p class="sec-claim__body">OpenPGP.js encrypts every hollr client-side with your public key before a single byte leaves the sender's device. What travels through our servers is ciphertext — unreadable without your private key.</p>
+          </div>
+
+          <div class="sec-claim">
+            <div class="sec-claim__num">02</div>
+            <h3 class="sec-claim__title">We generate your keys — or you come correct with your own</h3>
+            <p class="sec-claim__body">hollr creates a fresh PGP keypair on setup and hands you the private key. Or paste your existing public key. Either way, we never see the private side — ever.</p>
+          </div>
+
+          <div class="sec-claim">
+            <div class="sec-claim__num">03</div>
+            <h3 class="sec-claim__title">Your inbox, your rules</h3>
+            <p class="sec-claim__body">By default, the PGP-armored payload routes through <code class="inline-code" style="font-size:0.8em">yo@hollr.to</code>. Plug in your own Resend key and it goes direct — not through a shared pool, not a hollr relay. Either way, same encryption, zero storage.</p>
+          </div>
+
+          <div class="sec-claim">
+            <div class="sec-claim__num">04</div>
+            <h3 class="sec-claim__title">Decrypt on your own turf — no PGP client needed</h3>
+            <p class="sec-claim__body">No GPG installed? No problem. Open the hollr decryptor, paste your private key and the ciphertext, and it decrypts locally in your browser. Nothing leaves the tab. No install. No excuses.</p>
+          </div>
+
+        </div>
+
+        <!-- BYOK callout -->
+        <div class="sec-byok js-reveal">
+          <div class="sec-byok__left">
+            <p class="sec-byok__eyebrow">Roll with your own keys</p>
+            <p class="sec-byok__text">Already rocking PGP? Paste your public key on setup and every incoming hollr gets encrypted with it from the start. Your private key never goes near our servers — not even during onboarding. You stay in control.</p>
+          </div>
+          <div class="sec-byok__right">
+            <div class="sec-byok__code">
+              <div class="sec-byok__code-header">
+                <span class="sec-byok__code-dot"></span>
+                <span class="sec-byok__code-dot"></span>
+                <span class="sec-byok__code-dot"></span>
+                <span class="sec-byok__code-file">hollr-decrypt.js</span>
+              </div>
+              <pre class="sec-byok__pre"><code><span class="code-comment">// Decrypt in your browser — nothing leaves this tab</span>
+<span class="code-keyword">const</span> { data } = <span class="code-keyword">await</span> openpgp.decrypt({
+  message: <span class="code-keyword">await</span> openpgp.readMessage({ armoredMessage }),
+  decryptionKeys: privateKey,
+});
+<span class="code-keyword">return</span> data; <span class="code-comment">// your message, decrypted locally</span></code></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- API / MCP / WEBHOOKS -->
+    <section class="section api-section js-reveal" id="api">
+      <div class="container">
+
+        <div class="api-section__header">
+          <p class="eyebrow">Built for developers</p>
+          <h2 class="section__title">Your hollrs,<br><em>anywhere you need them.</em></h2>
+          <p class="section__sub">hollr isn't just a link. It’s an open platform. Pipe your incoming messages into any system — your CRM, your Notion, your terminal, your AI stack.</p>
+        </div>
+
+        <div class="api-grid">
+
+          <!-- REST API -->
+          <div class="api-card js-reveal">
+            <div class="api-card__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M4 6h16M4 12h10M4 18h7"/>
+                <circle cx="19" cy="18" r="3"/>
+                <path d="M22 21l-1.5-1.5"/>
+              </svg>
+            </div>
+            <div class="api-card__body">
+              <h3 class="api-card__title">REST API</h3>
+              <p class="api-card__desc">Full HTTP API. List hollrs, fetch content, manage your handle. Build anything on top.</p>
+              <div class="api-card__code">
+                <span class="code-verb">GET</span>
+                <span class="code-path">/v1/hollrs</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Webhooks -->
+          <div class="api-card js-reveal">
+            <div class="api-card__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M18 16.016a4 4 0 1 1-7.198-2.016H6a4 4 0 1 1 3.2-6.4"/>
+                <path d="m15 6 3 3-3 3"/>
+              </svg>
+            </div>
+            <div class="api-card__body">
+              <h3 class="api-card__title">Webhooks</h3>
+              <p class="api-card__desc">POST each hollr to any URL the moment it arrives. Zapier, Make, your own server — no polling.</p>
+              <div class="api-card__code">
+                <span class="code-verb code-verb--post">POST</span>
+                <span class="code-path">your-endpoint.com/hook</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MCP -->
+          <div class="api-card api-card--featured js-reveal">
+            <div class="api-card__badge">Coming soon</div>
+            <div class="api-card__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <path d="M8 21h8M12 17v4"/>
+                <path d="M7 7h.01M11 7h6M7 11h3m2 0h4"/>
+              </svg>
+            </div>
+            <div class="api-card__body">
+              <h3 class="api-card__title">MCP Server</h3>
+              <p class="api-card__desc">Read your hollrs directly from Claude, Cursor, or any AI tool via the Model Context Protocol. Your inbox becomes a tool your AI can use.</p>
+              <div class="api-card__code">
+                <span class="code-verb code-verb--mcp">MCP</span>
+                <span class="code-path">hollr://yourhandle/hollrs</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Delivery toggle strip -->
+        <div class="delivery-strip js-reveal">
+          <p class="delivery-strip__label">Where your hollrs land</p>
+          <div class="delivery-options delivery-options--4">
+            <div class="delivery-opt delivery-opt--active">
+              <span class="delivery-opt__dot"></span>
+              <div>
+                <strong>yo@hollr.to</strong>
+                <span>Default &mdash; zero setup, instant</span>
+              </div>
+            </div>
+            <div class="delivery-opt">
+              <span class="delivery-opt__dot delivery-opt__dot--muted"></span>
+              <div>
+                <strong>Your Resend key</strong>
+                <span>Direct to your inbox, no relay</span>
+              </div>
+            </div>
+            <div class="delivery-opt delivery-opt--x">
+              <span class="delivery-opt__dot delivery-opt__dot--muted"></span>
+              <div>
+                <strong>X / Twitter DM</strong>
+                <span>Pinged right in your X inbox</span>
+              </div>
+              <svg class="delivery-opt__x-icon" viewBox="0 0 24 24" fill="currentColor" width="13" height="13" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </div>
+            <div class="delivery-opt">
+              <span class="delivery-opt__dot delivery-opt__dot--muted"></span>
+              <div>
+                <strong>Webhook URL</strong>
+                <span>POST to any endpoint you control</span>
+              </div>
+            </div>
+          </div>
+          <p class="delivery-strip__note">Every option delivers the same PGP-encrypted payload. Same security, your choice of channel. <strong>X DM delivery</strong> is available because you connect your account — we never read your existing DMs.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SIGNAL FILTER — AI spam + human verified -->
+    <section class="section signal-section js-reveal" id="signal">
+      <div class="container">
+
+        <div class="signal-layout">
+
+          <!-- LEFT: editorial copy -->
+          <div class="signal-copy">
+            <p class="eyebrow">Only the good stuff</p>
+            <h2 class="section__title">We filter the noise.<br><em>You keep the signal.</em></h2>
+            <p class="signal-lead">Your hollr link is public. We get it — spam happens. Our AI reads every incoming hollr before it touches your inbox and handles the trash so you never see it.</p>
+
+            <div class="signal-claims">
+
+              <div class="signal-claim">
+                <div class="signal-claim__icon signal-claim__icon--ai">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <path d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 0 6h-1v1a4 4 0 0 1-8 0v-1H7a3 3 0 0 1 0-6h1V6a4 4 0 0 1 4-4z"/>
+                    <path d="M9 12h6M12 9v6" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <strong>AI spam filter, always on</strong>
+                  <p>Every hollr is scored before delivery. Bot floods, link spam, abuse — caught automatically, before they reach you. Nothing hits your inbox that hasn't cleared the filter.</p>
+                </div>
+              </div>
+
+              <div class="signal-claim">
+                <div class="signal-claim__icon signal-claim__icon--verified">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M12 2l2.4 4.8L20 8l-4 3.9.9 5.3L12 14.8l-4.9 2.4.9-5.3L4 8l5.6-1.2z"/>
+                  </svg>
+                </div>
+                <div>
+                  <strong>Smart notifications — urgent or digest</strong>
+                  <p>AI scores each hollr on urgency. Anything that reads genuine and time-sensitive triggers an <em>instant ping</em> — email, or a DM straight to your X inbox. Everything else rolls up into a clean daily or weekly digest. You decide the cadence. No spam, no false alarms.</p>
+                </div>
+              </div>
+
+              <div class="signal-claim">
+                <div class="signal-claim__icon signal-claim__icon--inbox">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M3 9h18M9 21V9"/>
+                  </svg>
+                </div>
+                <div>
+                  <strong>Quick inbox view, no setup</strong>
+                  <p>A lightweight JavaScript snippet drops a pending-hollrs panel anywhere on your site or dashboard. See what's waiting, approve or dismiss — all in-browser, no backend required.</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- RIGHT: inbox mock widget -->
+          <div class="signal-mock js-reveal">
+
+            <!-- Header bar -->
+            <div class="inbox-mock">
+              <div class="inbox-mock__header">
+                <div class="inbox-mock__title">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                  Pending hollrs
+                </div>
+                <span class="inbox-mock__count">3 pending</span>
+              </div>
+
+              <!-- Hollr row 1 — human verified -->
+              <div class="inbox-row inbox-row--verified">
+                <div class="inbox-row__meta">
+                  <span class="inbox-badge inbox-badge--verified">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622C17.176 19.29 21 14.591 21 9c0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    Human verified
+                  </span>
+                  <span class="inbox-row__time">2 min ago</span>
+                </div>
+                <p class="inbox-row__preview">"Hey — huge fan of your work on hollr. Would love to collab on something..."</p>
+                <div class="inbox-row__actions">
+                  <button class="inbox-action inbox-action--read">Read &rarr;</button>
+                  <button class="inbox-action inbox-action--dismiss">Dismiss</button>
+                </div>
+              </div>
+
+              <!-- Hollr row 2 — pending review -->
+              <div class="inbox-row">
+                <div class="inbox-row__meta">
+                  <span class="inbox-badge inbox-badge--pending">Pending review</span>
+                  <span class="inbox-row__time">14 min ago</span>
+                </div>
+                <p class="inbox-row__preview">"Quick question about your setup — I'm working on something similar and..."</p>
+                <div class="inbox-row__actions">
+                  <button class="inbox-action inbox-action--read">Read &rarr;</button>
+                  <button class="inbox-action inbox-action--dismiss">Dismiss</button>
+                </div>
+              </div>
+
+              <!-- Hollr row 3 — filtered spam -->
+              <div class="inbox-row inbox-row--spam">
+                <div class="inbox-row__meta">
+                  <span class="inbox-badge inbox-badge--spam">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-7v2h2v-2h-2zm0-8v6h2V7h-2z"/></svg>
+                    AI filtered
+                  </span>
+                  <span class="inbox-row__time">1 hr ago</span>
+                </div>
+                <p class="inbox-row__preview">"Congratulations! You've been selected for a special crypto opportuni..."</p>
+                <div class="inbox-row__actions">
+                  <button class="inbox-action inbox-action--restore">Restore</button>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="inbox-mock__footer">
+                <code class="inbox-snippet">hollr.inbox({ handle: 'you', token: '...' })</code>
+                <span class="inbox-mock__footer-note">Drops anywhere. Pure JS.</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section js-reveal" id="claim">
+      <div class="container container--narrow">
+        <p class="eyebrow eyebrow--center">Your hollr link is waiting.</p>
+        <h2 class="cta-title">Let them holler.</h2>
+        <p class="cta-sub">Connect with X, your handle is live in seconds. Hollrs arrive encrypted at yo@hollr.to — or wire up your own inbox. One link. Everyone can reach you.</p>
+        <button class="btn btn--primary btn--hero" data-modal-open style="margin: 0 auto; display: flex;">
+          Get your hollr link
+          <span class="btn-arrow" aria-hidden="true">&rarr;</span>
+        </button>
+        <p class="claim-form__note">No password. No spam. Unsubscribe whenever.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <a href="/" class="footer__brand">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 8.5H7.5L15 5V19L7.5 15.5H3V8.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M7.5 15.5V20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M18 9.5C18.9 10.4 19.5 11.6 19.5 13C19.5 14.4 18.9 15.6 18 16.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        hollr
+      </a>
+      <p class="footer__copy">&copy; 2026 hollr &middot; MIT License</p>
+      <nav class="footer__links">
+        <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener">GitHub</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- LANGUAGE MODAL — Redesigned bottom sheet / centered modal -->
+  <div class="lang-backdrop" id="lang-backdrop" hidden>
+    <div class="lang-modal" id="lang-modal" role="dialog" aria-modal="true" aria-label="Select language">
+      <div class="lang-modal__header">
+        <p class="lang-modal__title">Choose your language</p>
+        <button class="modal__close" id="lang-close" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="lang-grid" id="lang-grid">
+        <button class="lang-option" data-lang="en">
+          <span class="lang-option__flag">&#x1F1EC;&#x1F1E7;</span>
+          <div class="lang-option__text">
+            <span class="lang-option__native">English</span>
+            <span class="lang-option__name">English</span>
+          </div>
+          <span class="lang-option__check" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>
+        <button class="lang-option" data-lang="fr">
+          <span class="lang-option__flag">&#x1F1EB;&#x1F1F7;</span>
+          <div class="lang-option__text">
+            <span class="lang-option__native">Fran&ccedil;ais</span>
+            <span class="lang-option__name">French</span>
+          </div>
+          <span class="lang-option__check" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>
+        <button class="lang-option" data-lang="de">
+          <span class="lang-option__flag">&#x1F1E9;&#x1F1EA;</span>
+          <div class="lang-option__text">
+            <span class="lang-option__native">Deutsch</span>
+            <span class="lang-option__name">German</span>
+          </div>
+          <span class="lang-option__check" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>
+        <button class="lang-option" data-lang="it">
+          <span class="lang-option__flag">&#x1F1EE;&#x1F1F9;</span>
+          <div class="lang-option__text">
+            <span class="lang-option__native">Italiano</span>
+            <span class="lang-option__name">Italian</span>
+          </div>
+          <span class="lang-option__check" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>
+        <button class="lang-option" data-lang="es">
+          <span class="lang-option__flag">&#x1F1EA;&#x1F1F8;</span>
+          <div class="lang-option__text">
+            <span class="lang-option__native">Espa&ntilde;ol</span>
+            <span class="lang-option__name">Spanish</span>
+          </div>
+          <span class="lang-option__check" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>
+        <button class="lang-option" data-lang="nl">
+          <span class="lang-option__flag">&#x1F1F3;&#x1F1F1;</span>
+          <div class="lang-option__text">
+            <span class="lang-option__native">Nederlands</span>
+            <span class="lang-option__name">Dutch</span>
+          </div>
+          <span class="lang-option__check" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>
+        <button class="lang-option" data-lang="zh">
+          <span class="lang-option__flag">&#x1F1E8;&#x1F1F3;</span>
+          <div class="lang-option__text">
+            <span class="lang-option__native">&#x4E2D;&#x6587;</span>
+            <span class="lang-option__name">Chinese</span>
+          </div>
+          <span class="lang-option__check" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>
+        <button class="lang-option" data-lang="hi">
+          <span class="lang-option__flag">&#x1F1EE;&#x1F1F3;</span>
+          <div class="lang-option__text">
+            <span class="lang-option__native">&#x0939;&#x093F;&#x0928;&#x094D;&#x0926;&#x0940;</span>
+            <span class="lang-option__name">Hindi</span>
+          </div>
+          <span class="lang-option__check" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>
+        <button class="lang-option" data-lang="ja">
+          <span class="lang-option__flag">&#x1F1EF;&#x1F1F5;</span>
+          <div class="lang-option__text">
+            <span class="lang-option__native">&#x65E5;&#x672C;&#x8A9E;</span>
+            <span class="lang-option__name">Japanese</span>
+          </div>
+          <span class="lang-option__check" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>
+        <button class="lang-option" data-lang="ru">
+          <span class="lang-option__flag">&#x1F1F7;&#x1F1FA;</span>
+          <div class="lang-option__text">
+            <span class="lang-option__native">&#x0420;&#x0443;&#x0441;&#x0441;&#x043A;&#x0438;&#x0439;</span>
+            <span class="lang-option__name">Russian</span>
+          </div>
+          <span class="lang-option__check" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- X / TWITTER AUTH MODAL -->
+  <div class="modal-backdrop" id="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+    <div class="modal modal--x" id="modal">
+      <button class="modal__close" id="modal-close" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <!-- Default state: connect with X -->
+      <div class="modal__connect" id="modal-connect">
+
+        <!-- Hollr wordmark + X logo lockup -->
+        <div class="modal__lockup" aria-hidden="true">
+          <span class="modal__lockup-word">hollr</span>
+          <span class="modal__lockup-times">×</span>
+          <svg class="modal__x-logo" viewBox="0 0 24 24" fill="currentColor" aria-label="X / Twitter" width="28" height="28">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </div>
+
+        <h2 class="modal__title" id="modal-title">Claim your hollr handle</h2>
+        <p class="modal__sub">Connect with X and your Twitter handle becomes your hollr link — instantly. <strong>hollr.to/@you</strong>. Encrypted, no middleman.</p>
+
+        <!-- X OAuth button -->
+        <button class="btn-x-auth" id="btn-x-auth" type="button">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          Continue with X
+        </button>
+
+        <!-- Divider with email fallback -->
+        <div class="modal__divider">
+          <span>or</span>
+        </div>
+
+        <!-- Email fallback — collapsed by default -->
+        <div class="modal__email-toggle" id="modal-email-section">
+          <button class="modal__email-trigger" id="modal-email-trigger" type="button">
+            Register with email instead
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" id="email-trigger-chevron"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+
+          <form class="modal__email-form" id="modal-email-form" novalidate hidden>
+            <div class="modal__email-fields">
+              <div class="modal__handle-row">
+                <span class="modal__handle-prefix">hollr.to/</span>
+                <input type="text" id="modal-handle" name="handle" placeholder="yourhandle"
+                  class="modal__input modal__input--handle"
+                  autocomplete="off" autocapitalize="none" spellcheck="false"
+                  maxlength="32" pattern="[a-zA-Z0-9_-]+"/>
+              </div>
+              <input type="email" id="modal-email" name="email" placeholder="you@example.com"
+                class="modal__input" autocomplete="email"/>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full">
+              Claim handle →
+            </button>
+
+            <!-- Handle conflict notice -->
+            <div class="modal__conflict-notice">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+              <p>X sign-in takes priority. If someone later claims the same handle through X, yours becomes <strong>hollr.to/yourhandle2</strong>. First on X wins.</p>
+            </div>
+          </form>
+        </div>
+
+        <p class="modal__note">We only request your public X username. No DMs, no posting, no followers data.</p>
+      </div>
+
+      <!-- Success state: handle claimed -->
+      <div class="modal__success" id="modal-success" hidden>
+        <div class="modal__success-x" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </div>
+        <p class="modal__success-eyebrow">Handle claimed.</p>
+        <p class="modal__success-title" id="modal-success-handle">hollr.to/you</p>
+        <p class="modal__success-body">Your link is live. Share it anywhere — bio, email footer, business card. Anyone who visits gets a timed canvas, encrypted to your inbox.</p>
+        <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener" class="btn btn--primary btn--full modal__success-btn">
+          Set up your inbox →
+        </a>
+        <p class="modal__note">Hollrs arrive at <strong>yo@hollr.to</strong> by default. Add your own Resend key anytime in settings.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
