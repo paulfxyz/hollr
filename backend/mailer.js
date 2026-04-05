@@ -121,7 +121,7 @@ async function sendMagicLink(toEmail, link, opts = {}) {
     : 'Sign in to hollr');
 
   // Hero copy changes for PIN reset vs normal login
-  const headline  = isPinReset ? '🔑 Reset your PIN' : '🐺 hollr';
+  const headline  = isPinReset ? '🔑 Reset your PIN' : '📢 hollr';
   const bodyText  = isPinReset
     ? 'Click below to reset your PIN. Your current PIN will be set back to 1234 — you\'ll be prompted to choose a new one immediately.'
     : 'Your secure, one-time login link. No password needed.';

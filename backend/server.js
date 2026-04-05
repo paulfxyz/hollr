@@ -786,5 +786,5 @@ app.use((err, _req, res, _next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
-  console.log(`🐺 hollr API v4.3.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  console.log(`📢 hollr API v4.3.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
 });
