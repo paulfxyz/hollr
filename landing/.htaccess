@@ -15,6 +15,9 @@ RewriteEngine On
 # ── Serve auth pages directly ─────────────────────────────────────────────────
 RewriteRule ^auth/verify/?$  auth/verify.html [L]
 
+# ── Serve decrypt viewer ──────────────────────────────────────────────────────
+RewriteRule ^decrypt/?$  decrypt/index.html [L]
+
 # ── Serve static assets as-is ────────────────────────────────────────────────
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
@@ -26,6 +29,7 @@ RewriteRule ^ - [L]
 # Everything that doesn't match a file or directory (and isn't 'auth')
 # is treated as a :handle and served the canvas page.
 RewriteCond %{REQUEST_URI} !^/auth/
+RewriteCond %{REQUEST_URI} !^/decrypt
 RewriteRule ^([a-zA-Z0-9_-]+)/?$  handle/index.html [L]
 
 # ── Security headers ──────────────────────────────────────────────────────────

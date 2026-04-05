@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decrypt file — hollr</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>🔐</text></svg>">
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&f[]=satoshi@400,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #0d0d0d;
+      --surface: #141414;
+      --border:  #2a2a2a;
+      --text:    #e8e8e6;
+      --muted:   #888886;
+      --accent:  #ff6b35;
+      --success: #52c07a;
+      --error:   #e05252;
+      --font-d:  'Cabinet Grotesk', sans-serif;
+      --font-b:  'Satoshi', sans-serif;
+    }
+    [data-theme="light"] {
+      --bg: #fafaf8; --surface: #fff; --border: #e5e5e0;
+      --text: #1a1a18; --muted: #6b6b68;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-b);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+    .icon { font-size: 52px; display: block; margin-bottom: 20px; }
+    h1 {
+      font-family: var(--font-d);
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    p { color: var(--muted); font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
+    .file-name {
+      display: inline-block;
+      background: var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-family: monospace;
+      margin-bottom: 24px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-b);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 150ms;
+      margin-top: 8px;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: var(--border); color: var(--text); }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 16px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .progress-wrap {
+      width: 100%; height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 16px 0;
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width 150ms;
+      width: 0%;
+    }
+    .status { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .error-msg { color: var(--error); font-size: 14px; margin-top: 12px; }
+    audio {
+      width: 100%;
+      margin-top: 16px;
+      border-radius: 8px;
+      outline: none;
+    }
+    audio::-webkit-media-controls-panel { background: var(--surface); }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      background: rgba(255, 107, 53, 0.12);
+      color: var(--accent);
+      border-radius: 6px;
+      padding: 3px 10px;
+      margin-bottom: 16px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .back-link:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+<div class="card" id="card">
+
+  <!-- State: loading params -->
+  <div id="stateLoad">
+    <span class="icon">🔐</span>
+    <h1>Encrypted file</h1>
+    <p>Reading decryption parameters…</p>
+    <div class="spinner"></div>
+  </div>
+
+  <!-- State: ready to decrypt -->
+  <div id="stateReady" style="display:none">
+    <span class="icon">🔐</span>
+    <span class="tag">AES-256-GCM ENCRYPTED</span>
+    <h1 id="readyTitle">Decrypt file</h1>
+    <p>This file was encrypted end-to-end before leaving the sender's browser. Only you can decrypt it — the key never touches the server after delivery.</p>
+    <div class="file-name" id="fileName">file</div>
+    <button class="btn btn-primary" id="btnDecrypt" onclick="startDecrypt()">🔓 Decrypt &amp; Download</button>
+    <a href="/" class="back-link">← Back to hollr.to</a>
+  </div>
+
+  <!-- State: audio ready to decrypt + play -->
+  <div id="stateAudioReady" style="display:none">
+    <span class="icon">🎙️</span>
+    <span class="tag">AES-256-GCM ENCRYPTED</span>
+    <h1>Encrypted voice recording</h1>
+    <p>This voice message was encrypted before leaving the sender's browser.</p>
+    <button class="btn btn-primary" id="btnDecryptAudio" onclick="startDecrypt()">🔓 Decrypt &amp; Play</button>
+    <a href="/" class="back-link">← Back to hollr.to</a>
+  </div>
+
+  <!-- State: decrypting -->
+  <div id="stateDecrypting" style="display:none">
+    <span class="icon">⚙️</span>
+    <h1>Decrypting…</h1>
+    <div class="spinner"></div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <p class="status" id="decryptStatus">Fetching encrypted file…</p>
+  </div>
+
+  <!-- State: done (file) -->
+  <div id="stateDone" style="display:none">
+    <span class="icon">✅</span>
+    <h1>Decrypted!</h1>
+    <p>Your file has been decrypted locally and the download started. The decryption key was never sent to any server.</p>
+    <button class="btn btn-secondary" onclick="startDecrypt()">Download again</button>
+    <a href="/" class="back-link">← Back to hollr.to</a>
+  </div>
+
+  <!-- State: done (audio) -->
+  <div id="stateDoneAudio" style="display:none">
+    <span class="icon">🎙️</span>
+    <h1>Voice message</h1>
+    <p>Decrypted locally — ready to play. The key never left your browser.</p>
+    <audio id="audioPlayer" controls></audio>
+    <button class="btn btn-secondary" style="margin-top:16px" onclick="downloadDecrypted()">⬇️ Download</button>
+    <a href="/" class="back-link">← Back to hollr.to</a>
+  </div>
+
+  <!-- State: error -->
+  <div id="stateError" style="display:none">
+    <span class="icon">😬</span>
+    <h1>Decryption failed</h1>
+    <p class="error-msg" id="errorMsg">Could not decrypt the file. The key may be incorrect or the file may be corrupted.</p>
+    <a href="/" class="back-link">← Back to hollr.to</a>
+  </div>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   hollr — decrypt/index.html
+   In-browser AES-256-GCM file decryption using Web Crypto API.
+
+   URL hash format (never sent to server):
+     #url=<encoded_file_url>&key=<hex_key>&iv=<hex_iv>&name=<filename>&type=audio|file
+
+   Wire format on disk:
+     [16 bytes auth tag] [ciphertext...]
+   ════════════════════════════════════════════════════════════════════════ */
+
+// Theme
+(function () {
+  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+})();
+
+const $ = id => document.getElementById(id);
+const STATES = ['stateLoad','stateReady','stateAudioReady','stateDecrypting','stateDone','stateDoneAudio','stateError'];
+function showState(id) { STATES.forEach(s => $(s).style.display = s === id ? '' : 'none'); }
+
+// Parse hash params
+function getHashParams() {
+  const hash = location.hash.slice(1);
+  const p    = new URLSearchParams(hash);
+  return {
+    url:  p.get('url'),
+    key:  p.get('key'),
+    iv:   p.get('iv'),
+    name: p.get('name') || 'decrypted-file',
+    type: p.get('type') || 'file', // 'file' or 'audio'
+  };
+}
+
+let params = null;
+let decryptedBlob = null;
+
+// Init
+(function init() {
+  params = getHashParams();
+  if (!params.url || !params.key || !params.iv) {
+    $('errorMsg').textContent = 'Missing decryption parameters. The link may be incomplete.';
+    showState('stateError');
+    return;
+  }
+  $('fileName').textContent = params.name;
+  if (params.name.length > 1) $('readyTitle').textContent = `Decrypt "${params.name}"`;
+
+  if (params.type === 'audio') {
+    showState('stateAudioReady');
+  } else {
+    showState('stateReady');
+  }
+})();
+
+// Hex → Uint8Array
+function hexToBytes(hex) {
+  const arr = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < arr.length; i++) arr[i] = parseInt(hex.substr(i * 2, 2), 16);
+  return arr;
+}
+
+async function startDecrypt() {
+  showState('stateDecrypting');
+  $('progressBar').style.width = '10%';
+  $('decryptStatus').textContent = 'Fetching encrypted file…';
+
+  try {
+    // 1. Fetch the encrypted file
+    const resp = await fetch(params.url);
+    if (!resp.ok) throw new Error(`Failed to fetch file: ${resp.status}`);
+    $('progressBar').style.width = '40%';
+    $('decryptStatus').textContent = 'Decrypting…';
+
+    const encryptedBuffer = await resp.arrayBuffer();
+    const encryptedBytes  = new Uint8Array(encryptedBuffer);
+
+    // 2. Split auth tag (first 16 bytes) from ciphertext
+    const authTag    = encryptedBytes.slice(0, 16);
+    const ciphertext = encryptedBytes.slice(16);
+
+    // 3. Import the AES-256-GCM key
+    const keyBytes = hexToBytes(params.key);
+    const ivBytes  = hexToBytes(params.iv);
+
+    const cryptoKey = await crypto.subtle.importKey(
+      'raw', keyBytes,
+      { name: 'AES-GCM' },
+      false,
+      ['decrypt'],
+    );
+    $('progressBar').style.width = '65%';
+
+    // 4. Decrypt: GCM combines authTag into the ciphertext from SubtleCrypto's perspective
+    //    We need to reconstruct: Node wrote [authTag || ciphertext],
+    //    SubtleCrypto expects [ciphertext || authTag]
+    const combined = new Uint8Array(ciphertext.length + authTag.length);
+    combined.set(ciphertext);
+    combined.set(authTag, ciphertext.length);
+
+    const plainBytes = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: ivBytes, tagLength: 128 },
+      cryptoKey,
+      combined,
+    );
+
+    $('progressBar').style.width = '90%';
+    $('decryptStatus').textContent = 'Done!';
+
+    // 5. Determine MIME type from filename
+    const ext  = params.name.split('.').pop()?.toLowerCase() || '';
+    const mime = {
+      'pdf':'application/pdf', 'png':'image/png', 'jpg':'image/jpeg', 'jpeg':'image/jpeg',
+      'gif':'image/gif', 'webp':'image/webp', 'mp4':'video/mp4', 'webm':'video/webm',
+      'mp3':'audio/mpeg', 'ogg':'audio/ogg', 'wav':'audio/wav',
+      'txt':'text/plain', 'md':'text/markdown',
+      'zip':'application/zip', 'json':'application/json',
+    }[ext] || 'application/octet-stream';
+
+    decryptedBlob = new Blob([plainBytes], { type: mime });
+
+    $('progressBar').style.width = '100%';
+
+    if (params.type === 'audio') {
+      // Show audio player
+      const audioUrl = URL.createObjectURL(decryptedBlob);
+      $('audioPlayer').src = audioUrl;
+      showState('stateDoneAudio');
+    } else {
+      // Trigger download
+      downloadDecrypted();
+      showState('stateDone');
+    }
+  } catch (err) {
+    console.error('Decrypt error:', err);
+    $('errorMsg').textContent = `Decryption failed: ${err.message}`;
+    showState('stateError');
+  }
+}
+
+function downloadDecrypted() {
+  if (!decryptedBlob) return;
+  const a   = document.createElement('a');
+  a.href    = URL.createObjectURL(decryptedBlob);
+  a.download = params.name || 'decrypted-file';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+</script>
+</body>
+</html>

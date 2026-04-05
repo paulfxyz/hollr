@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>hollr — Your message canvas, on your handle</title>
-  <meta name="description" content="hollr is a free, open-source platform where anyone can claim a personal handle and receive messages, files and voice notes — powered by their own Resend API key.">
+  <meta name="description" content="hollr is a free, open-source platform where anyone can claim a personal handle and receive PGP-encrypted messages, encrypted files and voice notes. Sign in with X or email. Resend API optional.">
   <meta property="og:title" content="hollr — Your message canvas, on your handle">
   <meta property="og:description" content="Free, open-source. Claim hollr.to/yourname and start receiving messages today.">
   <meta property="og:image" content="https://hollr.to/og.png">
@@ -786,7 +786,7 @@
 
   <p class="hero-sub" data-i18n="hero.sub">
     hollr gives everyone a personal, timed message canvas at their own handle.
-    Powered by your Resend API key. No subscriptions, no limits.
+    Sign in with X or email. PGP-encrypted messages. Files &amp; voice encrypted at rest. Resend API optional.
   </p>
 
   <div class="hero-cta">
@@ -826,14 +826,14 @@
   <div class="section-header">
     <span class="section-label" data-i18n="steps.label">How it works</span>
     <h2 class="section-title" data-i18n="steps.title">Up and running in 60 seconds</h2>
-    <p class="section-desc" data-i18n="steps.desc">No credit card. No server setup. Just your email, a handle, and your Resend API key.</p>
+    <p class="section-desc" data-i18n="steps.desc">No credit card. No server setup. Just your email or X account, a handle, and a PIN.</p>
   </div>
 
   <div class="steps">
     <div class="step-card">
       <div class="step-num">1</div>
-      <h3 data-i18n="steps.1.title">Enter your email</h3>
-      <p data-i18n="steps.1.desc">We send a magic link — no password needed, ever.</p>
+      <h3 data-i18n="steps.1.title">Sign in with X or email</h3>
+      <p data-i18n="steps.1.desc">Login with your X (Twitter) account or get a magic link by email — no password needed, ever.</p>
     </div>
     <div class="step-card">
       <div class="step-num">2</div>
@@ -842,13 +842,13 @@
     </div>
     <div class="step-card">
       <div class="step-num">3</div>
-      <h3 data-i18n="steps.3.title">Add your Resend key</h3>
-      <p data-i18n="steps.3.desc">Paste your Resend API key. Messages go directly to your inbox, via your account.</p>
+      <h3 data-i18n="steps.3.title">Set your PIN</h3>
+      <p data-i18n="steps.3.desc">Set a security PIN to protect your settings. Resend API key is optional — platform emails work out of the box.</p>
     </div>
     <div class="step-card">
       <div class="step-num">4</div>
       <h3 data-i18n="steps.4.title">Share your link</h3>
-      <p data-i18n="steps.4.desc">Drop <em>hollr.to/yourhandle</em> anywhere. Your canvas is live.</p>
+      <p data-i18n="steps.4.desc">Drop <em>hollr.to/yourhandle</em> anywhere. Your encrypted canvas is live.</p>
     </div>
   </div>
 </section>
@@ -891,9 +891,24 @@
 
   <div class="features-grid">
     <div class="feature-card">
-      <span class="feature-icon">🔑</span>
-      <h3 data-i18n="feat.key.title">Your API key, your inbox</h3>
-      <p data-i18n="feat.key.desc">Messages are delivered via your own Resend account. We never read or store your messages.</p>
+      <span class="feature-icon">𝕏</span>
+      <h3 data-i18n="feat.x.title">X &amp; email login</h3>
+      <p data-i18n="feat.x.desc">Sign in with your X (Twitter) account via OAuth 2.0 PKCE, or receive a magic link by email. No passwords, ever.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🔐</span>
+      <h3 data-i18n="feat.pgp.title">PGP end-to-end encryption</h3>
+      <p data-i18n="feat.pgp.desc">Add your PGP public key in settings. Senders encrypt messages with your key — only you can decrypt them.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🔒</span>
+      <h3 data-i18n="feat.enc.title">Encrypted files &amp; voice</h3>
+      <p data-i18n="feat.enc.desc">Every uploaded file and voice note is encrypted at rest with AES-256-GCM. Decrypt instantly in your browser via the secure viewer.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📧</span>
+      <h3 data-i18n="feat.key.title">Resend optional</h3>
+      <p data-i18n="feat.key.desc">Platform sends email notifications from yo@hollr.to by default. Plug in your own Resend key for custom delivery.</p>
     </div>
     <div class="feature-card">
       <span class="feature-icon">⏱️</span>
@@ -903,12 +918,12 @@
     <div class="feature-card">
       <span class="feature-icon">🎤</span>
       <h3 data-i18n="feat.voice.title">Voice recording</h3>
-      <p data-i18n="feat.voice.desc">Record a voice note directly in the browser. The audio file lands in your email as a download link.</p>
+      <p data-i18n="feat.voice.desc">Record a voice note directly in the browser. Encrypted and linked in your notification email.</p>
     </div>
     <div class="feature-card">
       <span class="feature-icon">📎</span>
       <h3 data-i18n="feat.files.title">File attachments</h3>
-      <p data-i18n="feat.files.desc">Drag and drop any file. It's uploaded securely and linked in the email — no limits on type.</p>
+      <p data-i18n="feat.files.desc">Drag and drop any file. Encrypted, uploaded securely, and linked in the email — no limits on type.</p>
     </div>
     <div class="feature-card">
       <span class="feature-icon">🌐</span>
@@ -919,11 +934,6 @@
       <span class="feature-icon">🌙</span>
       <h3 data-i18n="feat.dark.title">Dark &amp; light mode</h3>
       <p data-i18n="feat.dark.desc">Follows your system preference. Manual toggle always available.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🔒</span>
-      <h3 data-i18n="feat.enc.title">AES-256 encryption</h3>
-      <p data-i18n="feat.enc.desc">Your Resend API key is encrypted at rest with PBKDF2 + AES-256-CBC. PIN-protected settings.</p>
     </div>
     <div class="feature-card">
       <span class="feature-icon">🛠️</span>
@@ -1018,26 +1028,28 @@ const STRINGS = {
   en: {
     'nav.how':'How it works','nav.features':'Features','nav.oss':'Open source','nav.cta':'Get your handle',
     'hero.badge':'Free & Open Source','hero.title':'Your message canvas,\nyour handle.',
-    'hero.sub':'hollr gives everyone a personal, timed message canvas at their own handle. Powered by your Resend API key. No subscriptions, no limits.',
+    'hero.sub':'hollr gives everyone a personal, timed message canvas at their own handle. Sign in with X or email. PGP-encrypted messages. Files & voice encrypted at rest. Resend API optional.',
     'hero.cta1':'Claim your handle →','hero.cta2':'View on GitHub',
     'stats.free':'Free forever','stats.langs':'Languages','stats.storage':'Data stored by us','stats.handles':'Handles available',
     'steps.label':'How it works','steps.title':'Up and running in 60 seconds',
-    'steps.desc':'No credit card. No server setup. Just your email, a handle, and your Resend API key.',
-    'steps.1.title':'Enter your email','steps.1.desc':'We send a magic link — no password needed, ever.',
+    'steps.desc':'No credit card. No server setup. Just your email or X account, a handle, and a PIN.',
+    'steps.1.title':'Sign in with X or email','steps.1.desc':'Login with your X account via OAuth, or get a magic link by email — no password needed, ever.',
     'steps.2.title':'Pick your handle','steps.2.desc':'Choose something like hollr.to/paulfxyz. First come, first served.',
-    'steps.3.title':'Add your Resend key','steps.3.desc':'Paste your Resend API key. Messages go directly to your inbox, via your account.',
-    'steps.4.title':'Share your link','steps.4.desc':'Drop hollr.to/yourhandle anywhere. Your canvas is live.',
+    'steps.3.title':'Set your PIN','steps.3.desc':'Set a security PIN to protect your settings. Resend API key is optional — platform emails work out of the box.',
+    'steps.4.title':'Share your link','steps.4.desc':'Drop hollr.to/yourhandle anywhere. Your encrypted canvas is live.',
     'preview.label':'The canvas','preview.title':'A distraction-free message experience',
     'preview.desc':'A timed, fullscreen canvas with voice recording, file uploads, and a focused send flow.',
     'preview.record':'Record','preview.attach':'Attach','preview.send':'Send',
     'features.label':'Features','features.title':'Everything you need, nothing you don\'t',
-    'feat.key.title':'Your API key, your inbox','feat.key.desc':'Messages are delivered via your own Resend account. We never read or store your messages.',
+    'feat.x.title':'X & email login','feat.x.desc':'Sign in with X (Twitter) via OAuth 2.0 PKCE, or get a magic link by email. No passwords, ever.',
+    'feat.pgp.title':'PGP end-to-end encryption','feat.pgp.desc':'Add your PGP public key in settings. Senders encrypt with your key — only you can decrypt.',
+    'feat.enc.title':'Encrypted files & voice','feat.enc.desc':'Files and voice notes are encrypted at rest with AES-256-GCM. Decrypt instantly in-browser via the secure viewer.',
+    'feat.key.title':'Resend optional','feat.key.desc':'Platform sends from yo@hollr.to by default. Plug in your own Resend key for custom delivery.',
     'feat.timer.title':'Timed canvas','feat.timer.desc':'An always-running timer reminds senders how long they\'ve been composing.',
-    'feat.voice.title':'Voice recording','feat.voice.desc':'Record a voice note directly in the browser. Audio lands in your email as a download link.',
-    'feat.files.title':'File attachments','feat.files.desc':'Drag and drop any file. Uploaded securely and linked in the email.',
+    'feat.voice.title':'Voice recording','feat.voice.desc':'Record a voice note directly in the browser. Encrypted and linked in your notification email.',
+    'feat.files.title':'File attachments','feat.files.desc':'Drag and drop any file. Encrypted, uploaded securely, and linked in the email.',
     'feat.i18n.title':'10 languages','feat.i18n.desc':'English, French, German, Italian, Spanish, Dutch, Chinese, Hindi, Japanese, Russian.',
     'feat.dark.title':'Dark & light mode','feat.dark.desc':'Follows your system preference. Manual toggle always available.',
-    'feat.enc.title':'AES-256 encryption','feat.enc.desc':'Your Resend key is encrypted at rest. PIN-protected settings.',
     'feat.oss.title':'Fully open source','feat.oss.desc':'MIT licensed. Fork it, self-host it, extend it. No vendor lock-in, ever.',
     'oss.title':'Built in the open','oss.desc':'hollr is MIT licensed. The full source lives on GitHub. Self-host on Fly.io in minutes.',
     'oss.cta':'Claim your handle',
@@ -1051,26 +1063,28 @@ const STRINGS = {
   fr: {
     'nav.how':'Comment ça marche','nav.features':'Fonctionnalités','nav.oss':'Open source','nav.cta':'Réserver mon handle',
     'hero.badge':'Gratuit & Open Source','hero.title':'Votre canvas de messages,\nvotre handle.',
-    'hero.sub':'hollr offre à chacun un canvas de messages personnel et minuté à son propre handle. Propulsé par votre clé API Resend. Aucun abonnement, aucune limite.',
+    'hero.sub':'hollr offre à chacun un canvas de messages personnel et minuté à son propre handle. Connexion via X ou email. Messages chiffrés PGP. Fichiers et vocaux chiffrés. Resend optionnel.',
     'hero.cta1':'Réserver mon handle →','hero.cta2':'Voir sur GitHub',
     'stats.free':'Gratuit pour toujours','stats.langs':'Langues','stats.storage':'Données stockées','stats.handles':'Handles disponibles',
     'steps.label':'Comment ça marche','steps.title':'Opérationnel en 60 secondes',
-    'steps.desc':'Aucune carte bancaire. Pas de serveur à configurer. Juste votre email, un handle et votre clé Resend.',
-    'steps.1.title':'Entrez votre email','steps.1.desc':'Nous envoyons un lien magique — aucun mot de passe, jamais.',
+    'steps.desc':'Aucune carte bancaire. Pas de serveur à configurer. Juste votre email ou compte X, un handle et un code PIN.',
+    'steps.1.title':'Connexion via X ou email','steps.1.desc':'Connectez-vous avec X via OAuth ou recevez un lien magique par email — aucun mot de passe.',
     'steps.2.title':'Choisissez votre handle','steps.2.desc':'Choisissez quelque chose comme hollr.to/paulfxyz.',
-    'steps.3.title':'Ajoutez votre clé Resend','steps.3.desc':'Collez votre clé API Resend. Les messages arrivent directement dans votre boîte.',
-    'steps.4.title':'Partagez votre lien','steps.4.desc':'Déposez hollr.to/votrehandle n\'importe où. Votre canvas est en ligne.',
+    'steps.3.title':'Définissez votre PIN','steps.3.desc':'Un code PIN protège vos paramètres. La clé Resend est optionnelle — les emails de la plateforme fonctionnent d\'office.',
+    'steps.4.title':'Partagez votre lien','steps.4.desc':'Déposez hollr.to/votrehandle n\'importe où. Votre canvas chiffré est en ligne.',
     'preview.label':'Le canvas','preview.title':'Une expérience de messagerie sans distraction',
     'preview.desc':'Un canvas plein écran minuté avec enregistrement vocal, envoi de fichiers et formulaire concentré.',
     'preview.record':'Enregistrer','preview.attach':'Joindre','preview.send':'Envoyer',
     'features.label':'Fonctionnalités','features.title':'Tout ce dont vous avez besoin, rien de plus',
-    'feat.key.title':'Votre clé, votre boîte','feat.key.desc':'Les messages sont envoyés via votre compte Resend. Nous ne lisons ni ne stockons vos messages.',
+    'feat.x.title':'Connexion X & email','feat.x.desc':'Connectez-vous via X (Twitter) OAuth 2.0 PKCE ou par lien magique. Aucun mot de passe.',
+    'feat.pgp.title':'Chiffrement PGP de bout en bout','feat.pgp.desc':'Ajoutez votre clé PGP publique dans les paramètres. Les expéditeurs chiffrent avec votre clé.',
+    'feat.enc.title':'Fichiers & vocaux chiffrés','feat.enc.desc':'Chaque fichier et vocal est chiffré au repos avec AES-256-GCM. Déchiffrement instantané dans le navigateur.',
+    'feat.key.title':'Resend optionnel','feat.key.desc':'La plateforme envoie depuis yo@hollr.to par défaut. Ajoutez votre clé Resend pour une livraison personnalisée.',
     'feat.timer.title':'Canvas minuté','feat.timer.desc':'Un minuteur permanent rappelle aux expéditeurs leur temps de composition.',
-    'feat.voice.title':'Enregistrement vocal','feat.voice.desc':'Enregistrez un message vocal directement dans le navigateur.',
-    'feat.files.title':'Pièces jointes','feat.files.desc':'Glissez-déposez n\'importe quel fichier. Lié en toute sécurité dans l\'email.',
+    'feat.voice.title':'Enregistrement vocal','feat.voice.desc':'Enregistrez un message vocal directement dans le navigateur. Chiffré et lié dans l\'email.',
+    'feat.files.title':'Pièces jointes','feat.files.desc':'Glissez-déposez n\'importe quel fichier. Chiffré, téléversé en sécurité et lié dans l\'email.',
     'feat.i18n.title':'10 langues','feat.i18n.desc':'Anglais, Français, Allemand, Italien, Espagnol, Néerlandais, Chinois, Hindi, Japonais, Russe.',
     'feat.dark.title':'Mode sombre & clair','feat.dark.desc':'Suit vos préférences système. Bascule manuelle toujours disponible.',
-    'feat.enc.title':'Chiffrement AES-256','feat.enc.desc':'Votre clé Resend est chiffrée au repos. Paramètres protégés par code PIN.',
     'feat.oss.title':'100% open source','feat.oss.desc':'Licence MIT. Forkez-le, hébergez-le, étendez-le. Jamais de dépendance.',
     'oss.title':'Construit en open source','oss.desc':'hollr est sous licence MIT. Le code complet est sur GitHub. Auto-hébergez sur Fly.io en quelques minutes.',
     'oss.cta':'Réserver mon handle',
@@ -1084,26 +1098,28 @@ const STRINGS = {
   de: {
     'nav.how':'Wie es funktioniert','nav.features':'Funktionen','nav.oss':'Open Source','nav.cta':'Handle sichern',
     'hero.badge':'Kostenlos & Open Source','hero.title':'Deine Nachrichtenläche,\ndein Handle.',
-    'hero.sub':'hollr gibt jedem eine persönliche, zeitgesteuerte Nachrichtenfläche mit eigenem Handle. Angetrieben von deinem Resend-API-Schlüssel.',
+    'hero.sub':'hollr gibt jedem eine persönliche, zeitgesteuerte Nachrichtenfläche mit eigenem Handle. Anmelden per X oder E-Mail. PGP-Verschlüsselung. Dateien & Sprache verschlüsselt. Resend optional.',
     'hero.cta1':'Handle sichern →','hero.cta2':'Auf GitHub ansehen',
     'stats.free':'Für immer kostenlos','stats.langs':'Sprachen','stats.storage':'Gespeicherte Daten','stats.handles':'Verfügbare Handles',
     'steps.label':'So funktioniert es','steps.title':'In 60 Sekunden einsatzbereit',
-    'steps.desc':'Keine Kreditkarte. Keine Servereinrichtung. Nur deine E-Mail, ein Handle und dein Resend-API-Schlüssel.',
-    'steps.1.title':'E-Mail eingeben','steps.1.desc':'Wir senden einen Magic Link — nie ein Passwort nötig.',
+    'steps.desc':'Keine Kreditkarte. Kein Server. Nur E-Mail oder X-Konto, ein Handle und ein PIN.',
+    'steps.1.title':'Anmelden per X oder E-Mail','steps.1.desc':'Melde dich per X OAuth an oder erhalte einen Magic Link — kein Passwort nötig.',
     'steps.2.title':'Handle wählen','steps.2.desc':'Wähle z. B. hollr.to/paulfxyz. Wer zuerst kommt, mahlt zuerst.',
-    'steps.3.title':'Resend-Schlüssel hinzufügen','steps.3.desc':'Füge deinen Resend-API-Schlüssel ein. Nachrichten landen direkt in deinem Postfach.',
-    'steps.4.title':'Link teilen','steps.4.desc':'Teile hollr.to/deinhandle überall. Deine Fläche ist live.',
+    'steps.3.title':'PIN festlegen','steps.3.desc':'Lege einen PIN fest. Resend-Schlüssel optional — Plattform-E-Mails funktionieren sofort.',
+    'steps.4.title':'Link teilen','steps.4.desc':'Teile hollr.to/deinhandle überall. Deine verschlüsselte Fläche ist live.',
     'preview.label':'Die Fläche','preview.title':'Ein ablenkungsfreies Nachrichtenerlebnis',
     'preview.desc':'Eine zeitgesteuerte Vollfläche mit Sprachaufnahme, Dateiuploads und fokussiertem Sendeablauf.',
     'preview.record':'Aufnehmen','preview.attach':'Anhängen','preview.send':'Senden',
     'features.label':'Funktionen','features.title':'Alles was du brauchst, nichts was du nicht brauchst',
-    'feat.key.title':'Dein Schlüssel, dein Postfach','feat.key.desc':'Nachrichten werden über deinen eigenen Resend-Account zugestellt.',
+    'feat.x.title':'X & E-Mail-Login','feat.x.desc':'Anmelden per X (Twitter) OAuth 2.0 PKCE oder Magic Link. Kein Passwort.',
+    'feat.pgp.title':'PGP-Ende-zu-Ende-Verschlüsselung','feat.pgp.desc':'Füge deinen PGP-Public-Key in den Einstellungen hinzu. Absender verschlüsseln damit.',
+    'feat.enc.title':'Dateien & Sprache verschlüsselt','feat.enc.desc':'Jede Datei und Sprachnotiz wird mit AES-256-GCM verschlüsselt. Im Browser sofort entschlüsselbar.',
+    'feat.key.title':'Resend optional','feat.key.desc':'Plattform sendet standardmäßig von yo@hollr.to. Füge deinen Resend-Schlüssel für eigene Zustellung hinzu.',
     'feat.timer.title':'Zeitgesteuerte Fläche','feat.timer.desc':'Ein laufender Timer erinnert Absender, wie lange sie schreiben.',
-    'feat.voice.title':'Sprachaufnahme','feat.voice.desc':'Nimm direkt im Browser eine Sprachnachricht auf.',
-    'feat.files.title':'Dateianhänge','feat.files.desc':'Drag & Drop beliebiger Dateien. Sicher hochgeladen und per Link in der E-Mail.',
+    'feat.voice.title':'Sprachaufnahme','feat.voice.desc':'Nimm direkt im Browser eine Sprachnachricht auf. Verschlüsselt und per Link in der E-Mail.',
+    'feat.files.title':'Dateianhänge','feat.files.desc':'Drag & Drop beliebiger Dateien. Verschlüsselt und sicher hochgeladen.',
     'feat.i18n.title':'10 Sprachen','feat.i18n.desc':'Englisch, Französisch, Deutsch, Italienisch, Spanisch, Niederländisch, Chinesisch, Hindi, Japanisch, Russisch.',
     'feat.dark.title':'Dunkel- & Hellmodus','feat.dark.desc':'Folgt deiner Systemeinstellung. Manuelle Umschaltung immer verfügbar.',
-    'feat.enc.title':'AES-256-Verschlüsselung','feat.enc.desc':'Dein Resend-Schlüssel ist verschlüsselt gespeichert. PIN-geschützte Einstellungen.',
     'feat.oss.title':'Vollständig Open Source','feat.oss.desc':'MIT-lizenziert. Forke es, betreibe es selbst, erweitere es.',
     'oss.title':'Im Offenen gebaut','oss.desc':'hollr ist MIT-lizenziert. Der gesamte Quellcode liegt auf GitHub.',
     'oss.cta':'Handle sichern',
@@ -1121,22 +1137,24 @@ const STRINGS = {
     'hero.cta1':'Prendi il tuo handle →','hero.cta2':'Vedi su GitHub',
     'stats.free':'Gratuito per sempre','stats.langs':'Lingue','stats.storage':'Dati memorizzati','stats.handles':'Handle disponibili',
     'steps.label':'Come funziona','steps.title':'Operativo in 60 secondi',
-    'steps.desc':'Nessuna carta di credito. Nessuna configurazione server.',
-    'steps.1.title':'Inserisci la tua email','steps.1.desc':'Ti inviamo un link magico — nessuna password necessaria.',
+    'steps.desc':'Nessuna carta di credito. Solo email o account X, un handle e un PIN.',
+    'steps.1.title':'Accedi con X o email','steps.1.desc':'Accedi con X via OAuth o ricevi un link magico via email — nessuna password.',
     'steps.2.title':'Scegli il tuo handle','steps.2.desc':'Scegli qualcosa come hollr.to/paulfxyz.',
-    'steps.3.title':'Aggiungi la chiave Resend','steps.3.desc':'Incolla la tua chiave API Resend. I messaggi arrivano direttamente nella tua casella.',
-    'steps.4.title':'Condividi il link','steps.4.desc':'Condividi hollr.to/tuohandle ovunque. La tua canvas è attiva.',
+    'steps.3.title':'Imposta il PIN','steps.3.desc':'Un PIN protegge le tue impostazioni. La chiave Resend è opzionale — le email della piattaforma funzionano subito.',
+    'steps.4.title':'Condividi il link','steps.4.desc':'Condividi hollr.to/tuohandle ovunque. La tua canvas cifrata è attiva.',
     'preview.label':'La canvas','preview.title':'Un\'esperienza di messaggistica senza distrazioni',
     'preview.desc':'Una canvas a schermo intero con registrazione vocale, upload di file e invio focalizzato.',
     'preview.record':'Registra','preview.attach':'Allega','preview.send':'Invia',
     'features.label':'Funzionalità','features.title':'Tutto ciò che ti serve, niente di più',
-    'feat.key.title':'La tua chiave, la tua casella','feat.key.desc':'I messaggi vengono consegnati tramite il tuo account Resend.',
+    'feat.x.title':'Login con X & email','feat.x.desc':'Accedi con X (Twitter) OAuth 2.0 PKCE o tramite link magico. Nessuna password.',
+    'feat.pgp.title':'Crittografia PGP end-to-end','feat.pgp.desc':'Aggiungi la tua chiave PGP pubblica nelle impostazioni. I mittenti cifrano con la tua chiave.',
+    'feat.enc.title':'File e vocali cifrati','feat.enc.desc':'Ogni file e nota vocale è cifrata con AES-256-GCM. Decifra istantaneamente nel browser.',
+    'feat.key.title':'Resend opzionale','feat.key.desc':'La piattaforma invia da yo@hollr.to di default. Aggiungi la tua chiave Resend per la consegna personalizzata.',
     'feat.timer.title':'Canvas temporizzata','feat.timer.desc':'Un timer sempre attivo ricorda ai mittenti quanto tempo hanno impiegato.',
-    'feat.voice.title':'Registrazione vocale','feat.voice.desc':'Registra un messaggio vocale direttamente nel browser.',
-    'feat.files.title':'Allegati','feat.files.desc':'Trascina qualsiasi file. Caricato in sicurezza e collegato nell\'email.',
+    'feat.voice.title':'Registrazione vocale','feat.voice.desc':'Registra un messaggio vocale nel browser. Cifrato e collegato nell\'email.',
+    'feat.files.title':'Allegati','feat.files.desc':'Trascina qualsiasi file. Cifrato, caricato in sicurezza e collegato nell\'email.',
     'feat.i18n.title':'10 lingue','feat.i18n.desc':'Inglese, Francese, Tedesco, Italiano, Spagnolo, Olandese, Cinese, Hindi, Giapponese, Russo.',
     'feat.dark.title':'Modalità scura e chiara','feat.dark.desc':'Segue le preferenze di sistema.',
-    'feat.enc.title':'Crittografia AES-256','feat.enc.desc':'La tua chiave Resend è cifrata a riposo.',
     'feat.oss.title':'Completamente open source','feat.oss.desc':'Licenza MIT. Forkalo, ospitalo, estendilo.',
     'oss.title':'Costruito all\'aperto','oss.desc':'hollr è sotto licenza MIT. Il codice completo è su GitHub.',
     'oss.cta':'Prendi il tuo handle',
@@ -1154,22 +1172,24 @@ const STRINGS = {
     'hero.cta1':'Obtener mi handle →','hero.cta2':'Ver en GitHub',
     'stats.free':'Gratis para siempre','stats.langs':'Idiomas','stats.storage':'Datos almacenados','stats.handles':'Handles disponibles',
     'steps.label':'Cómo funciona','steps.title':'Listo en 60 segundos',
-    'steps.desc':'Sin tarjeta de crédito. Sin configuración de servidor.',
-    'steps.1.title':'Ingresa tu email','steps.1.desc':'Te enviamos un enlace mágico — sin contraseña, nunca.',
+    'steps.desc':'Sin tarjeta de crédito. Sin servidor. Solo email o cuenta X, un handle y un PIN.',
+    'steps.1.title':'Inicia sesión con X o email','steps.1.desc':'Usa X OAuth o recibe un enlace mágico por email — sin contraseña, nunca.',
     'steps.2.title':'Elige tu handle','steps.2.desc':'Elige algo como hollr.to/paulfxyz.',
-    'steps.3.title':'Agrega tu clave Resend','steps.3.desc':'Pega tu clave API de Resend. Los mensajes llegan directo a tu bandeja.',
-    'steps.4.title':'Comparte tu enlace','steps.4.desc':'Comparte hollr.to/tuhandle en cualquier lugar.',
+    'steps.3.title':'Establece tu PIN','steps.3.desc':'Un PIN protege tus ajustes. La clave Resend es opcional — los emails de la plataforma funcionan por defecto.',
+    'steps.4.title':'Comparte tu enlace','steps.4.desc':'Comparte hollr.to/tuhandle en cualquier lugar. Tu canvas cifrado está activo.',
     'preview.label':'El canvas','preview.title':'Una experiencia de mensajes sin distracciones',
     'preview.desc':'Un canvas de pantalla completa con grabación de voz, carga de archivos y envío enfocado.',
     'preview.record':'Grabar','preview.attach':'Adjuntar','preview.send':'Enviar',
     'features.label':'Funciones','features.title':'Todo lo que necesitas, nada más',
-    'feat.key.title':'Tu clave, tu bandeja','feat.key.desc':'Los mensajes se entregan mediante tu cuenta de Resend.',
+    'feat.x.title':'Login con X & email','feat.x.desc':'Inicia sesión con X (Twitter) OAuth 2.0 PKCE o por enlace mágico. Sin contraseñas.',
+    'feat.pgp.title':'Cifrado PGP de extremo a extremo','feat.pgp.desc':'Agrega tu clave PGP pública en ajustes. Los remitentes cifran con tu clave.',
+    'feat.enc.title':'Archivos y voz cifrados','feat.enc.desc':'Cada archivo y nota de voz se cifra con AES-256-GCM. Descifra al instante en el navegador.',
+    'feat.key.title':'Resend opcional','feat.key.desc':'La plataforma envía desde yo@hollr.to por defecto. Agrega tu clave Resend para entrega personalizada.',
     'feat.timer.title':'Canvas temporizada','feat.timer.desc':'Un temporizador siempre activo recuerda a los remitentes cuánto llevan escribiendo.',
-    'feat.voice.title':'Grabación de voz','feat.voice.desc':'Graba un mensaje de voz directamente en el navegador.',
-    'feat.files.title':'Archivos adjuntos','feat.files.desc':'Arrastra cualquier archivo. Cargado de forma segura y enlazado en el email.',
+    'feat.voice.title':'Grabación de voz','feat.voice.desc':'Graba un mensaje de voz en el navegador. Cifrado y enlazado en el email.',
+    'feat.files.title':'Archivos adjuntos','feat.files.desc':'Arrastra cualquier archivo. Cifrado, cargado de forma segura y enlazado en el email.',
     'feat.i18n.title':'10 idiomas','feat.i18n.desc':'Inglés, Francés, Alemán, Italiano, Español, Neerlandés, Chino, Hindi, Japonés, Ruso.',
     'feat.dark.title':'Modo oscuro y claro','feat.dark.desc':'Sigue tus preferencias del sistema.',
-    'feat.enc.title':'Cifrado AES-256','feat.enc.desc':'Tu clave Resend está cifrada en reposo.',
     'feat.oss.title':'Totalmente código abierto','feat.oss.desc':'Licencia MIT. Fórkalo, alójalo, extiéndelo.',
     'oss.title':'Construido en abierto','oss.desc':'hollr es MIT. El código completo está en GitHub.',
     'oss.cta':'Obtener mi handle',
@@ -1187,22 +1207,24 @@ const STRINGS = {
     'hero.cta1':'Mijn handle claimen →','hero.cta2':'Bekijk op GitHub',
     'stats.free':'Voor altijd gratis','stats.langs':'Talen','stats.storage':'Opgeslagen data','stats.handles':'Beschikbare handles',
     'steps.label':'Hoe het werkt','steps.title':'Klaar in 60 seconden',
-    'steps.desc':'Geen creditcard. Geen serverinstallatie.',
-    'steps.1.title':'Voer je e-mail in','steps.1.desc':'We sturen een magische link — nooit een wachtwoord nodig.',
+    'steps.desc':'Geen creditcard. Geen server. Alleen je e-mail of X-account, een handle en een PIN.',
+    'steps.1.title':'Inloggen met X of e-mail','steps.1.desc':'Log in met X OAuth of ontvang een magische link per e-mail — nooit een wachtwoord.',
     'steps.2.title':'Kies je handle','steps.2.desc':'Kies iets als hollr.to/paulfxyz.',
-    'steps.3.title':'Voeg je Resend-sleutel toe','steps.3.desc':'Plak je Resend API-sleutel. Berichten komen direct in je inbox.',
-    'steps.4.title':'Deel je link','steps.4.desc':'Deel hollr.to/jouwhandle overal.',
+    'steps.3.title':'Stel je PIN in','steps.3.desc':'Een PIN beveiligt je instellingen. Resend-sleutel is optioneel — platform-e-mails werken standaard.',
+    'steps.4.title':'Deel je link','steps.4.desc':'Deel hollr.to/jouwhandle overal. Je versleutelde canvas is live.',
     'preview.label':'Het canvas','preview.title':'Een afleidingsvrije berichtervaring',
     'preview.desc':'Een getimed volledig scherm canvas met stemopname, bestandsuploads en gefocust verzenden.',
     'preview.record':'Opnemen','preview.attach':'Bijvoegen','preview.send':'Verzenden',
     'features.label':'Functies','features.title':'Alles wat je nodig hebt, niets meer',
-    'feat.key.title':'Jouw sleutel, jouw inbox','feat.key.desc':'Berichten worden bezorgd via je eigen Resend-account.',
+    'feat.x.title':'X & e-mail login','feat.x.desc':'Inloggen via X (Twitter) OAuth 2.0 PKCE of magische link. Geen wachtwoorden.',
+    'feat.pgp.title':'PGP end-to-end-versleuteling','feat.pgp.desc':'Voeg je PGP-publieke sleutel toe in instellingen. Verzenders versleutelen ermee.',
+    'feat.enc.title':'Bestanden & stem versleuteld','feat.enc.desc':'Elk bestand en elke stemnotitie is versleuteld met AES-256-GCM. Direct ontsleutelen in de browser.',
+    'feat.key.title':'Resend optioneel','feat.key.desc':'Platform verstuurt standaard vanuit yo@hollr.to. Voeg je Resend-sleutel toe voor eigen bezorging.',
     'feat.timer.title':'Getimed canvas','feat.timer.desc':'Een doorlopende timer herinnert verzenders aan hun schrijftijd.',
-    'feat.voice.title':'Stemopname','feat.voice.desc':'Neem direct in de browser een stemnotitie op.',
-    'feat.files.title':'Bestandsbijlagen','feat.files.desc':'Sleep elk bestand. Veilig geüpload en gelinkt in de e-mail.',
+    'feat.voice.title':'Stemopname','feat.voice.desc':'Neem direct in de browser een stemnotitie op. Versleuteld en gelinkt in de e-mail.',
+    'feat.files.title':'Bestandsbijlagen','feat.files.desc':'Sleep elk bestand. Versleuteld, veilig geüpload en gelinkt in de e-mail.',
     'feat.i18n.title':'10 talen','feat.i18n.desc':'Engels, Frans, Duits, Italiaans, Spaans, Nederlands, Chinees, Hindi, Japans, Russisch.',
     'feat.dark.title':'Donkere & lichte modus','feat.dark.desc':'Volgt je systeemvoorkeur.',
-    'feat.enc.title':'AES-256-codering','feat.enc.desc':'Je Resend-sleutel is versleuteld opgeslagen.',
     'feat.oss.title':'Volledig open source','feat.oss.desc':'MIT-licentie. Fork het, host het zelf, breid het uit.',
     'oss.title':'Open gebouwd','oss.desc':'hollr heeft een MIT-licentie. De volledige broncode staat op GitHub.',
     'oss.cta':'Mijn handle claimen',
@@ -1220,22 +1242,24 @@ const STRINGS = {
     'hero.cta1':'获取我的 handle →','hero.cta2':'在 GitHub 上查看',
     'stats.free':'永久免费','stats.langs':'语言','stats.storage':'存储数据','stats.handles':'可用 handle',
     'steps.label':'使用方法','steps.title':'60 秒即可上线',
-    'steps.desc':'无需信用卡，无需服务器配置。只需邮箱、handle 和 Resend API 密钥。',
-    'steps.1.title':'输入你的邮箱','steps.1.desc':'我们发送一个魔法链接 — 永远不需要密码。',
+    'steps.desc':'无需信用卡，无需服务器。只需邮箱或 X 账号、handle 和 PIN。',
+    'steps.1.title':'用 X 或邮箱登录','steps.1.desc':'通过 X OAuth 登录，或通过邮件获取魔法链接 — 永远不需要密码。',
     'steps.2.title':'选择你的 handle','steps.2.desc':'选择类似 hollr.to/paulfxyz 的名称。先到先得。',
-    'steps.3.title':'添加 Resend 密钥','steps.3.desc':'粘贴你的 Resend API 密钥。消息直接到达你的收件箱。',
-    'steps.4.title':'分享你的链接','steps.4.desc':'在任何地方分享 hollr.to/你的handle。你的画布上线了。',
+    'steps.3.title':'设置 PIN','steps.3.desc':'PIN 保护你的设置。Resend 密钥是可选的 — 平台邮件默认可用。',
+    'steps.4.title':'分享你的链接','steps.4.desc':'在任何地方分享 hollr.to/你的handle。你的加密画布上线了。',
     'preview.label':'画布','preview.title':'无干扰的消息体验',
     'preview.desc':'带语音录制、文件上传和专注发送流程的全屏计时画布。',
     'preview.record':'录音','preview.attach':'附件','preview.send':'发送',
     'features.label':'功能','features.title':'你需要的一切，别无其他',
-    'feat.key.title':'你的密钥，你的收件箱','feat.key.desc':'消息通过你自己的 Resend 账户发送。我们不读取或存储你的消息。',
+    'feat.x.title':'X 和邮箱登录','feat.x.desc':'通过 X (Twitter) OAuth 2.0 PKCE 或魔法链接登录。无需密码。',
+    'feat.pgp.title':'PGP 端到端加密','feat.pgp.desc':'在设置中添加你的 PGP 公钥。发送者用你的密钥加密消息。',
+    'feat.enc.title':'文件和语音加密','feat.enc.desc':'每个文件和语音消息都用 AES-256-GCM 加密存储。在浏览器中即时解密。',
+    'feat.key.title':'Resend 可选','feat.key.desc':'平台默认从 yo@hollr.to 发送邮件。添加你的 Resend 密钥可自定义投递。',
     'feat.timer.title':'计时画布','feat.timer.desc':'持续运行的计时器提醒发送者他们写了多久。',
-    'feat.voice.title':'语音录制','feat.voice.desc':'直接在浏览器中录制语音消息。',
-    'feat.files.title':'文件附件','feat.files.desc':'拖放任何文件。安全上传并在邮件中链接。',
+    'feat.voice.title':'语音录制','feat.voice.desc':'直接在浏览器中录制语音消息。加密后通过邮件链接发送。',
+    'feat.files.title':'文件附件','feat.files.desc':'拖放任何文件。加密、安全上传并在邮件中链接。',
     'feat.i18n.title':'10 种语言','feat.i18n.desc':'英语、法语、德语、意大利语、西班牙语、荷兰语、中文、印地语、日语、俄语。',
     'feat.dark.title':'深色和浅色模式','feat.dark.desc':'跟随系统偏好，随时可手动切换。',
-    'feat.enc.title':'AES-256 加密','feat.enc.desc':'你的 Resend 密钥在静止时加密存储。',
     'feat.oss.title':'完全开源','feat.oss.desc':'MIT 许可证。Fork、自托管、扩展。',
     'oss.title':'公开构建','oss.desc':'hollr 采用 MIT 许可证。完整源代码在 GitHub 上。',
     'oss.cta':'获取我的 handle',
@@ -1253,22 +1277,24 @@ const STRINGS = {
     'hero.cta1':'अपना हैंडल पाएं →','hero.cta2':'GitHub पर देखें',
     'stats.free':'हमेशा मुफ़्त','stats.langs':'भाषाएं','stats.storage':'संग्रहीत डेटा','stats.handles':'उपलब्ध हैंडल',
     'steps.label':'यह कैसे काम करता है','steps.title':'60 सेकंड में तैयार',
-    'steps.desc':'कोई क्रेडिट कार्ड नहीं। कोई सर्वर सेटअप नहीं।',
-    'steps.1.title':'अपना ईमेल दर्ज करें','steps.1.desc':'हम एक मैजिक लिंक भेजते हैं — कभी पासवर्ड की ज़रूरत नहीं।',
+    'steps.desc':'कोई क्रेडिट कार्ड नहीं। बस ईमेल या X खाता, एक हैंडल और एक PIN।',
+    'steps.1.title':'X या ईमेल से लॉगिन करें','steps.1.desc':'X OAuth से लॉगिन करें या ईमेल द्वारा मैजिक लिंक प्राप्त करें — पासवर्ड की ज़रूरत नहीं।',
     'steps.2.title':'अपना हैंडल चुनें','steps.2.desc':'hollr.to/paulfxyz जैसा कुछ चुनें।',
-    'steps.3.title':'Resend कुंजी जोड़ें','steps.3.desc':'अपनी Resend API कुंजी पेस्ट करें।',
-    'steps.4.title':'लिंक साझा करें','steps.4.desc':'hollr.to/yourhandle कहीं भी साझा करें।',
+    'steps.3.title':'PIN सेट करें','steps.3.desc':'PIN आपकी सेटिंग्स को सुरक्षित करता है। Resend कुंजी वैकल्पिक है।',
+    'steps.4.title':'लिंक साझा करें','steps.4.desc':'hollr.to/yourhandle कहीं भी साझा करें। आपका एन्क्रिप्टेड कैनवास लाइव है।',
     'preview.label':'कैनवास','preview.title':'बिना व्यवधान का संदेश अनुभव',
     'preview.desc':'वॉयस रिकॉर्डिंग और फ़ाइल अपलोड के साथ पूर्ण स्क्रीन समयबद्ध कैनवास।',
     'preview.record':'रिकॉर्ड','preview.attach':'संलग्न','preview.send':'भेजें',
     'features.label':'विशेषताएं','features.title':'जो चाहिए वो सब, बाकी कुछ नहीं',
-    'feat.key.title':'आपकी कुंजी, आपका इनबॉक्स','feat.key.desc':'संदेश आपके Resend खाते के माध्यम से वितरित किए जाते हैं।',
+    'feat.x.title':'X और ईमेल लॉगिन','feat.x.desc':'X (Twitter) OAuth 2.0 PKCE या मैजिक लिंक से लॉगिन। कोई पासवर्ड नहीं।',
+    'feat.pgp.title':'PGP एंड-टू-एंड एन्क्रिप्शन','feat.pgp.desc':'सेटिंग्स में अपनी PGP पब्लिक की जोड़ें। भेजने वाले आपकी की से एन्क्रिप्ट करते हैं।',
+    'feat.enc.title':'फ़ाइलें और आवाज़ एन्क्रिप्टेड','feat.enc.desc':'हर फ़ाइल और वॉयस नोट AES-256-GCM से एन्क्रिप्टेड। ब्राउज़र में तुरंत डिक्रिप्ट।',
+    'feat.key.title':'Resend वैकल्पिक','feat.key.desc':'प्लेटफ़ॉर्म डिफ़ॉल्ट रूप से yo@hollr.to से भेजता है। कस्टम डिलीवरी के लिए Resend की जोड़ें।',
     'feat.timer.title':'समयबद्ध कैनवास','feat.timer.desc':'एक निरंतर टाइमर प्रेषकों को समय याद दिलाता है।',
-    'feat.voice.title':'वॉयस रिकॉर्डिंग','feat.voice.desc':'ब्राउज़र में सीधे वॉयस नोट रिकॉर्ड करें।',
-    'feat.files.title':'फ़ाइल संलग्नक','feat.files.desc':'कोई भी फ़ाइल ड्रैग और ड्रॉप करें।',
+    'feat.voice.title':'वॉयस रिकॉर्डिंग','feat.voice.desc':'ब्राउज़र में सीधे वॉयस नोट रिकॉर्ड करें। एन्क्रिप्टेड और ईमेल में लिंक।',
+    'feat.files.title':'फ़ाइल संलग्नक','feat.files.desc':'कोई भी फ़ाइल ड्रैग और ड्रॉप करें। एन्क्रिप्टेड और सुरक्षित रूप से अपलोड।',
     'feat.i18n.title':'10 भाषाएं','feat.i18n.desc':'अंग्रेज़ी, फ्रेंच, जर्मन, इतालवी, स्पेनिश, डच, चीनी, हिंदी, जापानी, रूसी।',
     'feat.dark.title':'डार्क और लाइट मोड','feat.dark.desc':'सिस्टम प्राथमिकता का अनुसरण करता है।',
-    'feat.enc.title':'AES-256 एन्क्रिप्शन','feat.enc.desc':'आपकी Resend कुंजी एन्क्रिप्टेड है।',
     'feat.oss.title':'पूरी तरह ओपन सोर्स','feat.oss.desc':'MIT लाइसेंस। Fork करें, स्व-होस्ट करें, विस्तार करें।',
     'oss.title':'खुले में निर्मित','oss.desc':'hollr MIT लाइसेंस के तहत है। GitHub पर पूरा स्रोत।',
     'oss.cta':'अपना हैंडल पाएं',
@@ -1286,22 +1312,24 @@ const STRINGS = {
     'hero.cta1':'ハンドルを取得 →','hero.cta2':'GitHubで見る',
     'stats.free':'永久無料','stats.langs':'言語','stats.storage':'保存データ','stats.handles':'利用可能なハンドル',
     'steps.label':'仕組み','steps.title':'60秒で稼働',
-    'steps.desc':'クレジットカード不要。サーバー設定不要。',
-    'steps.1.title':'メールを入力','steps.1.desc':'マジックリンクを送信します。パスワードは不要です。',
+    'steps.desc':'クレジットカード不要。サーバー不要。メールかXアカウント、ハンドル、PINだけで始められます。',
+    'steps.1.title':'XまたはメールでログIN','steps.1.desc':'X OAuthでログインするか、メールでマジックリンクを受け取る — パスワード不要。',
     'steps.2.title':'ハンドルを選ぶ','steps.2.desc':'hollr.to/paulfxyzのようなものを選んでください。',
-    'steps.3.title':'Resendキーを追加','steps.3.desc':'ResendのAPIキーを貼り付けます。',
-    'steps.4.title':'リンクを共有','steps.4.desc':'hollr.to/yourhandleをどこでも共有できます。',
+    'steps.3.title':'PINを設定','steps.3.desc':'PINで設定を保護します。Resendキーは任意 — プラットフォームメールがデフォルトで機能します。',
+    'steps.4.title':'リンクを共有','steps.4.desc':'hollr.to/yourhandleをどこでも共有できます。暗号化されたキャンバスが稼働中。',
     'preview.label':'キャンバス','preview.title':'集中できるメッセージ体験',
     'preview.desc':'音声録音、ファイルアップロード付きのフルスクリーンタイムドキャンバス。',
     'preview.record':'録音','preview.attach':'添付','preview.send':'送信',
     'features.label':'機能','features.title':'必要なものすべて、余計なものなし',
-    'feat.key.title':'あなたのキー、あなたの受信箱','feat.key.desc':'メッセージはあなたのResendアカウント経由で配信されます。',
+    'feat.x.title':'X＆メールログイン','feat.x.desc':'X (Twitter) OAuth 2.0 PKCEまたはマジックリンクでログイン。パスワード不要。',
+    'feat.pgp.title':'PGPエンドツーエンド暗号化','feat.pgp.desc':'設定でPGP公開鍵を追加。送信者があなたの鍵で暗号化します。',
+    'feat.enc.title':'ファイルと音声を暗号化','feat.enc.desc':'すべてのファイルと音声メモはAES-256-GCMで暗号化。ブラウザで即座に復号可能。',
+    'feat.key.title':'Resendは任意','feat.key.desc':'プラットフォームはデフォルトでyo@hollr.toから送信。Resendキーを追加してカスタム配信も可能。',
     'feat.timer.title':'タイムドキャンバス','feat.timer.desc':'常時動くタイマーで送信者に経過時間を知らせます。',
-    'feat.voice.title':'音声録音','feat.voice.desc':'ブラウザで直接音声メモを録音できます。',
-    'feat.files.title':'ファイル添付','feat.files.desc':'任意のファイルをドラッグ＆ドロップ。安全にアップロードされリンクをメールで送信。',
+    'feat.voice.title':'音声録音','feat.voice.desc':'ブラウザで直接音声メモを録音。暗号化されてメールにリンク。',
+    'feat.files.title':'ファイル添付','feat.files.desc':'任意のファイルをドラッグ＆ドロップ。暗号化して安全にアップロード。',
     'feat.i18n.title':'10言語','feat.i18n.desc':'英語、フランス語、ドイツ語、イタリア語、スペイン語、オランダ語、中国語、ヒンディー語、日本語、ロシア語。',
     'feat.dark.title':'ダーク＆ライトモード','feat.dark.desc':'システム設定に従います。',
-    'feat.enc.title':'AES-256暗号化','feat.enc.desc':'ResendキーはAES-256で暗号化されて保存されます。',
     'feat.oss.title':'完全オープンソース','feat.oss.desc':'MITライセンス。フォーク、自己ホスト、拡張が可能。',
     'oss.title':'オープンに構築','oss.desc':'hollrはMITライセンス。完全なソースコードはGitHubにあります。',
     'oss.cta':'ハンドルを取得',
@@ -1319,22 +1347,24 @@ const STRINGS = {
     'hero.cta1':'Получить хэндл →','hero.cta2':'Смотреть на GitHub',
     'stats.free':'Бесплатно навсегда','stats.langs':'Языков','stats.storage':'Хранимых данных','stats.handles':'Доступных хэндлов',
     'steps.label':'Как это работает','steps.title':'Готово за 60 секунд',
-    'steps.desc':'Без кредитной карты. Без настройки сервера.',
-    'steps.1.title':'Введите email','steps.1.desc':'Мы отправим магическую ссылку — пароль не нужен.',
+    'steps.desc':'Без кредитной карты. Без сервера. Только email или X-аккаунт, хэндл и PIN.',
+    'steps.1.title':'Войти через X или email','steps.1.desc':'Войдите через X OAuth или получите магическую ссылку по email — пароль не нужен.',
     'steps.2.title':'Выберите хэндл','steps.2.desc':'Например, hollr.to/paulfxyz.',
-    'steps.3.title':'Добавьте ключ Resend','steps.3.desc':'Вставьте API-ключ Resend. Сообщения приходят прямо в ваш ящик.',
-    'steps.4.title':'Поделитесь ссылкой','steps.4.desc':'Разместите hollr.to/yourhandle где угодно.',
+    'steps.3.title':'Установите PIN','steps.3.desc':'PIN защищает ваши настройки. Ключ Resend необязателен — платформенные письма работают по умолчанию.',
+    'steps.4.title':'Поделитесь ссылкой','steps.4.desc':'Разместите hollr.to/yourhandle где угодно. Ваш зашифрованный холст активен.',
     'preview.label':'Холст','preview.title':'Опыт без отвлечений',
     'preview.desc':'Полноэкранный холст с таймером, записью голоса и загрузкой файлов.',
     'preview.record':'Запись','preview.attach':'Прикрепить','preview.send':'Отправить',
     'features.label':'Функции','features.title':'Всё что нужно, ничего лишнего',
-    'feat.key.title':'Ваш ключ, ваш ящик','feat.key.desc':'Сообщения доставляются через ваш аккаунт Resend.',
+    'feat.x.title':'Вход через X и email','feat.x.desc':'Войдите через X (Twitter) OAuth 2.0 PKCE или по магической ссылке. Без паролей.',
+    'feat.pgp.title':'PGP-шифрование end-to-end','feat.pgp.desc':'Добавьте свой PGP-публичный ключ в настройках. Отправители шифруют им сообщения.',
+    'feat.enc.title':'Файлы и голос зашифрованы','feat.enc.desc':'Каждый файл и голосовая заметка зашифрованы с AES-256-GCM. Расшифровка мгновенно в браузере.',
+    'feat.key.title':'Resend необязателен','feat.key.desc':'Платформа отправляет с yo@hollr.to по умолчанию. Добавьте свой ключ Resend для кастомной доставки.',
     'feat.timer.title':'Холст с таймером','feat.timer.desc':'Постоянный таймер напоминает отправителям о времени.',
-    'feat.voice.title':'Голосовая запись','feat.voice.desc':'Запишите голосовую заметку прямо в браузере.',
-    'feat.files.title':'Вложения','feat.files.desc':'Перетащите любой файл. Безопасно загружается и ссылается в письме.',
+    'feat.voice.title':'Голосовая запись','feat.voice.desc':'Запишите голосовую заметку в браузере. Зашифровано и ссылка в письме.',
+    'feat.files.title':'Вложения','feat.files.desc':'Перетащите любой файл. Зашифровано, безопасно загружено и ссылка в письме.',
     'feat.i18n.title':'10 языков','feat.i18n.desc':'Английский, Французский, Немецкий, Итальянский, Испанский, Нидерландский, Китайский, Хинди, Японский, Русский.',
     'feat.dark.title':'Тёмный и светлый режим','feat.dark.desc':'Следует системным настройкам.',
-    'feat.enc.title':'Шифрование AES-256','feat.enc.desc':'Ваш ключ Resend зашифрован.',
     'feat.oss.title':'Полностью открытый код','feat.oss.desc':'Лицензия MIT. Форкайте, размещайте сами, расширяйте.',
     'oss.title':'Открытая разработка','oss.desc':'hollr — MIT. Полный исходный код на GitHub.',
     'oss.cta':'Получить хэндл',

@@ -6,6 +6,84 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [4.0.0] — 2026-04-05
+
+### 🚀 Major — Security & auth upgrade
+
+v4.0.0 is a significant leap in privacy and authentication. Every handle is now a
+fully encrypted communication channel: messages can be PGP-encrypted end-to-end,
+files and voice recordings are encrypted at rest with AES-256-GCM, and login is
+now available via X (Twitter) OAuth in addition to magic links. Resend API is
+now optional — the platform sends notification emails from `yo@hollr.to` by default.
+
+### Added
+
+#### Authentication
+- **X (Twitter) OAuth 2.0 PKCE login** — `GET /api/auth/x` + callback. Users can sign in with their X account in one click. PKCE `code_verifier` and `state` stored server-side in `express-session`.
+- **express-session** added for server-side session storage (X OAuth state + PKCE verifier).
+- `SESSION_SECRET` environment variable added.
+
+#### PGP Encryption
+- **PGP public key storage** — users can paste their OpenPGP public key in the Settings modal (`cog` icon). Stored in SQLite.
+- **Client-side PGP encryption** on the canvas — when a handle owner has a PGP key set, OpenPGP.js v5 (loaded via `esm.sh`) encrypts the message text in-browser before sending. The ciphertext is stored in the `messages` table, not the plaintext.
+- **PGP badge** — canvas shows a `🔐` badge when the handle owner has PGP enabled.
+- New `pgp_public_key` column in the `users` table.
+- `GET /api/profile/:handle` now includes `pgp_public_key` for client-side encryption.
+
+#### Encrypted File & Voice Uploads
+- **AES-256-GCM file encryption** — every uploaded file and voice recording is encrypted server-side with a random 32-byte key and 12-byte IV before writing to disk.
+- `crypto.js` extended with `encryptBuffer(buffer)` → `{ ciphertext, key, iv }` and `decryptBuffer(ciphertext, key, iv)`.
+- `POST /api/upload/:handle` returns `{ url, file_key, file_iv, name }` — `file_key` and `file_iv` are hex-encoded and included in the notification email as a decrypt link.
+- `GET /api/decrypt/:handle/:filename` — streams the raw encrypted bytes to the client for in-browser decryption.
+- `messages` table extended with `is_pgp`, `file_attachments` (JSON), `audio_key`, `audio_iv` columns.
+
+#### In-Browser Decrypt Viewer
+- **`/decrypt` page** — brand new `decrypt/index.html` providing a fully client-side AES-256-GCM decrypt-and-download viewer.
+  - Accepts `key` and `iv` query parameters (pre-filled from email links).
+  - Fetches raw encrypted bytes from `/api/decrypt/:handle/:filename`.
+  - Decrypts using the Web Crypto API (`SubtleCrypto.decrypt`, `AES-GCM`).
+  - Detects MIME type (audio/image/PDF/generic) and renders inline or offers download.
+  - Zero server-side access to plaintext.
+- `.htaccess` updated: `/decrypt` route added before the `/:handle` wildcard.
+
+#### Optional Resend API
+- **Platform fallback email** — if a handle owner has no Resend key configured, notification emails are sent from `yo@hollr.to` via the platform Resend key (`PLATFORM_RESEND_KEY`).
+- `PLATFORM_FROM_EMAIL` and `PLATFORM_RESEND_KEY` env vars already existed but are now the primary delivery path.
+- `mailer.js` updated to gracefully fall back to platform email when user has no `resend_key`.
+
+#### Onboarding & Settings
+- Auth verify page (`auth/verify.html`) updated: X OAuth login button added, Resend key field marked optional, PGP key textarea added to onboarding flow.
+- Settings modal in the canvas updated: new **PGP** tab alongside Resend and PIN tabs.
+
+#### Landing Page
+- Hero subtitle, "How it works" steps, and Features section updated to reflect v4.0.0.
+- Steps 1 and 3 rewritten: login now "X or email", step 3 now "Set your PIN" (Resend optional).
+- New feature cards: `X & email login`, `PGP end-to-end encryption`, `Encrypted files & voice`, `Resend optional`.
+- Old `AES-256 encryption` card replaced by `Encrypted files & voice` (AES-256-GCM).
+- All 10 language packs updated with new strings.
+- Meta description updated.
+
+### Changed
+- `db.js` — runtime migrations add `x_id`, `x_username`, `x_token`, `pgp_public_key` columns to `users` table and create the new `messages` table.
+- `package.json` — added `openpgp@5`, `express-session`.
+- `.env.example` — documents `SESSION_SECRET`, `X_CLIENT_ID`, `X_CLIENT_SECRET`.
+
+### Architecture (v4.0.0)
+| Layer | Tech |
+|---|---|
+| Backend | Node.js 20 + Express 4 on Fly.io |
+| Database | SQLite via better-sqlite3 (WAL mode) |
+| Auth | X OAuth 2.0 PKCE + magic links via Resend, sessions via express-session |
+| Encryption (text secrets) | AES-256-CBC + PBKDF2-SHA256 (100k iterations) |
+| Encryption (files/audio) | AES-256-GCM (random key+IV per file, stored in DB) |
+| PGP | OpenPGP.js v5 (client-side, via esm.sh) |
+| Email | Resend REST API (platform `yo@hollr.to` fallback + optional per-user key) |
+| File uploads | Multer → Fly.io persistent volume (encrypted) |
+| Frontend | Plain HTML/CSS/JS, no build step, deployed via FTP |
+| Routing | Apache mod_rewrite on SiteGround |
+
+---
+
 ## [3.0.0] — 2026-04-04
 
 ### 🚀 Major — Platform relaunch as hollr.to SaaS

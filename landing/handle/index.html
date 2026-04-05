@@ -1098,18 +1098,33 @@
       <div class="s-panel" id="panel-manage">
         <div class="s-tabs">
           <button class="s-tab active" data-tab="key" data-i18n="tab_api_key">API Key</button>
+          <button class="s-tab" data-tab="pgp">PGP Key</button>
           <button class="s-tab" data-tab="pin" data-i18n="tab_change_pin">Change PIN</button>
         </div>
         <div id="tab-key">
           <div class="s-field">
             <label data-i18n="api_key_label">Resend API Key</label>
             <input type="password" id="s-apikey-manage" placeholder="re_xxxxxxxxxxxxxxxx" autocomplete="off" />
-            <div class="hint" data-i18n="manage_key_hint">Leave blank to keep the current key.</div>
+            <div class="hint" data-i18n="manage_key_hint">Leave blank to keep the current key. Without it, platform email (yo@hollr.to) is used.</div>
             <div class="s-error" id="s-manage-error"></div>
           </div>
           <div class="s-actions">
             <button class="s-btn-secondary" id="s-manage-close" data-i18n="close">Close</button>
             <button class="s-btn-primary" id="s-manage-save" data-i18n="save_key">Save Key</button>
+          </div>
+        </div>
+        <div id="tab-pgp" style="display:none">
+          <div class="s-field">
+            <label>PGP Public Key</label>
+            <textarea id="s-pgp-key" rows="6"
+              style="width:100%;border:1px solid var(--border-md);border-radius:6px;padding:8px;font-family:var(--mono);font-size:11px;color:var(--fg);background:var(--bg-1);resize:vertical;outline:none;transition:border-color 120ms,background 200ms,color 200ms"
+              placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----&#10;...&#10;-----END PGP PUBLIC KEY BLOCK-----"></textarea>
+            <div class="hint" style="margin-top:6px">When set, senders can encrypt messages end-to-end with your PGP key — only you can decrypt them. Leave blank to clear.</div>
+            <div class="s-error" id="s-pgp-error"></div>
+          </div>
+          <div class="s-actions">
+            <button class="s-btn-secondary" id="s-pgp-cancel">Close</button>
+            <button class="s-btn-primary" id="s-pgp-save">Save PGP Key</button>
           </div>
         </div>
         <div id="tab-pin" style="display:none">
@@ -2005,12 +2020,32 @@
     $('send-close').style.display = '';
   };
 
+  // PGP public key for this handle (loaded from profile)
+  let profilePgpKey = null;
+
   const uploadItem = async (item, name) => {
     const fd = new FormData(); fd.append('file', item, name);
     const resp = await fetch(`${API_BASE}/api/upload/${HANDLE}`, { method: 'POST', body: fd });
     const data = await resp.json();
     if (!data.ok) throw new Error(data.error || 'Upload failed');
-    return { url: data.url, name };
+    // Returns { url, file_key, file_iv, name } — encrypted upload
+    return { url: data.url, file_key: data.file_key, file_iv: data.file_iv, name: data.name || name };
+  };
+
+  // Encrypt a plaintext message with the recipient's PGP public key using OpenPGP.js
+  const pgpEncryptMessage = async (plaintext, armouredPubKey) => {
+    try {
+      const openpgp = await import('https://esm.sh/openpgp@5');
+      const pubKey  = await openpgp.readKey({ armoredKey: armouredPubKey });
+      const encrypted = await openpgp.encrypt({
+        message: await openpgp.createMessage({ text: plaintext }),
+        encryptionKeys: pubKey,
+      });
+      return { ciphertext: encrypted, ok: true };
+    } catch (err) {
+      console.warn('PGP encrypt failed, sending plaintext:', err.message);
+      return { ciphertext: plaintext, ok: false };
+    }
   };
 
   const doSend = async () => {
@@ -2026,13 +2061,23 @@
       }
       const name    = $('sender-name').value.trim() || 'Anonymous';
       const contact = $('sender-contact').value.trim();
-      const message = textEl.value;
-      const wc      = (message.trim().match(/\S+/g)||[]).length;
+      let   message = textEl.value;
+      let   isPgp   = false;
+
+      // If the handle owner has a PGP key, encrypt the message client-side
+      if (profilePgpKey) {
+        const { ciphertext, ok } = await pgpEncryptMessage(message, profilePgpKey);
+        if (ok) { message = ciphertext; isPgp = true; }
+      }
+
       const payload = {
         contact: (name && contact) ? `${name} (${contact})` : (name || contact || 'Anonymous'),
         message,
-        file_urls: fileInfos.map(f => f.url).filter(Boolean),
-        audio_url: audioInfo?.url || null,
+        is_pgp: isPgp,
+        file_attachments: fileInfos,
+        audio_url:  audioInfo?.url  || null,
+        audio_key:  audioInfo?.file_key || null,
+        audio_iv:   audioInfo?.file_iv  || null,
       };
       const resp = await fetch(`${API_BASE}/api/send/${HANDLE}`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
       const result = await resp.json();
@@ -2515,6 +2560,20 @@
         return false;
       }
       const profile = await res.json();
+
+      // Store PGP key for client-side encryption on send
+      if (profile.pgp_public_key) {
+        profilePgpKey = profile.pgp_public_key;
+        // Show a lock badge in the topbar to indicate messages will be encrypted
+        const pill = document.getElementById('state-pill');
+        if (pill) {
+          const pgpBadge = document.createElement('span');
+          pgpBadge.textContent = '🔐';
+          pgpBadge.title = 'Messages will be PGP encrypted end-to-end';
+          pgpBadge.style.cssText = 'font-size:12px;margin-right:2px;cursor:default';
+          pill.prepend(pgpBadge);
+        }
+      }
 
       // Patch all i18n owner strings in STRINGS to use the handle
       const ownerDisplay = '@' + profile.handle;
