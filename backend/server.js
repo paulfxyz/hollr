@@ -477,7 +477,7 @@ app.post('/api/handle/check', (req, res) => {
  * Email is required for X-only users (no email on file).
  */
 app.post('/api/handle/claim', requireAuth, async (req, res) => {
-  const { handle, resend_key, pin, from_email, pgp_public_key, email } = req.body;
+  const { handle, resend_key, pin, from_email, pgp_public_key, email, display_name } = req.body;
 
   if (!handle || !isValidHandle(handle)) return res.status(400).json({ error: 'Invalid handle format' });
 
@@ -509,18 +509,23 @@ app.post('/api/handle/claim', requireAuth, async (req, res) => {
   const pinHash       = bcrypt.hashSync(pinValue, 12);
   const encryptedKey  = resend_key ? encrypt(resend_key) : null;
 
+  // Trim display name to max 60 chars if provided
+  const trimmedDisplayName = display_name ? String(display_name).trim().slice(0, 60) : null;
+
   db.prepare(`
     UPDATE users
     SET handle = ?, pin_hash = ?, pin_is_default = ?,
         resend_key = ?, from_email = ?,
         pgp_public_key = ?,
-        email = COALESCE(email, ?),
+        display_name = COALESCE(?, display_name),
+        email = COALESCE(?, email),
         updated_at = unixepoch()
     WHERE id = ?
   `).run(
     handle, pinHash, isDefaultPin ? 1 : 0,
     encryptedKey, from_email || null,
     pgp_public_key || null,
+    trimmedDisplayName || null,
     email || null,
     req.user.user_id,
   );

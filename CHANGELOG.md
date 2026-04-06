@@ -17,6 +17,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [4.4.1] — 2026-04-06
+
+### ✨ 3-step onboarding wizard + handle uniqueness + account reset
+
+### Added
+- **3-step onboarding wizard** (`auth/verify.html` fully rewritten):
+  - **Step 1 — Handle**: pick your handle with live availability check (debounced 450ms, real-time ✓/✗ feedback). `Continue →` blocked until handle is confirmed available.
+  - **Step 2 — PIN**: choose a 4–8 digit PIN with visual dot-fill preview as you type. Confirmation field. Rejects `1234`. Back `←` button.
+  - **Step 3 — Details**: display name (optional, pre-previews as *"Message to [name]"*) + notification email (optional, defaults to `yo@hollr.to`). Back `←` button.
+  - All collected in one `POST /api/handle/claim` — single round-trip.
+  - Redirects to `/:handle?setup=1` — settings auto-opens for Resend/PGP setup.
+- **`POST /api/handle/claim`** now accepts `display_name` and `email` (notification) directly during onboarding. No more separate settings step required.
+- **`DELETE paulfxyz`** — account wiped from live DB for clean re-registration testing.
+
+### Fixed
+- **`POST /api/handle/check`** now returns specific `reason` string for every rejection type (too short, too long, reserved word, already taken). Handle uniqueness check uses `COLLATE NOCASE`.
+- Onboarding no longer uses a default PIN of `1234` — PIN is required in step 2 and must be confirmed. No more `pin_is_default` confusion.
+
+---
+
 ## [4.4.0] — 2026-04-06
 
 ### ✏️ Display name + handle uniqueness improvements

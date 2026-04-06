@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +7,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>📢</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@300..600&display=swap" rel="stylesheet">
   <style>
+    /* ─── Tokens ─────────────────────────────────────────────────────────── */
     :root {
       --bg:      #f9f6f1;
       --surface: #ffffff;
@@ -27,180 +28,194 @@
       --text:    #f0ece4;
       --muted:   #7a7468;
     }
+
+    /* ─── Base ────────────────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: var(--sans);
       background: var(--bg);
       color: var(--text);
       min-height: 100dvh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       padding: 24px;
       -webkit-font-smoothing: antialiased;
+      transition: background 200ms, color 200ms;
     }
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 20px;
-      padding: 48px 40px;
-      max-width: 460px;
-      width: 100%;
+      padding: 44px 40px;
+      max-width: 480px; width: 100%;
       box-shadow: 0 4px 32px rgba(0,0,0,.06);
+      transition: background 200ms, border-color 200ms;
     }
 
-    /* Logo / icon */
+    /* ─── Logo ────────────────────────────────────────────────────────────── */
     .logo {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       margin-bottom: 28px; color: var(--text); text-decoration: none;
     }
-    .logo svg { flex-shrink: 0; }
     .logo-text { font-family: var(--serif); font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
 
+    /* ─── Typography ──────────────────────────────────────────────────────── */
     h1 {
-      font-family: var(--serif);
-      font-size: 26px;
-      font-weight: 600;
-      letter-spacing: -.02em;
-      text-align: center;
-      margin-bottom: 8px;
-      line-height: 1.2;
+      font-family: var(--serif); font-size: 26px; font-weight: 600;
+      letter-spacing: -.02em; text-align: center;
+      margin-bottom: 8px; line-height: 1.2;
     }
     p.sub {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.65;
-      margin-bottom: 28px;
-      text-align: center;
+      color: var(--muted); font-size: 14px; line-height: 1.65;
+      margin-bottom: 28px; text-align: center;
     }
 
-    /* Spinner */
+    /* ─── Progress bar ────────────────────────────────────────────────────── */
+    .progress {
+      display: flex; align-items: center; gap: 0;
+      margin-bottom: 32px;
+    }
+    .progress-step {
+      display: flex; flex-direction: column; align-items: center; flex: 1; position: relative;
+    }
+    .progress-step:not(:last-child)::after {
+      content: ''; position: absolute; top: 14px; left: 50%; right: -50%;
+      height: 2px; background: var(--border); z-index: 0;
+      transition: background 300ms;
+    }
+    .progress-step.done:not(:last-child)::after { background: var(--amber); }
+    .progress-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid var(--border); background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      position: relative; z-index: 1;
+      transition: all 200ms;
+    }
+    .progress-step.active .progress-dot {
+      border-color: var(--amber); color: var(--amber);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 15%, transparent);
+    }
+    .progress-step.done .progress-dot {
+      background: var(--amber); border-color: var(--amber); color: #fff;
+    }
+    .progress-label {
+      margin-top: 6px; font-size: 10px; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; white-space: nowrap;
+      transition: color 200ms;
+    }
+    .progress-step.active .progress-label { color: var(--amber); }
+    .progress-step.done  .progress-label { color: var(--success); }
+
+    /* ─── Spinner ──────────────────────────────────────────────────────────── */
     .spinner {
       width: 32px; height: 32px;
-      border: 2.5px solid var(--border);
-      border-top-color: var(--amber);
-      border-radius: 50%;
-      animation: spin 0.75s linear infinite;
+      border: 2.5px solid var(--border); border-top-color: var(--amber);
+      border-radius: 50%; animation: spin .75s linear infinite;
       margin: 20px auto;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .status-text { font-size: 13px; color: var(--muted); text-align: center; margin-top: 6px; }
 
-    /* Buttons */
+    /* ─── Buttons ──────────────────────────────────────────────────────────── */
     .btn {
       display: flex; align-items: center; justify-content: center; gap: 9px;
-      padding: 13px 20px;
-      border-radius: 10px;
-      font-family: var(--sans);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: opacity 120ms, transform 80ms;
+      padding: 13px 20px; border-radius: 10px;
+      font-family: var(--sans); font-size: 14px; font-weight: 600;
+      cursor: pointer; border: none; width: 100%;
+      transition: opacity 120ms, transform 80ms; letter-spacing: -.01em;
       text-decoration: none;
-      width: 100%;
-      letter-spacing: -.01em;
     }
-    .btn:hover:not(:disabled) { opacity: 0.85; }
-    .btn:active:not(:disabled) { transform: scale(0.98); }
-    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-    .btn-primary  { background: var(--accent); color: #f9f6f1; }
-    .btn-x        { background: #000; color: #fff; border: 1px solid #222; }
-    [data-theme="light"] .btn-x { background: #111; }
-    .btn-ghost     {
-      background: transparent; color: var(--text);
-      border: 1px solid var(--border);
-    }
+    .btn:hover:not(:disabled) { opacity: .85; }
+    .btn:active:not(:disabled) { transform: scale(.98); }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #f9f6f1; }
+    .btn-x       { background: #000; color: #fff; border: 1px solid #333; }
+    .btn-ghost   { background: transparent; color: var(--text); border: 1px solid var(--border); }
     .btn-ghost:hover:not(:disabled) { background: var(--border); opacity: 1; }
 
-    /* Divider */
+    /* ─── Divider ──────────────────────────────────────────────────────────── */
     .divider {
       display: flex; align-items: center; gap: 12px;
       color: var(--muted); font-size: 12px; margin: 12px 0;
     }
-    .divider::before, .divider::after {
-      content: ''; flex: 1; height: 1px; background: var(--border);
-    }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-    /* Inputs */
+    /* ─── Inputs ───────────────────────────────────────────────────────────── */
     .form-stack { display: flex; flex-direction: column; gap: 10px; }
     .input {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-family: var(--sans);
-      font-size: 14px;
-      color: var(--text);
-      outline: none;
-      transition: border-color 150ms;
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 16px;
+      font-family: var(--sans); font-size: 14px; color: var(--text);
+      outline: none; transition: border-color 150ms;
     }
     .input:focus { border-color: var(--amber); }
     .input::placeholder { color: var(--muted); }
-
-    /* Handle row */
     .handle-row {
-      display: flex; align-items: center;
+      display: flex; align-items: stretch;
       border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
-      transition: border-color 150ms;
-      background: var(--bg);
+      transition: border-color 150ms; background: var(--bg);
     }
     .handle-row:focus-within { border-color: var(--amber); }
     .handle-prefix {
-      padding: 12px 14px;
-      background: var(--border);
-      font-size: 13px; color: var(--muted);
-      white-space: nowrap; flex-shrink: 0;
+      padding: 12px 14px; background: var(--border);
+      font-size: 13px; color: var(--muted); white-space: nowrap;
+      flex-shrink: 0; display: flex; align-items: center;
     }
-    .handle-row .input { border: none; border-radius: 0; background: transparent; }
+    .handle-row .input { border: none; border-radius: 0; background: transparent; flex: 1; }
 
-    /* Form labels */
-    .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+    /* ─── Form groups ──────────────────────────────────────────────────────── */
+    .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 18px; }
     label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
-    .avail-msg { font-size: 12px; min-height: 15px; }
+    .avail-msg { font-size: 12px; min-height: 16px; transition: color 150ms; }
     .avail-ok  { color: var(--success); }
     .avail-err { color: var(--error); }
-    .hint { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .hint { font-size: 12px; color: var(--muted); line-height: 1.55; }
     .hint a { color: var(--amber); }
     .opt-tag {
-      display: inline-block; font-size: 10px; font-weight: 700;
-      background: var(--border); color: var(--muted);
-      border-radius: 4px; padding: 1px 5px; margin-left: 5px;
+      display: inline-block; font-size: 10px; font-weight: 700; background: var(--border);
+      color: var(--muted); border-radius: 4px; padding: 1px 5px; margin-left: 5px;
       letter-spacing: .04em; vertical-align: middle; text-transform: uppercase;
     }
-    textarea.input { resize: vertical; min-height: 80px; font-family: monospace; font-size: 12px; }
-    .section-sep {
-      display: flex; align-items: center; gap: 10px; margin: 20px 0 14px;
-      font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em;
-    }
-    .section-sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
     .form-err { font-size: 13px; color: var(--error); min-height: 16px; margin-top: 4px; display: none; }
     .form-err.show { display: block; }
 
-    /* Info box */
+    /* ─── Info / warning boxes ─────────────────────────────────────────────── */
     .info-box {
       background: color-mix(in srgb, var(--amber) 10%, transparent);
       border: 1px solid color-mix(in srgb, var(--amber) 30%, transparent);
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 13px;
-      color: var(--text);
-      line-height: 1.55;
-      margin-bottom: 20px;
+      border-radius: 10px; padding: 12px 16px; font-size: 13px;
+      color: var(--text); line-height: 1.55; margin-bottom: 20px;
     }
     .info-box strong { color: var(--amber); }
 
-    /* Back link */
+    /* ─── PIN dots preview ─────────────────────────────────────────────────── */
+    .pin-dots {
+      display: flex; gap: 10px; justify-content: center; margin: 16px 0 8px;
+    }
+    .pin-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid var(--border); background: transparent;
+      transition: all 150ms;
+    }
+    .pin-dot.filled { background: var(--amber); border-color: var(--amber); }
+
+    /* ─── Skip / back links ────────────────────────────────────────────────── */
     .back-link {
       font-size: 13px; color: var(--muted); text-align: center; display: block;
-      cursor: pointer; margin-top: 12px; background: none; border: none;
+      cursor: pointer; margin-top: 14px; background: none; border: none;
       font-family: var(--sans); text-decoration: underline; width: 100%;
     }
     .back-link:hover { color: var(--text); }
 
+    /* ─── Step nav ─────────────────────────────────────────────────────────── */
+    .step-nav {
+      display: flex; gap: 10px; margin-top: 20px;
+    }
+    .step-nav .btn { flex: 1; }
+    .btn-back { flex: 0 0 auto; width: auto; padding: 13px 16px; }
+
     @media (max-width: 480px) {
-      .card { padding: 36px 24px; }
+      .card { padding: 36px 22px; }
       h1 { font-size: 22px; }
     }
   </style>
@@ -218,189 +233,218 @@
     <span class="logo-text">hollr</span>
   </a>
 
-  <!-- ── STATE: Verifying ── -->
+  <!-- ─── Verifying ─────────────────────────────────────────────────────── -->
   <div id="stateVerifying">
     <h1>Signing you in…</h1>
     <div class="spinner"></div>
     <p class="status-text" id="statusMsg">Verifying your link…</p>
   </div>
 
-  <!-- ── STATE: Error ── -->
+  <!-- ─── Error ─────────────────────────────────────────────────────────── -->
   <div id="stateError" style="display:none">
     <h1>Link expired</h1>
     <p class="sub" id="errorMsg">This link is invalid or has already been used.<br>Links expire after 15 minutes.</p>
     <a href="/" class="btn btn-primary">Back to hollr.to →</a>
   </div>
 
-  <!-- ── STATE: Choose sign-in ── -->
+  <!-- ─── Choose sign-in ────────────────────────────────────────────────── -->
   <div id="stateChoose" style="display:none">
     <h1>Sign in to hollr</h1>
-    <p class="sub">No account? One will be created automatically.<br>Pick your handle right after.</p>
+    <p class="sub">No account? One will be created automatically — you'll set up your handle right after.</p>
     <div class="form-stack">
       <button id="btnX" class="btn btn-x" onclick="startXLogin()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63z"/>
         </svg>
         Continue with X
       </button>
       <div class="divider">or</div>
-      <div id="emailSection">
-        <div id="emailForm" style="display:none" class="form-stack">
-          <input type="email" class="input" id="emailInput" placeholder="your@email.com" autocomplete="email">
-          <button class="btn btn-primary" onclick="sendMagicLink()">Send magic link →</button>
-          <p class="status-text" id="emailStatus" style="min-height:16px"></p>
-          <button class="back-link" onclick="showEmailBtn()">← other options</button>
-        </div>
-        <button id="btnEmail" class="btn btn-ghost" onclick="showEmailForm()">
-          ✉️ Continue with email
-        </button>
+
+      <!-- Email form — hidden by default, shown on button click or from landing -->
+      <div id="emailForm" style="display:none" class="form-stack">
+        <input type="email" class="input" id="emailInput" placeholder="your@email.com" autocomplete="email">
+        <button class="btn btn-primary" id="emailSendBtn" onclick="sendMagicLink()">Send magic link →</button>
+        <p id="emailStatus" style="font-size:13px;min-height:16px;text-align:center;color:var(--muted)"></p>
+        <button class="back-link" onclick="showEmailBtn()">← other options</button>
       </div>
+      <button id="btnEmail" class="btn btn-ghost" onclick="showEmailForm()">
+        ✉️ Continue with email
+      </button>
     </div>
   </div>
 
-  <!-- ── STATE: Magic link sent ── -->
+  <!-- ─── Magic link sent ───────────────────────────────────────────────── -->
   <div id="stateSent" style="display:none">
     <h1>📬 Check your inbox</h1>
     <p class="sub">We sent a magic link to <strong id="sentTo"></strong>.<br>Click it to sign in — expires in 15 minutes.</p>
     <button class="btn btn-ghost" onclick="showChoose()">Try a different address</button>
   </div>
 
-  <!-- ── STATE: Need email (X users without one) ── -->
+  <!-- ─── Need email (X-only users) ────────────────────────────────────── -->
   <div id="stateNeedEmail" style="display:none">
-    <h1>One more thing</h1>
-    <p class="sub">You signed in with X. Add an email address so we can send you message notifications and help you recover your PIN if needed.</p>
+    <h1>Add your email</h1>
+    <p class="sub">You signed in with X. Add an email so we can send you message notifications and help you recover your PIN.</p>
     <div class="form-stack">
       <input type="email" class="input" id="xEmailInput" placeholder="your@email.com" autocomplete="email">
-      <p class="status-text" id="xEmailStatus" style="min-height:16px"></p>
+      <p id="xEmailStatus" style="font-size:13px;min-height:16px;color:var(--muted)"></p>
       <button class="btn btn-primary" id="xEmailBtn" onclick="saveXEmail()">Continue →</button>
       <button class="back-link" onclick="skipXEmail()">Skip for now (notifications disabled)</button>
     </div>
   </div>
 
-  <!-- ── STATE: Onboarding ── -->
+  <!-- ─── Onboarding wizard ─────────────────────────────────────────────── -->
   <div id="stateOnboarding" style="display:none">
-    <h1>Claim your handle</h1>
-    <p class="sub">Set up your personal canvas in seconds. You can change all settings later.</p>
 
-    <form id="onboardForm">
-      <!-- Handle -->
+    <!-- Progress indicator -->
+    <div class="progress">
+      <div class="progress-step active" id="prog-1">
+        <div class="progress-dot" id="prog-dot-1">1</div>
+        <span class="progress-label">Handle</span>
+      </div>
+      <div class="progress-step" id="prog-2">
+        <div class="progress-dot" id="prog-dot-2">2</div>
+        <span class="progress-label">PIN</span>
+      </div>
+      <div class="progress-step" id="prog-3">
+        <div class="progress-dot" id="prog-dot-3">3</div>
+        <span class="progress-label">Details</span>
+      </div>
+    </div>
+
+    <!-- Step 1: Handle -->
+    <div id="ob-step-1">
+      <h1>Claim your handle</h1>
+      <p class="sub">This is your permanent public URL.<br>First come, first served — choose wisely.</p>
       <div class="form-group">
         <label>Your handle</label>
         <div class="handle-row">
           <span class="handle-prefix">hollr.to/</span>
           <input type="text" class="input" id="handleInput" placeholder="yourname"
-                 pattern="[a-zA-Z0-9_-]{2,30}" maxlength="30" autocomplete="off" required>
+                 pattern="[a-zA-Z0-9_-]{2,30}" maxlength="30" autocomplete="off">
         </div>
         <div class="avail-msg" id="availMsg"></div>
       </div>
+      <div class="form-err" id="step1Err"></div>
+      <div class="step-nav">
+        <button class="btn btn-primary" id="step1Next" onclick="goStep2()">Continue →</button>
+      </div>
+    </div>
 
-      <!-- PIN — optional, defaults to 1234 -->
+    <!-- Step 2: PIN -->
+    <div id="ob-step-2" style="display:none">
+      <h1>Set your PIN</h1>
+      <p class="sub">Your PIN locks your settings. 4–8 digits — something only you know.</p>
+
       <div class="form-group">
-        <label>Security PIN <span class="opt-tag">optional</span></label>
-        <input type="password" class="input" id="pinInput" placeholder="Leave blank → default is 1234"
-               maxlength="8" pattern="[0-9]{4,8}" inputmode="numeric" autocomplete="new-password">
-        <p class="hint">Locks your settings page. Default is <strong>1234</strong> — you'll be asked to change it when you open settings for the first time.</p>
+        <label>Choose a PIN</label>
+        <!-- Visual dot feedback as user types -->
+        <div class="pin-dots" id="pinDots">
+          <div class="pin-dot" id="pd0"></div>
+          <div class="pin-dot" id="pd1"></div>
+          <div class="pin-dot" id="pd2"></div>
+          <div class="pin-dot" id="pd3"></div>
+        </div>
+        <input type="password" class="input" id="pinInput"
+               placeholder="4–8 digits" maxlength="8"
+               pattern="[0-9]{4,8}" inputmode="numeric"
+               autocomplete="new-password"
+               style="text-align:center;letter-spacing:.3em;font-size:18px">
+      </div>
+      <div class="form-group">
+        <label>Confirm PIN</label>
+        <input type="password" class="input" id="pinConfirm"
+               placeholder="Repeat your PIN" maxlength="8"
+               pattern="[0-9]{4,8}" inputmode="numeric"
+               autocomplete="new-password"
+               style="text-align:center;letter-spacing:.3em;font-size:18px">
       </div>
 
-      <div class="section-sep">Optional</div>
+      <div class="form-err" id="step2Err"></div>
+      <div class="step-nav">
+        <button class="btn btn-ghost btn-back" onclick="goStep1()">←</button>
+        <button class="btn btn-primary" id="step2Next" onclick="goStep3()">Continue →</button>
+      </div>
+    </div>
 
-      <!-- Resend key -->
+    <!-- Step 3: Details (display name + notification email) -->
+    <div id="ob-step-3" style="display:none">
+      <h1>About you</h1>
+      <p class="sub">Help senders know who you are, and tell us where to deliver their messages.</p>
+
       <div class="form-group">
-        <label>Resend API key <span class="opt-tag">optional</span></label>
-        <input type="password" class="input" id="resendKey" placeholder="re_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-        <p class="hint">Without it, messages arrive via <strong>yo@hollr.to</strong>. Get a free key at <a href="https://resend.com" target="_blank">resend.com</a>.</p>
+        <label>Display name <span class="opt-tag">optional</span></label>
+        <input type="text" class="input" id="displayNameInput"
+               placeholder="Paul Fleury" maxlength="60" autocomplete="name">
+        <p class="hint" id="namePreviewHint">Shown as <em>"Message to <span id="onboard-name-preview">yourhandle</span>"</em> on your canvas.</p>
       </div>
 
-      <!-- PGP key -->
       <div class="form-group">
-        <label>PGP public key <span class="opt-tag">optional</span></label>
-        <textarea class="input" id="pgpKey" rows="3"
-                  placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----"></textarea>
-        <p class="hint">Senders will encrypt messages end-to-end with your key. Only you can read them.</p>
+        <label>Notification email <span id="emailOptTag" class="opt-tag">optional</span></label>
+        <input type="email" class="input" id="notifEmailInput"
+               placeholder="you@email.com" autocomplete="email">
+        <p class="hint">Where hollr sends you message notifications. Defaults to <strong>yo@hollr.to</strong> if not set.</p>
       </div>
 
-      <button type="submit" class="btn btn-primary" id="claimBtn" style="margin-top:8px">
-        Launch my canvas →
-      </button>
-      <div class="form-err" id="formErr"></div>
-    </form>
+      <div class="form-err" id="step3Err"></div>
+      <div class="step-nav">
+        <button class="btn btn-ghost btn-back" onclick="goStep2From3()">←</button>
+        <button class="btn btn-primary" id="launchBtn" onclick="claimHandle()">
+          🎉 Launch my canvas →
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /stateOnboarding -->
+
+  <!-- ─── Claiming (loading) ─────────────────────────────────────────────── -->
+  <div id="stateClaiming" style="display:none">
+    <h1>Setting up your canvas…</h1>
+    <div class="spinner"></div>
+    <p class="status-text" id="claimMsg">Reserving your handle…</p>
   </div>
 
-  <!-- ── STATE: PIN change required ── -->
-  <div id="statePinChange" style="display:none">
-    <h1>Set a new PIN</h1>
-    <div class="info-box">
-      Your current PIN is the default <strong>1234</strong>. Choose something only you know before you start receiving messages.
-    </div>
-    <div class="form-stack">
-      <input type="password" class="input" id="newPinInput"
-             placeholder="New PIN (4–8 digits)" maxlength="8"
-             pattern="[0-9]{4,8}" inputmode="numeric" autocomplete="new-password">
-      <input type="password" class="input" id="newPinConfirm"
-             placeholder="Confirm PIN" maxlength="8"
-             pattern="[0-9]{4,8}" inputmode="numeric" autocomplete="new-password">
-      <p class="status-text" id="pinChangeStatus" style="min-height:16px"></p>
-      <button class="btn btn-primary" id="savePinBtn" onclick="saveNewPin()">Set PIN & open my canvas →</button>
-      <button class="back-link" onclick="skipPinChange()">Skip — I'll change it in settings</button>
-    </div>
-  </div>
-
-</div>
+</div><!-- /card -->
 
 <script>
-/* ════════════════════════════════════════════════════════════════
-   hollr — auth/verify.html (v4.2.0)
-
-   Flow states:
-   ┌─────────────────────────────────────────────────────────────┐
-   │ ?token=XXX          → verifyMagicToken() → onboarding or   │
-   │                        redirect to /handle                  │
-   │ ?x_session=XXX      → handleXCallback() → needsEmail? →    │
-   │                        onboarding or redirect to /handle    │
-   │ ?x_error=XXX        → stateError                           │
-   │ ?pin_reset=1        → after magic link, force PIN change    │
-   │ (nothing)           → stateChoose (email / X buttons)      │
-   └─────────────────────────────────────────────────────────────┘
-════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════════════
+   hollr — auth/verify.html (v4.4.0)
+   3-step onboarding wizard: Handle → PIN → Details (name + email)
+════════════════════════════════════════════════════════════════════════ */
 
 const API = 'https://hollr-api.fly.dev';
 const $ = id => document.getElementById(id);
 
-// ── Theme (match landing page) ────────────────────────────────
-(function () {
-  let saved;
-  try { saved = localStorage.getItem('hollr-theme'); } catch {}
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = saved || (prefersDark ? 'dark' : 'light');
-  document.documentElement.setAttribute('data-theme', theme);
+/* ── Theme ─────────────────────────────────────────────────────────────── */
+(function() {
+  let t; try { t = localStorage.getItem('hollr-theme'); } catch {}
+  const dark = t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
 })();
 
-// ── State machine ─────────────────────────────────────────────
+/* ── State machine ─────────────────────────────────────────────────────── */
 const ALL_STATES = [
-  'stateVerifying', 'stateError', 'stateChoose', 'stateSent',
-  'stateNeedEmail', 'stateOnboarding', 'statePinChange',
+  'stateVerifying','stateError','stateChoose','stateSent',
+  'stateNeedEmail','stateOnboarding','stateClaiming',
 ];
 function showState(id) {
   ALL_STATES.forEach(s => $(s).style.display = s === id ? '' : 'none');
 }
 
-// Session token in-memory (also in sessionStorage for canvas page)
+/* ── In-memory state ───────────────────────────────────────────────────── */
 let _sessionToken = null;
-let _pendingHandle = null; // pre-filled from landing modal
-let _isAfterPinReset = false;
+let _handleOk     = false;  // true once availability check confirms handle is free
 
 function setSession(tok) {
   _sessionToken = tok;
   try { sessionStorage.setItem('hollr_session', tok); } catch {}
 }
 
-// ── Entry point ───────────────────────────────────────────────
-const params = new URLSearchParams(location.search);
-_isAfterPinReset = params.get('pin_reset') === '1';
-
-// Pre-fill handle from landing modal (stored in sessionStorage)
+/* ── URL params ────────────────────────────────────────────────────────── */
+const params        = new URLSearchParams(location.search);
+let _pendingHandle  = null;
 try { _pendingHandle = sessionStorage.getItem('hollr_pending_handle') || null; } catch {}
 
+/* ── Route to correct state on load ───────────────────────────────────── */
 if (params.get('token')) {
   verifyMagicToken(params.get('token'));
 } else if (params.get('x_session')) {
@@ -415,175 +459,116 @@ if (params.get('token')) {
   $('errorMsg').textContent = 'X sign-in was cancelled or failed. Please try again.';
 } else {
   showState('stateChoose');
-  // If they came from the landing email form, auto-expand the email input
-  // (they already chose email — don't make them click again)
-  if (_pendingHandle) {
-    showEmailForm();
-  }
+  if (_pendingHandle) showEmailForm();  // came from landing modal email form
 }
 
-// ── Magic link verification ────────────────────────────────────
+/* ── Keyboard shortcuts ─────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  $('emailInput')?.addEventListener('keydown', e => e.key === 'Enter' && sendMagicLink());
+  $('xEmailInput')?.addEventListener('keydown', e => e.key === 'Enter' && saveXEmail());
+  $('handleInput')?.addEventListener('keydown', e => e.key === 'Enter' && goStep2());
+  $('pinInput')?.addEventListener('keydown', e => e.key === 'Enter' && $('pinConfirm')?.focus());
+  $('pinConfirm')?.addEventListener('keydown', e => e.key === 'Enter' && goStep3());
+  $('displayNameInput')?.addEventListener('keydown', e => e.key === 'Enter' && claimHandle());
+  $('notifEmailInput')?.addEventListener('keydown', e => e.key === 'Enter' && claimHandle());
+});
+
+/* ── Magic link verification ──────────────────────────────────────────── */
 async function verifyMagicToken(tok) {
   $('statusMsg').textContent = 'Verifying…';
   try {
     const res  = await fetch(`${API}/api/auth/verify/${tok}`);
     const data = await res.json();
-
     if (!res.ok || !data.ok) {
       showState('stateError');
+      $('errorMsg').textContent = data.error || 'Invalid or expired link.';
       return;
     }
-
     setSession(data.session_token);
-
-    // Returning user with a handle → redirect to their canvas
     if (!data.is_new_user && data.user?.handle) {
       $('statusMsg').textContent = 'Welcome back! Redirecting…';
-      // If PIN was reset, go to canvas and prompt change there
-      if (data.is_pin_reset || _isAfterPinReset) {
-        $('statusMsg').textContent = 'PIN reset — redirecting to your canvas…';
-        setTimeout(() => { location.href = `/${data.user.handle}?pin_reset=1`; }, 700);
-      } else if (data.user.pin_is_default) {
-        // Has a handle but still on default PIN → redirect, canvas will nudge
-        setTimeout(() => { location.href = `/${data.user.handle}`; }, 700);
-      } else {
-        setTimeout(() => { location.href = `/${data.user.handle}`; }, 600);
-      }
-      return;
+      setTimeout(() => { location.href = `/${data.user.handle}`; }, 600);
+    } else {
+      startOnboarding(data.session_token);
     }
-
-    // New user or no handle yet → onboarding
-    startOnboarding(data.session_token);
-  } catch {
-    showState('stateError');
-  }
+  } catch { showState('stateError'); }
 }
 
-// ── X OAuth callback ───────────────────────────────────────────
+/* ── X OAuth callback ─────────────────────────────────────────────────── */
 function handleXCallback(sessionTok, isNew, needsEmail, xUsername) {
   setSession(sessionTok);
-
   if (!isNew) {
-    // Returning X user
-    $('statusMsg').textContent = `Welcome back${xUsername ? ', @' + xUsername : ''}! Redirecting…`;
     showState('stateVerifying');
+    $('statusMsg').textContent = `Welcome back${xUsername ? ', @'+xUsername : ''}!`;
     fetch(`${API}/api/me`, { headers: { Authorization: `Bearer ${sessionTok}` } })
       .then(r => r.json())
       .then(data => {
-        if (data.handle) {
-          location.href = `/${data.handle}`;
-        } else {
-          startOnboarding(sessionTok, xUsername);
-        }
+        if (data.handle) location.href = `/${data.handle}`;
+        else startOnboarding(sessionTok, xUsername);
       })
       .catch(() => startOnboarding(sessionTok, xUsername));
     return;
   }
-
-  // New X user
   if (needsEmail) {
-    // Show email collection step before onboarding
     showState('stateNeedEmail');
-    $('xEmailInput').focus();
+    $('xEmailInput')?.focus();
   } else {
     startOnboarding(sessionTok, xUsername);
   }
 }
 
-// ── Collect email for X-only users ────────────────────────────
+/* ── Collect email for X-only users ─────────────────────────────────── */
 async function saveXEmail() {
   const email = $('xEmailInput').value.trim();
-  const statusEl = $('xEmailStatus');
-
+  const st    = $('xEmailStatus');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    statusEl.textContent = 'Please enter a valid email address.';
-    statusEl.style.color = 'var(--error)';
-    return;
+    st.textContent = 'Please enter a valid email.'; st.style.color = 'var(--error)'; return;
   }
-
   const btn = $('xEmailBtn');
-  btn.disabled = true; btn.textContent = 'Saving…';
-  statusEl.textContent = '';
-
+  btn.disabled = true; btn.textContent = 'Saving…'; st.textContent = '';
   try {
     const res  = await fetch(`${API}/api/settings/email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${_sessionToken}` },
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${_sessionToken}` },
       body: JSON.stringify({ pin: '1234', email }),
     });
     const data = await res.json();
-    if (res.ok && data.ok) {
-      // Email saved — now go to onboarding
-      startOnboarding(_sessionToken);
-    } else {
-      statusEl.textContent = data.error || 'Could not save email. Try again.';
-      statusEl.style.color = 'var(--error)';
-      btn.disabled = false; btn.textContent = 'Continue →';
-    }
-  } catch {
-    statusEl.textContent = 'Network error. Please try again.';
-    statusEl.style.color = 'var(--error)';
-    btn.disabled = false; btn.textContent = 'Continue →';
-  }
+    if (res.ok && data.ok) startOnboarding(_sessionToken);
+    else { st.textContent = data.error || 'Could not save. Try again.'; st.style.color = 'var(--error)'; btn.disabled = false; btn.textContent = 'Continue →'; }
+  } catch { st.textContent = 'Network error.'; st.style.color = 'var(--error)'; btn.disabled = false; btn.textContent = 'Continue →'; }
 }
+function skipXEmail() { startOnboarding(_sessionToken); }
 
-function skipXEmail() {
-  // Skip email — go straight to onboarding (notifications won't work until they add email in settings)
-  startOnboarding(_sessionToken);
-}
-
-// ── Sign-in choice helpers ─────────────────────────────────────
+/* ── Choose screen helpers ────────────────────────────────────────────── */
 function startXLogin() {
   const btn = $('btnX');
   btn.disabled = true;
-  btn.innerHTML = `
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="animation:spin .7s linear infinite">
-      <path d="M12 2a10 10 0 0 1 10 10"/>
-    </svg>
-    Redirecting to X…`;
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="animation:spin .7s linear infinite"><path d="M12 2a10 10 0 0 1 10 10"/></svg> Redirecting to X…`;
   setTimeout(() => { location.href = `${API}/api/auth/x`; }, 300);
 }
-
 function showEmailForm() {
   $('btnEmail').style.display = 'none';
   $('emailForm').style.display = 'flex';
-  setTimeout(() => $('emailInput').focus(), 50);
+  setTimeout(() => $('emailInput')?.focus(), 50);
 }
-
 function showEmailBtn() {
   $('emailForm').style.display = 'none';
-  $('btnEmail').style.display = 'flex';
+  $('btnEmail').style.display  = 'flex';
   $('emailStatus').textContent = '';
 }
-
 function showChoose() { showState('stateChoose'); showEmailBtn(); }
-
-document.addEventListener('DOMContentLoaded', () => {
-  const ei = $('emailInput');
-  if (ei) ei.addEventListener('keydown', e => { if (e.key === 'Enter') sendMagicLink(); });
-  const xi = $('xEmailInput');
-  if (xi) xi.addEventListener('keydown', e => { if (e.key === 'Enter') saveXEmail(); });
-  const pi = $('newPinInput');
-  if (pi) pi.addEventListener('keydown', e => { if (e.key === 'Enter') saveNewPin(); });
-});
 
 async function sendMagicLink() {
   const email = $('emailInput').value.trim();
-  const statusEl = $('emailStatus');
-
+  const st    = $('emailStatus');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    statusEl.textContent = 'Please enter a valid email.';
-    statusEl.style.color = 'var(--error)';
-    return;
+    st.textContent = 'Please enter a valid email.'; st.style.color = 'var(--error)'; return;
   }
-
-  statusEl.textContent = 'Sending…';
-  statusEl.style.color = 'var(--muted)';
-
+  const btn = $('emailSendBtn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  st.textContent = ''; st.style.color = 'var(--muted)';
   try {
     const res  = await fetch(`${API}/api/auth/magic-link`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
     });
     const data = await res.json();
@@ -591,49 +576,44 @@ async function sendMagicLink() {
       $('sentTo').textContent = email;
       showState('stateSent');
     } else {
-      statusEl.textContent = data.error || 'Failed. Please try again.';
-      statusEl.style.color = 'var(--error)';
+      st.textContent = data.error || 'Failed. Try again.';
+      st.style.color = 'var(--error)';
+      btn.disabled = false; btn.textContent = 'Send magic link →';
     }
-  } catch {
-    statusEl.textContent = 'Network error. Please try again.';
-    statusEl.style.color = 'var(--error)';
-  }
+  } catch { st.textContent = 'Network error.'; st.style.color = 'var(--error)'; btn.disabled = false; btn.textContent = 'Send magic link →'; }
 }
 
-// ── Onboarding ─────────────────────────────────────────────────
+/* ════════════════════════════════════════════════════════════════════════
+   ONBOARDING WIZARD
+   Step 1 → Handle check
+   Step 2 → PIN (required, confirmed)
+   Step 3 → Display name + notification email (both optional)
+   Claim  → POST /api/handle/claim → redirect to /:handle
+════════════════════════════════════════════════════════════════════════ */
+
 function startOnboarding(sessionToken, prefillUsername) {
   _sessionToken = sessionToken;
   showState('stateOnboarding');
+  setProgress(1);
+  showObStep(1);
 
+  // Pre-fill handle from landing modal sessionStorage or X username
   const hi = $('handleInput');
-
-  // Pre-fill from landing modal (sessionStorage) or X username
-  if (_pendingHandle && /^[a-zA-Z0-9_-]{2,30}$/.test(_pendingHandle)) {
-    hi.value = _pendingHandle;
-    // Clear so refreshes don't re-use a stale value
+  const pre = _pendingHandle || (prefillUsername ? prefillUsername.replace(/[^a-zA-Z0-9_-]/g,'').slice(0,30) : null);
+  if (pre) {
+    hi.value = pre;
     try { sessionStorage.removeItem('hollr_pending_handle'); } catch {}
-    // Trigger availability check
-    hi.dispatchEvent(new Event('input'));
-  } else if (prefillUsername) {
-    hi.value = prefillUsername.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30);
     hi.dispatchEvent(new Event('input'));
   }
 
-  setupOnboarding(sessionToken);
-}
-
-function setupOnboarding(sessionToken) {
-  const handleInput = $('handleInput');
+  // Handle availability check — debounced 450ms
   let checkTimer = null;
-  let handleOk   = false;
-
-  // ── Handle availability check ──
-  handleInput.addEventListener('input', () => {
+  hi.addEventListener('input', () => {
     clearTimeout(checkTimer);
-    const h = handleInput.value.trim();
+    _handleOk = false;
+    const h = hi.value.trim();
     $('availMsg').textContent = '';
     $('availMsg').className   = 'avail-msg';
-    handleOk = false;
     if (h.length < 2) return;
     if (!/^[a-zA-Z0-9_-]{2,30}$/.test(h)) {
       $('availMsg').textContent = 'Letters, numbers, _ and - only (2–30 chars)';
@@ -641,146 +621,164 @@ function setupOnboarding(sessionToken) {
       return;
     }
     $('availMsg').textContent = 'Checking…';
-    $('availMsg').className   = 'avail-msg';
     checkTimer = setTimeout(async () => {
       try {
         const res  = await fetch(`${API}/api/handle/check`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ handle: h }),
         });
         const data = await res.json();
         if (data.available) {
-          $('availMsg').textContent = `✓ hollr.to/${h} is yours for the taking!`;
+          $('availMsg').textContent = `✓ hollr.to/${h} is yours!`;
           $('availMsg').className   = 'avail-msg avail-ok';
-          handleOk = true;
+          _handleOk = true;
         } else {
           $('availMsg').textContent = data.reason || `✗ hollr.to/${h} is already taken`;
           $('availMsg').className   = 'avail-msg avail-err';
+          _handleOk = false;
         }
-      } catch {
-        $('availMsg').textContent = '';
-      }
+      } catch { $('availMsg').textContent = ''; }
     }, 450);
   });
 
-  // ── Submit ──
-  $('onboardForm').addEventListener('submit', async e => {
-    e.preventDefault();
-    const btn = $('claimBtn');
-    $('formErr').className = 'form-err';
+  // Live name preview in step 3
+  $('displayNameInput').addEventListener('input', () => {
+    const val = $('displayNameInput').value.trim();
+    $('onboard-name-preview').textContent = val || $('handleInput').value.trim() || 'yourhandle';
+  });
+}
 
-    const handle  = handleInput.value.trim();
-    const pin     = $('pinInput').value.trim();
-    const resendK = $('resendKey').value.trim();
-    const pgpKey  = $('pgpKey').value.trim();
+/* ── Progress bar ─────────────────────────────────────────────────────── */
+function setProgress(active) {
+  for (let i = 1; i <= 3; i++) {
+    const step = $(`prog-${i}`);
+    const dot  = $(`prog-dot-${i}`);
+    step.className = 'progress-step';
+    if (i < active)  { step.classList.add('done');   dot.textContent = '✓'; }
+    if (i === active){ step.classList.add('active');  dot.textContent = String(i); }
+    if (i > active)  { dot.textContent = String(i); }
+  }
+}
 
-    if (!handle)   { showFormErr('Please choose a handle.'); return; }
-    if (!handleOk) { showFormErr('That handle is not available.'); return; }
-    if (pin && !/^\d{4,8}$/.test(pin)) {
-      showFormErr('PIN must be 4–8 digits.'); return;
+function showObStep(n) {
+  [1,2,3].forEach(i => {
+    $(`ob-step-${i}`).style.display = i === n ? '' : 'none';
+  });
+}
+
+/* ── Step navigation ─────────────────────────────────────────────────── */
+function goStep2() {
+  const h = $('handleInput').value.trim();
+  $('step1Err').className = 'form-err';
+  if (!h) { showErr('step1Err', 'Please enter a handle.'); return; }
+  if (!_handleOk) {
+    // If check hasn't returned yet or handle is taken
+    if ($('availMsg').className.includes('avail-err')) {
+      showErr('step1Err', $('availMsg').textContent || 'That handle is not available.'); return;
     }
-    if (pgpKey && !pgpKey.includes('BEGIN PGP PUBLIC KEY')) {
-      showFormErr('PGP key must be a valid armoured public key block.'); return;
-    }
+    showErr('step1Err', 'Please wait for availability check to complete.'); return;
+  }
+  // Update name preview with chosen handle
+  $('onboard-name-preview').textContent = h;
+  setProgress(2); showObStep(2);
+  setTimeout(() => $('pinInput')?.focus(), 80);
+}
 
-    btn.disabled    = true;
-    btn.textContent = 'Claiming…';
+function goStep1() { setProgress(1); showObStep(1); setTimeout(() => $('handleInput')?.focus(), 80); }
 
-    try {
-      const body = { handle };
-      if (pin)     body.pin            = pin;
-      if (resendK) body.resend_key     = resendK;
-      if (pgpKey)  body.pgp_public_key = pgpKey;
+function goStep3() {
+  const pin     = $('pinInput').value.trim();
+  const confirm = $('pinConfirm').value.trim();
+  $('step2Err').className = 'form-err';
 
-      const res  = await fetch(`${API}/api/handle/claim`, {
-        method: 'POST',
-        headers: {
-          'Content-Type':  'application/json',
-          'Authorization': `Bearer ${sessionToken}`,
-        },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
+  if (!pin || !/^\d{4,8}$/.test(pin)) {
+    showErr('step2Err', 'PIN must be 4–8 digits.'); return;
+  }
+  if (pin === '1234') {
+    showErr('step2Err', 'Please choose something other than 1234.'); return;
+  }
+  if (pin !== confirm) {
+    showErr('step2Err', "PINs don't match — please try again."); return;
+  }
+  setProgress(3); showObStep(3);
+  setTimeout(() => $('displayNameInput')?.focus(), 80);
+}
 
-      if (res.ok && data.ok) {
-        btn.textContent = '🎉 Launching…';
-        // Always redirect to canvas with ?setup=1 so it auto-opens settings
-        // If they set a custom PIN it won't force-change; if default it will
-        setTimeout(() => { location.href = `/${handle}?setup=1`; }, 500);
-      } else {
-        showFormErr(data.error || 'Something went wrong.');
-        btn.disabled    = false;
-        btn.textContent = 'Launch my canvas →';
-      }
-    } catch {
-      showFormErr('Network error. Please try again.');
-      btn.disabled    = false;
-      btn.textContent = 'Launch my canvas →';
+function goStep2From3() { setProgress(2); showObStep(2); setTimeout(() => $('pinInput')?.focus(), 80); }
+
+/* ── PIN dot visualiser ──────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  const pinInput = $('pinInput');
+  if (!pinInput) return;
+  pinInput.addEventListener('input', () => {
+    const len = pinInput.value.length;
+    for (let i = 0; i < 4; i++) {
+      const dot = $(`pd${i}`);
+      if (dot) dot.classList.toggle('filled', i < len);
     }
   });
+});
 
-  function showFormErr(msg) {
-    $('formErr').textContent = msg;
-    $('formErr').className   = 'form-err show';
-  }
-}
+/* ── Final claim ─────────────────────────────────────────────────────── */
+async function claimHandle() {
+  const handle      = $('handleInput').value.trim();
+  const pin         = $('pinInput').value.trim();
+  const displayName = $('displayNameInput').value.trim();
+  const notifEmail  = $('notifEmailInput').value.trim();
+  $('step3Err').className = 'form-err';
 
-// ── PIN change (after onboarding with default PIN) ─────────────
-async function saveNewPin() {
-  const newPin  = $('newPinInput').value.trim();
-  const confirm = $('newPinConfirm').value.trim();
-  const statusEl = $('pinChangeStatus');
-  const btn = $('savePinBtn');
-
-  if (!newPin || !/^\d{4,8}$/.test(newPin)) {
-    statusEl.textContent = 'PIN must be 4–8 digits.';
-    statusEl.style.color = 'var(--error)';
-    return;
-  }
-  if (newPin === '1234') {
-    statusEl.textContent = 'Please choose something other than 1234.';
-    statusEl.style.color = 'var(--error)';
-    return;
-  }
-  if (newPin !== confirm) {
-    statusEl.textContent = 'PINs don\'t match.';
-    statusEl.style.color = 'var(--error)';
-    return;
+  // Validate notification email if provided
+  if (notifEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notifEmail)) {
+    showErr('step3Err', 'Please enter a valid email address, or leave it blank.'); return;
   }
 
-  btn.disabled = true; btn.textContent = 'Saving…';
-  statusEl.textContent = '';
+  const btn = $('launchBtn');
+  btn.disabled = true; btn.textContent = 'Launching…';
+  showState('stateClaiming');
 
   try {
-    const res = await fetch(`${API}/api/settings/change-pin`, {
+    // Step 1: Claim the handle with PIN and optional display name
+    $('claimMsg').textContent = 'Reserving your handle…';
+    const body = { handle, pin };
+    if (displayName)  body.display_name = displayName;
+    if (notifEmail)   body.email        = notifEmail;
+
+    const res  = await fetch(`${API}/api/handle/claim`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${_sessionToken}` },
-      body: JSON.stringify({ current_pin: '1234', new_pin: newPin }),
+      body: JSON.stringify(body),
     });
     const data = await res.json();
+
     if (res.ok && data.ok) {
-      const handle = window.__pendingRedirectHandle || null;
-      btn.textContent = '🎉 Opening your canvas…';
-      setTimeout(() => { location.href = handle ? `/${handle}` : '/'; }, 600);
+      $('claimMsg').textContent = '🎉 Canvas ready! Opening…';
+      // Redirect to canvas — ?setup=1 causes settings to auto-open so user
+      // can add Resend key, PGP, etc. at their own pace
+      setTimeout(() => { location.href = `/${handle}?setup=1`; }, 700);
     } else {
-      statusEl.textContent = data.error || 'Could not save PIN. Try again.';
-      statusEl.style.color = 'var(--error)';
-      btn.disabled = false; btn.textContent = 'Set PIN & open my canvas →';
+      // Something went wrong — show error back on step 3
+      showState('stateOnboarding');
+      setProgress(3); showObStep(3);
+      btn.disabled = false; btn.textContent = '🎉 Launch my canvas →';
+      showErr('step3Err', data.error || 'Something went wrong. Please try again.');
     }
   } catch {
-    statusEl.textContent = 'Network error. Please try again.';
-    statusEl.style.color = 'var(--error)';
-    btn.disabled = false; btn.textContent = 'Set PIN & open my canvas →';
+    showState('stateOnboarding');
+    setProgress(3); showObStep(3);
+    btn.disabled = false; btn.textContent = '🎉 Launch my canvas →';
+    showErr('step3Err', 'Network error. Please check your connection and try again.');
   }
 }
 
-function skipPinChange() {
-  const handle = window.__pendingRedirectHandle || '/';
-  location.href = handle ? `/${handle}` : '/';
+/* ── Helpers ─────────────────────────────────────────────────────────── */
+function showErr(id, msg) {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.className   = 'form-err show';
 }
 
-/* spin animation for X loading state */
+/* spin keyframe for X button */
 (function() {
   const s = document.createElement('style');
   s.textContent = '@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}';
