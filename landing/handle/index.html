@@ -1061,7 +1061,7 @@
       </div>
       <div id="sent-actions">
         <button class="sent-back" id="sent-back" data-i18n="write_another">← Write another</button>
-        <a href="https://paulfleury.com" class="sent-goto" target="_blank" rel="noopener">
+        <a href="https://hollr.to" id="sent-goto-link" class="sent-goto" target="_blank" rel="noopener">
           <span data-i18n="go_to_paul">Back to hollr</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         </a>
@@ -1186,7 +1186,7 @@
         <div class="s-section-label">Your canvas</div>
         <div class="s-field s-notif-block" style="margin-bottom:12px">
           <label>Display name</label>
-          <input type="text" id="s-display-name" placeholder="Your name (e.g. Paul Fleury)"
+          <input type="text" id="s-display-name" placeholder="Your name (e.g. John Doe)"
                  maxlength="60" autocomplete="off" />
           <div class="hint">
             Shown as <em>"Message to <span id="s-name-preview">yourname</span>"</em>
@@ -1344,7 +1344,7 @@
       welcome_eyebrow:'Message to…',
       welcome_title:'Say something worth writing.',
       welcome_desc1:'This is a timed writing canvas. The clock only runs while you type — so every second counted is a second spent actually writing.',
-      welcome_desc2:'When you\'re done, your message is sent directly to Paul by email — with any voice note or files attached.',
+      welcome_desc2:'When you\'re done, your message is sent directly to … by email — with any voice note or files attached.',
       step1:'Hit Start — the timer begins.',
       step2:'Write freely. Attach files or a voice note.',
       step3:'Send your message when ready.',
@@ -1376,7 +1376,7 @@
       theme_dark:'Dark', theme_dark_desc:'Easy on the eyes at night',
       theme_system:'System', theme_system_desc:'Follows your OS setting',
       settings_title:'Settings',
-      settings_sub:'Configure the Resend API key used to deliver messages to Paul.',
+      settings_sub:'Configure how messages are delivered to your inbox.',
       pin_info:'An API key is configured. Enter your PIN to access or modify settings.',
       pin_label:'PIN', pin_placeholder:'Enter PIN', pin_hint:'Default PIN is 1234',
       pin_error:'Incorrect PIN.',
@@ -1399,34 +1399,34 @@
       toast_write_first:'Write something first!',
     },
     fr: {
-      topbar_title:'✉️ Envoyer un message à Paul Fleury',
+      topbar_title:'✉️ hollr',
       state_idle:'Inactif', state_running:'En cours', state_paused:'En pause',
-      page_title:'Message à Paul Fleury',
+      page_title:'Message to…',
       page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'temps d\'écriture actif',
       controls:'Contrôles', start:'Démarrer', pause:'Pause', reset:'Réinitialiser',
       attachments:'Pièces jointes', attach_file:'Joindre un fichier', or_drag:'ou glisser',
       record_voice:'Enregistrer la voix', send_label:'Envoyer', send_to_paul:'Отправить сообщение',
       sidebar_footer:'Le minuteur ne tourne que pendant l\'écriture. Fichiers transmis en toute sécurité.',
-      welcome_eyebrow:'Message à Paul Fleury',
+      welcome_eyebrow:'Message to…',
       welcome_title:'Dites quelque chose qui vaut la peine d\'être écrit.',
       welcome_desc1:'C\'est un canvas d\'écriture chronométré. L\'horloge tourne uniquement pendant que vous tapez — chaque seconde comptée est une seconde vraiment passée à écrire.',
-      welcome_desc2:'Une fois terminé, votre message est envoyé directement à Paul par e-mail, avec toute note vocale ou fichier joint.',
+      welcome_desc2:'When you\'re done, the message is sent directly to the handle owner — with any voice note or files attached.',
       step1:'Cliquez sur Démarrer — le chrono commence.',
       step2:'Écrivez librement. Joignez des fichiers ou une note vocale.',
-      step3:'Envoyez le message à Paul quand vous êtes prêt.',
+      step3:'Send your message when ready.',
       start_writing:'Commencer à écrire',
       welcome_hint:'Le chrono démarre immédiatement. Vous pouvez faire une pause avec Échap',
       textarea_placeholder:'Rédigez votre message…',
       textarea_disabled:'Appuyez sur Démarrer pour commencer à écrire…',
       words:'mots', word:'mot', characters:'caractères', character:'caractère',
       voice_message:'Message vocal', play:'▶ Écouter', pause_play:'⏸ Pause',
-      send_modal_title:'Envoyer à Paul', send_modal_sub:'Votre message est prêt.',
+      send_modal_title:'Send message', send_modal_sub:'Votre message est prêt.',
       stat_time:'Temps actif', stat_words:'Mots', stat_chars:'Caractères',
       your_name:'Votre nom', name_placeholder:'Jean Dupont',
       how_reach:'Как с вами связаться', contact_placeholder:'E-mail, Telegram, téléphone…',
       send_via:'Envoyer via',
-      send_email_btn:'Envoyer un e-mail à Paul', open_email_client:'Ouvrir le client mail', fallback:'Alternatif',
+      send_email_btn:'Envoyer un e-mail à …', open_email_client:'Ouvrir le client mail', fallback:'Alternatif',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'Envoi du message en cours…',
       sent_title:'Message envoyé !',
@@ -1460,34 +1460,34 @@
       toast_copied:'Copié.', toast_write_first:'Écrivez d\'abord quelque chose !',
     },
     de: {
-      topbar_title:'✉️ Nachricht an Paul Fleury senden',
+      topbar_title:'✉️ hollr',
       state_idle:'Bereit', state_running:'Läuft', state_paused:'Pausiert',
-      page_title:'Nachricht an Paul Fleury',
+      page_title:'Message to…',
       page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'aktive Schreibzeit',
       controls:'Steuerung', start:'Starten', pause:'Pause', reset:'Zurücksetzen',
       attachments:'Anhänge', attach_file:'Datei anhängen', or_drag:'oder ziehen',
       record_voice:'Stimme aufnehmen', send_label:'Senden', send_to_paul:'Отправить сообщение',
       sidebar_footer:'Der Timer läuft nur beim Schreiben. Dateien werden sicher übertragen.',
-      welcome_eyebrow:'Nachricht an Paul Fleury',
+      welcome_eyebrow:'Message to…',
       welcome_title:'Sagen Sie etwas, das es wert ist, geschrieben zu werden.',
       welcome_desc1:'Dies ist eine zeitgesteuerte Schreibfläche. Die Uhr läuft nur, während Sie tippen — jede gezählte Sekunde ist eine echte Schreibsekunde.',
-      welcome_desc2:'Wenn Sie fertig sind, wird Ihre Nachricht direkt per E-Mail an Paul gesendet — mit Sprachnachricht oder Dateien.',
+      welcome_desc2:'When you\'re done, the message is sent directly to the handle owner — with any voice note or files attached.',
       step1:'Starten klicken — der Timer beginnt.',
       step2:'Frei schreiben. Dateien oder Sprachnachricht anhängen.',
-      step3:'Nachricht an Paul senden, wenn bereit.',
+      step3:'Send your message when ready.',
       start_writing:'Schreiben beginnen',
       welcome_hint:'Timer startet sofort. Pause jederzeit mit Esc',
       textarea_placeholder:'Ihre Nachricht schreiben…',
       textarea_disabled:'Klicken Sie auf Starten, um zu beginnen…',
       words:'Wörter', word:'Wort', characters:'Zeichen', character:'Zeichen',
       voice_message:'Sprachnachricht', play:'▶ Abspielen', pause_play:'⏸ Pause',
-      send_modal_title:'An Paul senden', send_modal_sub:'Ihre Nachricht ist bereit.',
+      send_modal_title:'Send message', send_modal_sub:'Ihre Nachricht ist bereit.',
       stat_time:'Aktive Zeit', stat_words:'Wörter', stat_chars:'Zeichen',
       your_name:'Ihr Name', name_placeholder:'Max Mustermann',
       how_reach:'Как с вами связаться', contact_placeholder:'E-Mail, Telegram, Telefon…',
       send_via:'Senden über',
-      send_email_btn:'E-Mail an Paul senden', open_email_client:'E-Mail-Programm öffnen', fallback:'Fallback',
+      send_email_btn:'E-Mail an … senden', open_email_client:'E-Mail-Programm öffnen', fallback:'Fallback',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'Dateien werden hochgeladen und Nachricht gesendet…',
       sent_title:'Nachricht gesendet!',
@@ -1521,34 +1521,34 @@
       toast_copied:'Kopiert.', toast_write_first:'Bitte zuerst etwas schreiben!',
     },
     it: {
-      topbar_title:'✉️ Invia un messaggio a Paul Fleury',
+      topbar_title:'✉️ hollr',
       state_idle:'Inattivo', state_running:'In corso', state_paused:'In pausa',
-      page_title:'Messaggio a Paul Fleury',
+      page_title:'Message to…',
       page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'tempo di scrittura attivo',
       controls:'Controlli', start:'Avvia', pause:'Pausa', reset:'Reimposta',
       attachments:'Allegati', attach_file:'Allega file', or_drag:'o trascina',
       record_voice:'Registra voce', send_label:'Invia', send_to_paul:'Отправить сообщение',
       sidebar_footer:'Il timer gira solo durante la scrittura. I file vengono caricati in modo sicuro.',
-      welcome_eyebrow:'Messaggio a Paul Fleury',
+      welcome_eyebrow:'Message to…',
       welcome_title:'Di\' qualcosa che valga la pena scrivere.',
       welcome_desc1:'È una tela di scrittura cronometrata. L\'orologio gira solo mentre scrivi.',
-      welcome_desc2:'Una volta terminato, il tuo messaggio viene inviato direttamente a Paul via e-mail.',
+      welcome_desc2:'When you\'re done, the message is sent directly to the handle owner — with any voice note or files attached.',
       step1:'Premi Avvia — il timer inizia.',
       step2:'Scrivi liberamente. Allega file o note vocali.',
-      step3:'Invia il messaggio a Paul quando sei pronto.',
+      step3:'Send your message when ready.',
       start_writing:'Inizia a scrivere',
       welcome_hint:'Il timer parte subito. Puoi mettere in pausa con Esc',
       textarea_placeholder:'Scrivi il tuo messaggio…',
       textarea_disabled:'Premi Avvia per iniziare a scrivere…',
       words:'parole', word:'parola', characters:'caratteri', character:'carattere',
       voice_message:'Messaggio vocale', play:'▶ Ascolta', pause_play:'⏸ Pausa',
-      send_modal_title:'Invia a Paul', send_modal_sub:'Il tuo messaggio è pronto.',
+      send_modal_title:'Send message', send_modal_sub:'Il tuo messaggio è pronto.',
       stat_time:'Tempo attivo', stat_words:'Parole', stat_chars:'Caratteri',
       your_name:'Il tuo nome', name_placeholder:'Mario Rossi',
       how_reach:'Как с вами связаться', contact_placeholder:'Email, Telegram, telefono…',
       send_via:'Invia tramite',
-      send_email_btn:'Invia e-mail a Paul', open_email_client:'Apri client e-mail', fallback:'Alternativo',
+      send_email_btn:'Invia e-mail a …', open_email_client:'Apri client e-mail', fallback:'Alternativo',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'Caricamento file e invio messaggio…',
       sent_title:'Messaggio inviato!',
@@ -1582,34 +1582,34 @@
       toast_copied:'Copiato.', toast_write_first:'Scrivi prima qualcosa!',
     },
     es: {
-      topbar_title:'✉️ Enviar un mensaje a Paul Fleury',
+      topbar_title:'✉️ hollr',
       state_idle:'Inactivo', state_running:'En curso', state_paused:'Pausado',
-      page_title:'Mensaje a Paul Fleury',
+      page_title:'Message to…',
       page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'tiempo de escritura activo',
       controls:'Controles', start:'Iniciar', pause:'Pausar', reset:'Reiniciar',
       attachments:'Adjuntos', attach_file:'Adjuntar archivo', or_drag:'o arrastrar',
       record_voice:'Grabar voz', send_label:'Enviar', send_to_paul:'Отправить сообщение',
       sidebar_footer:'El temporizador solo funciona mientras Iniciar está activo.',
-      welcome_eyebrow:'Mensaje a Paul Fleury',
+      welcome_eyebrow:'Message to…',
       welcome_title:'Di algo que valga la pena escribir.',
       welcome_desc1:'Este es un lienzo de escritura cronometrado. El reloj solo avanza mientras escribes.',
-      welcome_desc2:'Cuando termines, tu mensaje se envía directamente a Paul por correo.',
+      welcome_desc2:'When you\'re done, the message is sent directly to the handle owner — with any voice note or files attached.',
       step1:'Pulsa Iniciar — el temporizador comienza.',
       step2:'Escribe libremente. Adjunta archivos o una nota de voz.',
-      step3:'Envía el mensaje a Paul cuando estés listo.',
+      step3:'Send your message when ready.',
       start_writing:'Comenzar a escribir',
       welcome_hint:'El temporizador comienza de inmediato. Puedes pausar con Esc',
       textarea_placeholder:'Escribe tu mensaje…',
       textarea_disabled:'Pulsa Iniciar para comenzar a escribir…',
       words:'palabras', word:'palabra', characters:'caracteres', character:'carácter',
       voice_message:'Mensaje de voz', play:'▶ Escuchar', pause_play:'⏸ Pausa',
-      send_modal_title:'Enviar a Paul', send_modal_sub:'Tu mensaje está listo.',
+      send_modal_title:'Send message', send_modal_sub:'Tu mensaje está listo.',
       stat_time:'Tiempo activo', stat_words:'Palabras', stat_chars:'Caracteres',
       your_name:'Tu nombre', name_placeholder:'Juan García',
       how_reach:'Как с вами связаться', contact_placeholder:'Correo, Telegram, teléfono…',
       send_via:'Enviar por',
-      send_email_btn:'Enviar correo a Paul', open_email_client:'Abrir cliente de correo', fallback:'Alternativo',
+      send_email_btn:'Enviar correo a …', open_email_client:'Abrir cliente de correo', fallback:'Alternativo',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'Subiendo archivos y enviando mensaje…',
       sent_title:'¡Mensaje enviado!',
@@ -1643,34 +1643,34 @@
       toast_copied:'Copiado.', toast_write_first:'¡Escribe algo primero!',
     },
     nl: {
-      topbar_title:'✉️ Stuur een bericht aan Paul Fleury',
+      topbar_title:'✉️ hollr',
       state_idle:'Inactief', state_running:'Actief', state_paused:'Gepauzeerd',
-      page_title:'Bericht aan Paul Fleury',
+      page_title:'Message to…',
       page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'actieve schrijftijd',
       controls:'Bediening', start:'Starten', pause:'Pauzeren', reset:'Resetten',
       attachments:'Bijlagen', attach_file:'Bestand bijvoegen', or_drag:'of slepen',
       record_voice:'Stem opnemen', send_label:'Verzenden', send_to_paul:'Отправить сообщение',
       sidebar_footer:'Timer loopt alleen terwijl Starten actief is.',
-      welcome_eyebrow:'Bericht aan Paul Fleury',
+      welcome_eyebrow:'Message to…',
       welcome_title:'Zeg iets dat het waard is om te schrijven.',
       welcome_desc1:'Dit is een getimede schrijfruimte. De klok loopt alleen terwijl je typt.',
-      welcome_desc2:'Als je klaar bent, wordt je bericht direct per e-mail naar Paul gestuurd.',
+      welcome_desc2:'When you\'re done, the message is sent directly to the handle owner — with any voice note or files attached.',
       step1:'Klik op Starten — de timer begint.',
       step2:'Schrijf vrij. Voeg bestanden of een spraakbericht toe.',
-      step3:'Stuur het bericht naar Paul als je klaar bent.',
+      step3:'Send your message when ready.',
       start_writing:'Begin met schrijven',
       welcome_hint:'Timer start meteen. Je kunt pauzeren met Esc',
       textarea_placeholder:'Schrijf je bericht…',
       textarea_disabled:'Klik op Starten om te beginnen…',
       words:'woorden', word:'woord', characters:'tekens', character:'teken',
       voice_message:'Spraakbericht', play:'▶ Afspelen', pause_play:'⏸ Pauzeren',
-      send_modal_title:'Stuur naar Paul', send_modal_sub:'Je bericht is klaar.',
+      send_modal_title:'Send message', send_modal_sub:'Je bericht is klaar.',
       stat_time:'Actieve tijd', stat_words:'Woorden', stat_chars:'Tekens',
       your_name:'Je naam', name_placeholder:'Jan de Vries',
       how_reach:'Как с вами связаться', contact_placeholder:'E-mail, Telegram, telefoon…',
       send_via:'Verzenden via',
-      send_email_btn:'E-mail sturen naar Paul', open_email_client:'E-mailprogramma openen', fallback:'Alternatief',
+      send_email_btn:'E-mail sturen naar …', open_email_client:'E-mailprogramma openen', fallback:'Alternatief',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'Bestanden uploaden en bericht verzenden…',
       sent_title:'Bericht verzonden!',
@@ -1704,34 +1704,34 @@
       toast_copied:'Gekopieerd.', toast_write_first:'Schrijf eerst iets!',
     },
     zh: {
-      topbar_title:'✉️ 向 Paul Fleury 发送消息',
+      topbar_title:'✉️ hollr',
       state_idle:'待机', state_running:'进行中', state_paused:'已暂停',
-      page_title:'致 Paul Fleury 的消息',
+      page_title:'Message to…',
       page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'活跃写作时间',
       controls:'控制', start:'开始', pause:'暂停', reset:'重置',
       attachments:'附件', attach_file:'附加文件', or_drag:'或拖拽',
       record_voice:'录制语音', send_label:'发送', send_to_paul:'Отправить сообщение',
       sidebar_footer:'计时器仅在开始状态下运行。文件已安全上传。',
-      welcome_eyebrow:'致 Paul Fleury 的消息',
+      welcome_eyebrow:'Message to…',
       welcome_title:'写一些值得写的话。',
       welcome_desc1:'这是一个计时写作画布。计时器仅在您输入时运行——每一秒都是真正的写作时间。',
-      welcome_desc2:'完成后，您的消息将通过电子邮件直接发送给 Paul，附带语音消息或文件。',
+      welcome_desc2:'When you\'re done, the message is sent directly to the handle owner — with any voice note or files attached.',
       step1:'点击开始 — 计时器启动。', step2:'自由书写，附加文件或语音。', step3:'准备好后发送消息。',
       start_writing:'开始写作', welcome_hint:'计时器立即开始。随时按 Esc 暂停',
       textarea_placeholder:'写下您的消息…', textarea_disabled:'点击开始以开始写作…',
       words:'字', word:'字', characters:'字符', character:'字符',
       voice_message:'语音消息', play:'▶ 播放', pause_play:'⏸ 暂停',
-      send_modal_title:'发送给 Paul', send_modal_sub:'您的消息已准备好发送。',
+      send_modal_title:'Send message', send_modal_sub:'您的消息已准备好发送。',
       stat_time:'活跃时间', stat_words:'字数', stat_chars:'字符数',
       your_name:'您的姓名', name_placeholder:'张三',
       how_reach:'Как с вами связаться', contact_placeholder:'邮箱、Telegram、电话…',
       send_via:'发送方式',
-      send_email_btn:'发送邮件给 Paul', open_email_client:'打开邮件客户端', fallback:'备用',
+      send_email_btn:'发送邮件给 …', open_email_client:'打开邮件客户端', fallback:'备用',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'正在上传文件并发送消息…',
       sent_title:'消息已发送！', sent_sub:'您的消息已发送到对方的收件箱。',
-      write_another:'← 再写一条', go_to_paul:'前往 paulfleury.com',
+      write_another:'← 再写一条', go_to_paul:'Back to hollr.to',
       error_title:'出现问题', back:'← 返回', try_again:'重试',
       voice_modal_title:'语音消息', click_to_record:'点击开始录制',
       mic_error:'需要麦克风访问权限。', click_to_stop:'点击停止',
@@ -1759,34 +1759,34 @@
       toast_copied:'已复制。', toast_write_first:'请先写些内容！',
     },
     hi: {
-      topbar_title:'✉️ Paul Fleury को संदेश भेजें',
+      topbar_title:'✉️ hollr',
       state_idle:'निष्क्रिय', state_running:'चल रहा है', state_paused:'रुका हुआ',
-      page_title:'Paul Fleury को संदेश',
+      page_title:'Message to…',
       page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'सक्रिय लेखन समय',
       controls:'नियंत्रण', start:'प्रारंभ', pause:'रोकें', reset:'रीसेट',
       attachments:'अनुलग्नक', attach_file:'फ़ाइल संलग्न करें', or_drag:'या खींचें',
       record_voice:'आवाज़ रिकॉर्ड करें', send_label:'भेजें', send_to_paul:'Отправить сообщение',
       sidebar_footer:'टाइमर केवल प्रारंभ सक्रिय होने पर चलता है।',
-      welcome_eyebrow:'Paul Fleury को संदेश',
+      welcome_eyebrow:'Message to…',
       welcome_title:'कुछ ऐसा लिखें जो लिखने योग्य हो।',
       welcome_desc1:'यह एक समयबद्ध लेखन कैनवास है। घड़ी केवल टाइप करते समय चलती है।',
-      welcome_desc2:'जब आप पूरा कर लें, तो आपका संदेश सीधे Paul को ईमेल द्वारा भेजा जाता है।',
+      welcome_desc2:'When you\'re done, the message is sent directly to the handle owner — with any voice note or files attached.',
       step1:'प्रारंभ दबाएं — टाइमर शुरू होता है।', step2:'स्वतंत्र रूप से लिखें।', step3:'तैयार होने पर भेजें।',
       start_writing:'लिखना शुरू करें', welcome_hint:'टाइमर तुरंत शुरू होता है। Esc से रोकें',
       textarea_placeholder:'अपना संदेश लिखें…', textarea_disabled:'लिखना शुरू करने के लिए प्रारंभ दबाएं…',
       words:'शब्द', word:'शब्द', characters:'अक्षर', character:'अक्षर',
       voice_message:'वॉइस संदेश', play:'▶ सुनें', pause_play:'⏸ रोकें',
-      send_modal_title:'Paul को भेजें', send_modal_sub:'आपका संदेश भेजने के लिए तैयार है।',
+      send_modal_title:'Send message', send_modal_sub:'आपका संदेश भेजने के लिए तैयार है।',
       stat_time:'सक्रिय समय', stat_words:'शब्द', stat_chars:'अक्षर',
       your_name:'आपका नाम', name_placeholder:'अमित शर्मा',
       how_reach:'Как с вами связаться', contact_placeholder:'ईमेल, Telegram, फोन…',
       send_via:'के द्वारा भेजें',
-      send_email_btn:'Paul को ईमेल भेजें', open_email_client:'ईमेल क्लाइंट खोलें', fallback:'वैकल्पिक',
+      send_email_btn:'… को ईमेल भेजें', open_email_client:'ईमेल क्लाइंट खोलें', fallback:'वैकल्पिक',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'फ़ाइलें अपलोड और संदेश भेजा जा रहा है…',
       sent_title:'संदेश भेजा गया!', sent_sub:'आपका संदेश उनके इनबॉक्स में पहुंच गया है।',
-      write_another:'← दूसरा लिखें', go_to_paul:'paulfleury.com पर जाएं',
+      write_another:'← दूसरा लिखें', go_to_paul:'Back to hollr.to',
       error_title:'कुछ गलत हुआ', back:'← वापस', try_again:'फिर प्रयास करें',
       voice_modal_title:'वॉइस संदेश', click_to_record:'रिकॉर्ड करने के लिए क्लिक करें',
       mic_error:'माइक्रोफ़ोन एक्सेस आवश्यक है।', click_to_stop:'रोकने के लिए क्लिक करें',
@@ -1814,34 +1814,34 @@
       toast_copied:'कॉपी किया।', toast_write_first:'पहले कुछ लिखें!',
     },
     ja: {
-      topbar_title:'✉️ Paul Fleuryへメッセージを送る',
+      topbar_title:'✉️ hollr',
       state_idle:'待機中', state_running:'実行中', state_paused:'一時停止',
-      page_title:'Paul Fleuryへのメッセージ',
+      page_title:'Message to…',
       page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'アクティブな執筆時間',
       controls:'コントロール', start:'開始', pause:'一時停止', reset:'リセット',
       attachments:'添付ファイル', attach_file:'ファイルを添付', or_drag:'またはドラッグ',
       record_voice:'音声を録音', send_label:'送信', send_to_paul:'Отправить сообщение',
       sidebar_footer:'タイマーは開始中のみ動作します。ファイルは安全に転送されます。',
-      welcome_eyebrow:'Paul Fleuryへのメッセージ',
+      welcome_eyebrow:'Message to…',
       welcome_title:'書く価値のあることを伝えよう。',
       welcome_desc1:'タイマー付きの作文キャンバスです。タイピング中のみ時計が進みます。',
-      welcome_desc2:'完了すると、メッセージは音声や添付ファイルとともにPaulにメールで直接送られます。',
+      welcome_desc2:'When you\'re done, the message is sent directly to the handle owner — with any voice note or files attached.',
       step1:'開始をクリック — タイマーが始まります。', step2:'自由に書いてください。', step3:'準備ができたら送信。',
       start_writing:'書き始める', welcome_hint:'タイマーはすぐに開始します。Escで一時停止できます',
       textarea_placeholder:'メッセージを書いてください…', textarea_disabled:'開始をクリックして書き始めてください…',
       words:'語', word:'語', characters:'文字', character:'文字',
       voice_message:'音声メッセージ', play:'▶ 再生', pause_play:'⏸ 一時停止',
-      send_modal_title:'Paulに送信', send_modal_sub:'メッセージの送信準備ができました。',
+      send_modal_title:'Send message', send_modal_sub:'メッセージの送信準備ができました。',
       stat_time:'アクティブ時間', stat_words:'単語数', stat_chars:'文字数',
       your_name:'お名前', name_placeholder:'山田 太郎',
       how_reach:'Как с вами связаться', contact_placeholder:'メール、Telegram、電話…',
       send_via:'送信方法',
-      send_email_btn:'Paulにメールを送る', open_email_client:'メールクライアントを開く', fallback:'代替手段',
+      send_email_btn:'メッセージを送信する', open_email_client:'メールクライアントを開く', fallback:'代替手段',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'ファイルをアップロードしてメッセージを送信中…',
-      sent_title:'メッセージを送信しました！', sent_sub:'Paulは受信トレイでメッセージを受け取ります。',
-      write_another:'← 別のメッセージを書く', go_to_paul:'paulfleury.comへ',
+      sent_title:'メッセージを送信しました！', sent_sub:'Your message has been delivered to their inbox.',
+      write_another:'← 別のメッセージを書く', go_to_paul:'Back to hollr.to',
       error_title:'エラーが発生しました', back:'← 戻る', try_again:'再試行',
       voice_modal_title:'音声メッセージ', click_to_record:'クリックして録音開始',
       mic_error:'マイクへのアクセスが必要です。', click_to_stop:'クリックして停止',
@@ -1896,7 +1896,7 @@
       modal_foot_note:'Письмо отправлено Полю через Resend.',
       sending:'Загрузка файлов и отправка сообщения…',
       sent_title:'Сообщение отправлено!', sent_sub:'Поль получит ваше сообщение в папку входящих.',
-      write_another:'← Написать ещё', go_to_paul:'Перейти на paulfleury.com',
+      write_another:'← Написать ещё', go_to_paul:'Back to hollr.to',
       error_title:'Что-то пошло не так', back:'← Назад', try_again:'Попробовать снова',
       voice_modal_title:'Голосовое сообщение', click_to_record:'Нажмите для записи',
       mic_error:'Требуется доступ к микрофону.', click_to_stop:'Нажмите для остановки',
@@ -1950,7 +1950,7 @@
     });
     // Dynamic elements
     document.title = t('topbar_title').replace(/^.+? /, ''); // strip emoji for tab
-    document.title = 'Send a message to Paul Fleury'; // keep stable tab title
+    document.title = 'Send a message to …'; // keep stable tab title
     // Textarea placeholder depends on state
     if (!running) {
       textEl.placeholder = t('textarea_disabled');
@@ -2244,7 +2244,7 @@
     const name = $('sender-name').value.trim() || 'Someone';
     const contact = $('sender-contact').value.trim();
     const sub = encodeURIComponent('Message from ' + name);
-    const body = encodeURIComponent('Hi Paul,\n\n' + name + ' sent you a message:\n\n' + textEl.value + (contact ? '\n\nReply to: ' + contact : ''));
+    const body = encodeURIComponent('Hi …,\n\n' + name + ' sent you a message:\n\n' + textEl.value + (contact ? '\n\nReply to: ' + contact : ''));
     window.open('mailto:?subject=' + sub + '&body=' + body);
     showSentStep();
   };
@@ -2954,7 +2954,7 @@
   /* ════════════════════════════════════════════════════════════════════════
    * HOLLR — Dynamic profile loading
    * Fetches /api/profile/:handle to determine if this handle exists and is
-   * configured. Updates all Paul-specific strings to show the handle owner.
+   * configured. Updates all …-specific strings to show the handle owner.
    * ════════════════════════════════════════════════════════════════════════ */
   async function loadHollrProfile() {
     try {
@@ -2997,7 +2997,7 @@
         for (const key in s) {
           if (typeof s[key] === 'string') {
             s[key] = s[key]
-              .replace(/Paul Fleury/g, ownerDisplay)
+              .replace(/…/g, ownerDisplay)
               .replace(/paulfleury\.com/g, `hollr.to/${profile.handle}`)
               .replace(/go_to_paul_url/g, `https://hollr.to/${profile.handle}`);
           }
@@ -3028,7 +3028,7 @@
       if (pageSubEl) {
         // Replace the name token in whatever the current i18n string says
         pageSubEl.innerHTML = pageSubEl.innerHTML
-          .replace(/Paul Fleury|Paul(?=\s|<|)/g, escHtml(displayName));
+          .replace(/…|…(?=\s|<|)/g, escHtml(displayName));
       }
 
       // Send button label and modal title
@@ -3040,15 +3040,15 @@
       });
       document.querySelectorAll('[data-i18n="sent_sub"]').forEach(el => {
         el.innerHTML = el.innerHTML
-          .replace(/Paul Fleury|Paul(?=\s|<|)/g, escHtml(displayName));
+          .replace(/…|…(?=\s|<|)/g, escHtml(displayName));
       });
       document.querySelectorAll('[data-i18n="how_reach"]').forEach(el => {
         el.textContent = el.textContent
-          .replace(/Paul Fleury|Paul(?=\s|)/g, displayName);
+          .replace(/…|…(?=\s|)/g, displayName);
       });
       document.querySelectorAll('[data-i18n="modal_foot_note"]').forEach(el => {
         el.innerHTML = el.innerHTML
-          .replace(/Paul Fleury|Paul(?=\s|<|)/g, escHtml(displayName));
+          .replace(/…|…(?=\s|<|)/g, escHtml(displayName));
       });
       // Welcome modal eyebrow
       document.querySelectorAll('[data-i18n="welcome_eyebrow"]').forEach(el => {
@@ -3062,6 +3062,8 @@
       // Patch the "go to" link in the sent screen
       const gotoEl = document.querySelector('.sent-goto');
       if (gotoEl) gotoEl.href = `https://hollr.to/${profile.handle}`;
+      const sgLink = document.getElementById('sent-goto-link');
+      if (sgLink) sgLink.href = `https://hollr.to/${profile.handle}`;
 
       if (!profile.active) {
         // Handle exists but not configured — show a notice after welcome modal

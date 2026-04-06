@@ -110,8 +110,9 @@ db.exec(`
     email        TEXT    NOT NULL,
     token        TEXT    NOT NULL UNIQUE,   -- UUID v4, 36 chars
     expires_at   INTEGER NOT NULL,          -- Unix timestamp
-    used         INTEGER NOT NULL DEFAULT 0,
-    is_pin_reset INTEGER NOT NULL DEFAULT 0
+    used           INTEGER NOT NULL DEFAULT 0,
+    is_pin_reset   INTEGER NOT NULL DEFAULT 0,
+    pending_handle TEXT                          -- desired handle chosen on landing page
   );
 
   -- ── sessions ─────────────────────────────────────────────────────────────────

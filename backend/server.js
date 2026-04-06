@@ -168,7 +168,7 @@ function createSession(userId) {
 
 // ── Health ───────────────────────────────────────────────────────────────────
 
-app.get('/health', (_req, res) => res.json({ ok: true, version: '4.5.0' }));
+app.get('/health', (_req, res) => res.json({ ok: true, version: '4.5.1' }));
 
 // ── Email magic link auth ────────────────────────────────────────────────────
 
@@ -178,16 +178,19 @@ app.get('/health', (_req, res) => res.json({ ok: true, version: '4.5.0' }));
  * Sends a one-time login link. Works for both new and returning users.
  */
 app.post('/api/auth/magic-link', authLimiter, async (req, res) => {
-  const { email } = req.body;
+  const { email, handle } = req.body;
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: 'Valid email required' });
   }
+
+  // Validate handle if provided (will be pre-filled in onboarding after click)
+  const pendingHandle = (handle && /^[a-zA-Z0-9_-]{2,30}$/.test(handle)) ? handle : null;
 
   const token     = uuidv4();
   const expiresAt = Math.floor(Date.now() / 1000) + 15 * 60; // 15 min
 
   db.prepare('DELETE FROM magic_links WHERE email = ?').run(email);
-  db.prepare('INSERT INTO magic_links (email, token, expires_at) VALUES (?, ?, ?)').run(email, token, expiresAt);
+  db.prepare('INSERT INTO magic_links (email, token, expires_at, pending_handle) VALUES (?, ?, ?, ?)').run(email, token, expiresAt, pendingHandle);
 
   const frontendUrl = process.env.FRONTEND_URL || 'https://hollr.to';
   const link = `${frontendUrl}/auth/verify?token=${token}`;
@@ -225,10 +228,12 @@ app.get('/api/auth/verify/:token', (req, res) => {
     }
     const token = createSession(user.id);
     return res.json({
-      ok:            true,
-      session_token: token,
-      is_new_user:   false,
-      is_pin_reset:  !!row.is_pin_reset,
+      ok:             true,
+      session_token:  token,
+      is_new_user:    false,
+      is_pin_reset:   !!row.is_pin_reset,
+      // pending_handle is only useful for new users — returning users already have a handle
+      pending_handle: user.handle?.startsWith('__pending') ? (row.pending_handle || null) : null,
       user: {
         email:           user.email,
         handle:          user.handle?.startsWith('__pending') ? null : user.handle,
@@ -247,9 +252,12 @@ app.get('/api/auth/verify/:token', (req, res) => {
 
   const token = createSession(inserted.lastInsertRowid);
   res.json({
-    ok:            true,
-    session_token: token,
-    is_new_user:   true,
+    ok:             true,
+    session_token:  token,
+    is_new_user:    true,
+    // Return the handle they chose on the landing page so the onboarding
+    // form can be pre-filled — this survives the email-tab context switch
+    pending_handle: row.pending_handle || null,
     user: { email: row.email, handle: null, has_api_key: false, has_pgp: false, pin_is_default: true },
   });
 });
@@ -836,5 +844,5 @@ app.use((err, _req, res, _next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
-  console.log(`📢 hollr API v4.5.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  console.log(`📢 hollr API v4.5.1 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
 });

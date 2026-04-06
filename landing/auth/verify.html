@@ -489,7 +489,10 @@ async function verifyMagicToken(tok) {
       $('statusMsg').textContent = 'Welcome back! Redirecting…';
       setTimeout(() => { location.href = `/${data.user.handle}`; }, 600);
     } else {
-      startOnboarding(data.session_token);
+      // Pass pending_handle from the API response — this is the handle the user
+      // typed in the landing modal. It was stored server-side in the magic_links
+      // row so it survives the email client opening a brand-new tab.
+      startOnboarding(data.session_token, null, data.pending_handle || null);
     }
   } catch { showState('stateError'); }
 }
@@ -591,15 +594,21 @@ async function sendMagicLink() {
    Claim  → POST /api/handle/claim → redirect to /:handle
 ════════════════════════════════════════════════════════════════════════ */
 
-function startOnboarding(sessionToken, prefillUsername) {
+function startOnboarding(sessionToken, prefillUsername, apiPendingHandle) {
   _sessionToken = sessionToken;
   showState('stateOnboarding');
   setProgress(1);
   showObStep(1);
 
-  // Pre-fill handle from landing modal sessionStorage or X username
-  const hi = $('handleInput');
-  const pre = _pendingHandle || (prefillUsername ? prefillUsername.replace(/[^a-zA-Z0-9_-]/g,'').slice(0,30) : null);
+  // Handle pre-fill priority:
+  // 1. apiPendingHandle — from the magic_links row (survives new-tab opens)
+  // 2. _pendingHandle   — from sessionStorage (same-tab flows, e.g. X OAuth)
+  // 3. prefillUsername  — X OAuth username
+  const hi  = $('handleInput');
+  const pre = apiPendingHandle
+    || _pendingHandle
+    || (prefillUsername ? prefillUsername.replace(/[^a-zA-Z0-9_-]/g,'').slice(0,30) : null);
+
   if (pre) {
     hi.value = pre;
     try { sessionStorage.removeItem('hollr_pending_handle'); } catch {}

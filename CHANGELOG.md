@@ -17,6 +17,36 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [4.5.1] — 2026-04-06
+
+### 🐛 Handle pre-fill fix + full cleanup
+
+### Fixed
+
+**Handle lost after magic link click (root cause: `sessionStorage` is tab-scoped)**
+
+The landing modal stored the chosen handle in `sessionStorage`, which is isolated per browser tab. When the user clicked the magic link in their email client, it opened in a **new tab** with an empty `sessionStorage` — so the handle was gone and onboarding asked for it again.
+
+Fix: the handle is now sent to `POST /api/auth/magic-link` and stored in the `magic_links` table as `pending_handle`. The `GET /api/auth/verify/:token` endpoint returns it in the response. `startOnboarding()` in `auth/verify.html` uses the API value as the primary pre-fill source, with `sessionStorage` as a fallback for same-tab flows (X OAuth).
+
+Changes:
+- `magic_links` table: `pending_handle TEXT` column added (schema + migration).
+- `POST /api/auth/magic-link`: accepts optional `handle` in request body, validates format, stores as `pending_handle`.
+- `GET /api/auth/verify/:token`: returns `pending_handle` in response for new users and users who haven't completed onboarding.
+- Landing modal: passes `handle` to the magic-link API call.
+- `auth/verify.html` `startOnboarding()`: reads `data.pending_handle` from the verify response (priority 1), falling back to `sessionStorage` (priority 2) and X username (priority 3).
+
+**Full i18n cleanup — zero Paul/paulfleury refs remain**
+- All 10 language packs scrubbed: `welcome_desc2`, `settings_sub`, `send_modal_title`, `step3`, `send_email_btn` (Japanese), `sent_sub`, `go_to_paul`, `page_sub`, `page_title`, `welcome_eyebrow` — all generic.
+- `paulfleury.com` sent-goto link replaced with `hollr.to/${handle}` (dynamic).
+- Display name placeholder: `Paul Fleury` → `John Doe` in settings modal.
+
+**Resend domain**
+- `hollr.to` domain added to Resend — `yo@hollr.to` is now a verified sender address.
+- `PLATFORM_FROM_EMAIL` confirmed as `hollr <yo@hollr.to>`.
+
+---
+
 ## [4.5.0] — 2026-04-06
 
 ### 🔧 Bug fixes & UX overhaul

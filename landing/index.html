@@ -4445,10 +4445,13 @@ function applyLang(code) {
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending magic link…'; }
 
     try {
+      // Include the desired handle so the backend stores it in the magic_links row.
+      // When the user clicks the link in a new tab, the handle is returned by the
+      // verify endpoint and pre-fills onboarding step 1 — no sessionStorage needed.
       const res  = await fetch('https://hollr-api.fly.dev/api/auth/magic-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailVal }),
+        body: JSON.stringify({ email: emailVal, handle: handleVal }),
       });
       const data = await res.json();
       if (res.ok && data.ok) {
