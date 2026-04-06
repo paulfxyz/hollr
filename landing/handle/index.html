@@ -1110,8 +1110,24 @@
       <!-- ── Main settings panel ────────────────────────────────────────── -->
       <div class="s-panel" id="panel-manage">
 
+        <!-- ── Display name — shown as "Message to [name]" on the canvas ── -->
+        <div class="s-section-label">Your canvas</div>
+        <div class="s-field s-notif-block" style="margin-bottom:12px">
+          <label>Display name</label>
+          <input type="text" id="s-display-name" placeholder="Your name (e.g. Paul Fleury)"
+                 maxlength="60" autocomplete="off" />
+          <div class="hint">
+            Shown as <em>"Message to <span id="s-name-preview">yourname</span>"</em>
+            on your canvas and in the send button. Defaults to your handle.
+          </div>
+          <div class="s-error" id="s-name-error"></div>
+          <div class="s-actions" style="margin-top:10px">
+            <button class="s-btn-primary s-btn-sm" id="s-name-save">Save name</button>
+          </div>
+        </div>
+
         <!-- ── Notification email — always visible above tabs ── -->
-        <div class="s-section-label">Where your messages go</div>
+        <div class="s-section-label" style="margin-top:16px">Where your messages go</div>
         <div class="s-field s-notif-block">
           <label>Notification email</label>
           <input type="email" id="s-notif-email" placeholder="you@email.com"
@@ -2455,6 +2471,12 @@
       const data = await res.json();
       if (!res.ok) return;
 
+      // Display name
+      const nameEl      = $('s-display-name');
+      const namePreview = $('s-name-preview');
+      if (nameEl)      nameEl.value = data.display_name || '';
+      if (namePreview) namePreview.textContent = data.display_name || window._hollrDisplayName || HANDLE;
+
       // Notification email
       const notifEl = $('s-notif-email');
       const notifCur = $('s-notif-current');
@@ -2483,7 +2505,7 @@
   // ── Open / close ──────────────────────────────────────────────────────
   const openSettings = async () => {
     // Clear errors
-    ['s-pin-error','s-manage-error','s-pin-change-error','s-pgp-error','s-notif-error'].forEach(id => {
+    ['s-pin-error','s-manage-error','s-pin-change-error','s-pgp-error','s-notif-error','s-name-error'].forEach(id => {
       const el = $(id); if (el) { el.classList.remove('show'); el.textContent = ''; }
     });
     $('s-pin-input').value = '';
@@ -2570,6 +2592,59 @@
     } catch {
       btn.textContent = 'Forgot PIN?'; btn.style.opacity = '';
     }
+  });
+
+  // ── Display name save ─────────────────────────────────────────────────
+  // Live preview: update the "Message to [name]" hint as user types
+  $('s-display-name').addEventListener('input', () => {
+    const val     = $('s-display-name').value.trim();
+    const preview = $('s-name-preview');
+    if (preview) preview.textContent = val || window._hollrDisplayName || HANDLE;
+  });
+
+  $('s-name-save').addEventListener('click', async () => {
+    const name = $('s-display-name').value.trim();
+    const el   = $('s-name-error');
+    el.classList.remove('show');
+    const btn  = $('s-name-save');
+
+    // Empty is fine — clears the name and falls back to handle
+    if (name.length > 60) {
+      el.textContent = 'Name must be 60 characters or fewer.';
+      el.classList.add('show'); return;
+    }
+
+    btn.disabled = true; btn.textContent = 'Saving…';
+    const tok = getSessionToken();
+    try {
+      const resp = await fetch(`${API_BASE}/api/settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
+        body: JSON.stringify({ pin: settingsPinCache, display_name: name }),
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        // Update the live canvas immediately — no page reload needed
+        const newName = name || HANDLE;
+        window._hollrDisplayName = newName;
+        document.querySelectorAll('[data-i18n="page_title"]').forEach(el => {
+          el.innerHTML = `Message to <strong>${newName}</strong>`;
+        });
+        document.querySelectorAll('[data-i18n="send_to_paul"], [data-i18n="send_modal_title"]').forEach(el => {
+          el.textContent = `Send to ${newName}`;
+        });
+        document.querySelectorAll('[data-i18n="welcome_eyebrow"]').forEach(el => {
+          el.textContent = `Message to ${newName}`;
+        });
+        const preview = $('s-name-preview');
+        if (preview) preview.textContent = newName;
+        toast(`Canvas name updated to "${newName || HANDLE}".`);
+      } else {
+        el.textContent = data.error || 'Save failed.';
+        el.classList.add('show');
+      }
+    } catch { el.textContent = 'Connection error.'; el.classList.add('show'); }
+    finally   { btn.disabled = false; btn.textContent = 'Save name'; }
   });
 
   // ── Notification email save ───────────────────────────────────────────
@@ -2861,6 +2936,56 @@
       document.title = `hollr.to/${profile.handle}`;
       const hdgBadge = document.getElementById('settings-handle-sub');
       if (hdgBadge) hdgBadge.textContent = `hollr.to/${profile.handle}`;
+
+      // Update all "Message to [name]" strings dynamically from profile.display_name.
+      // display_name is set by the handle owner in Settings → Display name field.
+      // Falls back to their handle if not set (e.g. "Message to paulfxyz").
+      const displayName = profile.display_name || profile.handle;
+      window._hollrDisplayName = displayName; // stored globally for send modal
+
+      // Update every data-i18n element that references the owner name
+      document.querySelectorAll('[data-name-target]').forEach(el => {
+        el.textContent = el.dataset.nameTarget.replace('{{name}}', displayName);
+      });
+
+      // Direct element updates (page title, send button, modal headings)
+      const pageTitleEl = document.querySelector('[data-i18n="page_title"]');
+      if (pageTitleEl) pageTitleEl.innerHTML = `Message to <strong>${escHtml(displayName)}</strong>`;
+
+      const pageSubEl = document.querySelector('[data-i18n="page_sub"]');
+      if (pageSubEl) {
+        // Replace the name token in whatever the current i18n string says
+        pageSubEl.innerHTML = pageSubEl.innerHTML
+          .replace(/Paul Fleury|Paul(?=\s|<|)/g, escHtml(displayName));
+      }
+
+      // Send button label and modal title
+      document.querySelectorAll('[data-i18n="send_to_paul"]').forEach(el => {
+        el.textContent = `Send to ${displayName}`;
+      });
+      document.querySelectorAll('[data-i18n="send_modal_title"]').forEach(el => {
+        el.textContent = `Send to ${displayName}`;
+      });
+      document.querySelectorAll('[data-i18n="sent_sub"]').forEach(el => {
+        el.innerHTML = el.innerHTML
+          .replace(/Paul Fleury|Paul(?=\s|<|)/g, escHtml(displayName));
+      });
+      document.querySelectorAll('[data-i18n="how_reach"]').forEach(el => {
+        el.textContent = el.textContent
+          .replace(/Paul Fleury|Paul(?=\s|)/g, displayName);
+      });
+      document.querySelectorAll('[data-i18n="modal_foot_note"]').forEach(el => {
+        el.innerHTML = el.innerHTML
+          .replace(/Paul Fleury|Paul(?=\s|<|)/g, escHtml(displayName));
+      });
+      // Welcome modal eyebrow
+      document.querySelectorAll('[data-i18n="welcome_eyebrow"]').forEach(el => {
+        el.textContent = `Message to ${displayName}`;
+      });
+
+      function escHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      }
 
       // Patch the "go to" link in the sent screen
       const gotoEl = document.querySelector('.sent-goto');

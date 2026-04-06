@@ -1,5 +1,5 @@
 /**
- * db.js — SQLite database setup for hollr.to (v4.3.0)
+ * db.js — SQLite database setup for hollr.to (v4.4.0)
  * ──────────────────────────────────────────────────────
  *
  * OVERVIEW
@@ -94,6 +94,7 @@ db.exec(`
     pin_hash       TEXT,              -- bcrypt(pin, 12) — 4-8 digit PIN
     pin_is_default INTEGER NOT NULL DEFAULT 0,  -- 1 if PIN is still "1234"
     pgp_public_key TEXT,             -- armoured OpenPGP public key block
+    display_name   TEXT,             -- shown as "Message to [name]" on the canvas (max 60 chars)
 
     created_at     INTEGER NOT NULL DEFAULT (unixepoch()),
     updated_at     INTEGER NOT NULL DEFAULT (unixepoch())
@@ -168,6 +169,8 @@ const migrations = [
 
   // v4.2.0 — PIN-reset magic links
   { table: 'magic_links', col: 'is_pin_reset',   def: 'INTEGER NOT NULL DEFAULT 0' },
+  // v4.4.0 — display name
+  { table: 'users',       col: 'display_name',  def: 'TEXT' },
 ];
 
 for (const { table, col, def } of migrations) {

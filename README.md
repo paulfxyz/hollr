@@ -1,6 +1,6 @@
 # hollr.to
 
-[![Version](https://img.shields.io/badge/version-4.3.0-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v4.3.0)
+[![Version](https://img.shields.io/badge/version-4.4.0-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v4.3.0)
 [![License: MIT](https://img.shields.io/badge/license-MIT-c96a2a?style=flat-square)](LICENSE)
 [![Node](https://img.shields.io/badge/node-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![SQLite](https://img.shields.io/badge/SQLite-WAL-003b57?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org)

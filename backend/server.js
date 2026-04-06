@@ -132,7 +132,7 @@ function requireAuth(req, res, next) {
   const sess = db.prepare(`
     SELECT s.token, s.user_id, s.expires_at,
            u.email, u.handle, u.resend_key, u.pin_hash, u.from_email,
-           u.pgp_public_key, u.x_id, u.x_username, u.pin_is_default
+           u.pgp_public_key, u.x_id, u.x_username, u.pin_is_default, u.display_name
     FROM sessions s JOIN users u ON u.id = s.user_id
     WHERE s.token = ? AND s.expires_at > unixepoch()
   `).get(token);
@@ -168,7 +168,7 @@ function createSession(userId) {
 
 // ── Health ───────────────────────────────────────────────────────────────────
 
-app.get('/health', (_req, res) => res.json({ ok: true, version: '4.3.0' }));
+app.get('/health', (_req, res) => res.json({ ok: true, version: '4.4.0' }));
 
 // ── Email magic link auth ────────────────────────────────────────────────────
 
@@ -424,6 +424,7 @@ app.post('/api/auth/logout', requireAuth, (req, res) => {
  */
 app.get('/api/me', requireAuth, (req, res) => {
   res.json({
+    display_name:   req.user.display_name || null,
     email:          req.user.email,
     handle:         req.user.handle?.startsWith('__pending') ? null : req.user.handle,
     has_api_key:    !!req.user.resend_key,
@@ -444,9 +445,29 @@ app.get('/api/me', requireAuth, (req, res) => {
  */
 app.post('/api/handle/check', (req, res) => {
   const { handle } = req.body;
-  if (!handle || !isValidHandle(handle)) return res.json({ available: false, reason: 'Invalid format' });
-  const exists = db.prepare('SELECT id FROM users WHERE handle = ?').get(handle);
-  res.json({ available: !exists });
+
+  // Basic format validation first
+  if (!handle) return res.json({ available: false, reason: 'Please enter a handle.' });
+  if (!isValidHandle(handle)) {
+    // Give a human reason for each failure type
+    if (handle.length < 2)  return res.json({ available: false, reason: 'Too short — minimum 2 characters.' });
+    if (handle.length > 30) return res.json({ available: false, reason: 'Too long — maximum 30 characters.' });
+    if (RESERVED.has(handle.toLowerCase())) {
+      return res.json({ available: false, reason: `“${handle}” is a reserved word.` });
+    }
+    return res.json({ available: false, reason: 'Letters, numbers, hyphens and underscores only.' });
+  }
+
+  // Database uniqueness check
+  const exists = db.prepare('SELECT id FROM users WHERE handle = ? COLLATE NOCASE').get(handle);
+  if (exists) {
+    return res.json({
+      available: false,
+      reason:    `hollr.to/${handle} is already taken. Try another name.`,
+    });
+  }
+
+  res.json({ available: true });
 });
 
 /**
@@ -517,6 +538,7 @@ app.get('/api/settings', requireAuth, (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.user_id);
   res.json({
     ok:             true,
+    display_name:   user.display_name   || null,  // shown as "Message to [name]" on canvas
     email:          user.email          || null,  // notification destination
     from_email:     user.from_email     || null,  // Resend sender address
     has_resend_key: !!user.resend_key,
@@ -534,7 +556,7 @@ app.get('/api/settings', requireAuth, (req, res) => {
  * frontend can redirect to the PIN-change step before allowing other changes.
  */
 app.post('/api/settings', requireAuth, (req, res) => {
-  const { pin, resend_key, from_email, pgp_public_key, notification_email } = req.body;
+  const { pin, resend_key, from_email, pgp_public_key, notification_email, display_name } = req.body;
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.user_id);
 
   // PIN is required and must match
@@ -572,6 +594,18 @@ app.post('/api/settings', requireAuth, (req, res) => {
   if (pgp_public_key !== undefined) {
     updates.push('pgp_public_key = ?');
     params.push(pgp_public_key || null);
+  }
+  if (display_name !== undefined) {
+    // Trim and cap at 60 chars — this is a display name, not a username
+    const trimmedName = display_name ? String(display_name).trim().slice(0, 60) : null;
+    updates.push('display_name = ?');
+    params.push(trimmedName || null);
+  }
+  if (display_name !== undefined) {
+    // Trim and cap at 60 chars — display name, not a username
+    const trimmedName = display_name ? String(display_name).trim().slice(0, 60) : null;
+    updates.push('display_name = ?');
+    params.push(trimmedName || null);
   }
   if (notification_email !== undefined) {
     // Validate email if provided
@@ -653,7 +687,7 @@ app.post('/api/settings/email', requireAuth, (req, res) => {
  */
 app.get('/api/profile/:handle', (req, res) => {
   const user = db.prepare(`
-    SELECT handle, resend_key IS NOT NULL as has_own_key, pgp_public_key, x_username
+    SELECT handle, resend_key IS NOT NULL as has_own_key, pgp_public_key, x_username, display_name
     FROM users WHERE handle = ? COLLATE NOCASE
   `).get(req.params.handle);
   if (!user) return res.status(404).json({ error: 'Handle not found' });
@@ -661,8 +695,11 @@ app.get('/api/profile/:handle', (req, res) => {
   res.json({
     handle:         user.handle,
     active:         true,
-    pgp_public_key: user.pgp_public_key || null,
-    x_username:     user.x_username || null,
+    pgp_public_key: user.pgp_public_key  || null,
+    x_username:     user.x_username      || null,
+    // display_name is what appears as "Message to [name]" on the canvas.
+    // Falls back to the handle if not set.
+    display_name:   user.display_name    || user.handle,
   });
 });
 
@@ -786,5 +823,5 @@ app.use((err, _req, res, _next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
-  console.log(`📢 hollr API v4.3.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  console.log(`📢 hollr API v4.4.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
 });

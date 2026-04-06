@@ -17,6 +17,30 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [4.4.0] — 2026-04-06
+
+### ✏️ Display name + handle uniqueness improvements
+
+### Added
+- **`display_name` field** on `users` table (runtime migration, v4.4.0).
+- **`GET /api/profile/:handle`** now returns `display_name` (falls back to handle).
+- **`GET /api/settings`** now returns `display_name` for pre-filling the settings form.
+- **`POST /api/settings`** now accepts `display_name` (trimmed, max 60 chars).
+- **`GET /api/me`** now returns `display_name`.
+- **Settings modal → "Your canvas" section**: new **Display name** field above the notification email block. Live preview: hint shows `"Message to [name]"` as you type. Saving updates the canvas title, send button label, and welcome modal eyebrow in real-time — no page reload.
+- **Canvas**: `loadHollrProfile()` now injects `profile.display_name` into all name-bearing elements dynamically after load (page title, send button, modal headings, welcome eyebrow, footer notes). Cleans up all hardcoded "Paul Fleury"/"Paul" references — every canvas now shows the handle owner's chosen name.
+
+### Fixed
+- **`POST /api/handle/check`** now returns specific human-readable `reason` strings:
+  - `"Too short — minimum 2 characters."`
+  - `"Too long — maximum 30 characters."`
+  - `""admin" is a reserved word."`
+  - `"hollr.to/paulfxyz is already taken. Try another name."`
+  Previously returned `{ available: false }` with no reason, making it unclear why a handle was rejected.
+- Handle uniqueness check now uses `COLLATE NOCASE` to catch case-variant duplicates (e.g. `PaulFxyz` vs `paulfxyz`).
+
+---
+
 ## [4.3.0] — 2026-04-05
 
 ### Changed
