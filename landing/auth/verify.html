@@ -198,6 +198,12 @@
       transition: all 150ms;
     }
     .pin-dot.filled { background: var(--amber); border-color: var(--amber); }
+    /* Extra dots (positions 5-8) are smaller so 4-digit is the visual default */
+    .pin-dot--extra {
+      width: 10px; height: 10px;
+      opacity: 0.45;
+    }
+    .pin-dot--extra.filled { opacity: 1; }
 
     /* ─── Skip / back links ────────────────────────────────────────────────── */
     .back-link {
@@ -343,6 +349,10 @@
           <div class="pin-dot" id="pd1"></div>
           <div class="pin-dot" id="pd2"></div>
           <div class="pin-dot" id="pd3"></div>
+          <div class="pin-dot pin-dot--extra" id="pd4"></div>
+          <div class="pin-dot pin-dot--extra" id="pd5"></div>
+          <div class="pin-dot pin-dot--extra" id="pd6"></div>
+          <div class="pin-dot pin-dot--extra" id="pd7"></div>
         </div>
         <input type="password" class="input" id="pinInput"
                placeholder="4–8 digits" maxlength="8"
@@ -382,7 +392,7 @@
         <label>Notification email <span id="emailOptTag" class="opt-tag">optional</span></label>
         <input type="email" class="input" id="notifEmailInput"
                placeholder="you@email.com" autocomplete="email">
-        <p class="hint">Where hollr sends you message notifications. Defaults to <strong>yo@hollr.to</strong> if not set.</p>
+        <p class="hint">Where hollr delivers your notifications. Add one now or update it anytime in Settings.</p>
       </div>
 
       <div class="form-err" id="step3Err"></div>
@@ -407,7 +417,7 @@
 
 <script>
 /* ════════════════════════════════════════════════════════════════════════
-   hollr — auth/verify.html (v4.4.0)
+   hollr — auth/verify.html (v4.9.0)
    3-step onboarding wizard: Handle → PIN → Details (name + email)
 ════════════════════════════════════════════════════════════════════════ */
 
@@ -609,13 +619,9 @@ function startOnboarding(sessionToken, prefillUsername, apiPendingHandle) {
     || _pendingHandle
     || (prefillUsername ? prefillUsername.replace(/[^a-zA-Z0-9_-]/g,'').slice(0,30) : null);
 
-  if (pre) {
-    hi.value = pre;
-    try { sessionStorage.removeItem('hollr_pending_handle'); } catch {}
-    hi.dispatchEvent(new Event('input'));
-  }
-
   // Handle availability check — debounced 450ms
+  // NOTE: listener is registered BEFORE pre-fill so the pre-filled value
+  // correctly triggers the availability check on page load.
   let checkTimer = null;
   hi.addEventListener('input', () => {
     clearTimeout(checkTimer);
@@ -649,6 +655,15 @@ function startOnboarding(sessionToken, prefillUsername, apiPendingHandle) {
       } catch { $('availMsg').textContent = ''; }
     }, 450);
   });
+
+  // Pre-fill handle AFTER the listener is registered, so the availability
+  // check fires correctly when the user arrives from the landing modal.
+  if (pre) {
+    hi.value = pre;
+    try { sessionStorage.removeItem('hollr_pending_handle'); } catch {}
+    // Small delay so the debounce fires after the listener is fully attached
+    setTimeout(() => hi.dispatchEvent(new Event('input')), 50);
+  }
 
   // Live name preview in step 3
   $('displayNameInput').addEventListener('input', () => {
@@ -721,7 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!pinInput) return;
   pinInput.addEventListener('input', () => {
     const len = pinInput.value.length;
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 8; i++) {
       const dot = $(`pd${i}`);
       if (dot) dot.classList.toggle('filled', i < len);
     }

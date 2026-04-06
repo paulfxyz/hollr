@@ -1893,11 +1893,15 @@ a { color: inherit; }
 
 /* Email form — revealed on toggle */
 .modal__email-form {
-  display: flex;
+  display: none; /* hidden by default — shown by JS when trigger is clicked */
   flex-direction: column;
   gap: var(--sp-3);
   margin-top: var(--sp-4);
   animation: fadeSlideIn 0.2s var(--ease) both;
+}
+/* When JS removes the [hidden] attribute, switch to flex */
+.modal__email-form:not([hidden]) {
+  display: flex;
 }
 @keyframes fadeSlideIn {
   from { opacity: 0; transform: translateY(-6px); }
@@ -1963,6 +1967,7 @@ a { color: inherit; }
 .modal__input--handle:focus { box-shadow: none; }
 
 /* Conflict notice */
+.modal__conflict-notice[hidden] { display: none !important; }
 .modal__conflict-notice {
   display: flex;
   align-items: flex-start;
@@ -3390,8 +3395,8 @@ a { color: inherit; }
               Claim handle →
             </button>
 
-            <!-- Handle conflict notice -->
-            <div class="modal__conflict-notice">
+            <!-- Handle conflict notice — shown after user types a handle -->
+            <div class="modal__conflict-notice" id="modal-conflict-notice" hidden>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
               <p>X sign-in takes priority. If someone later claims the same handle through X, yours becomes <strong>hollr.to/yourhandle2</strong>. First on X wins.</p>
             </div>
@@ -4339,6 +4344,11 @@ function applyLang(code) {
     const et = document.getElementById('modal-email-trigger');
     if (ef) { ef.hidden = true; ef.reset && ef.reset(); }
     if (et) et.classList.remove('is-open');
+    // Also reset conflict notice and any leftover errors
+    const cn = document.getElementById('modal-conflict-notice');
+    if (cn) cn.hidden = true;
+    const errEl = document.querySelector('.modal__email-error');
+    if (errEl) errEl.textContent = '';
 
     backdrop.hidden = false;
     requestAnimationFrame(() => requestAnimationFrame(() => backdrop.classList.add('is-open')));
@@ -4375,6 +4385,10 @@ function applyLang(code) {
     emailTrigger.classList.toggle('is-open', !isOpen);
     if (!isOpen) {
       emailForm.querySelector('input[name="handle"]')?.focus();
+    } else {
+      // Collapse: hide conflict notice too
+      const cn = document.getElementById('modal-conflict-notice');
+      if (cn) cn.hidden = true;
     }
   });
 
@@ -4438,6 +4452,15 @@ function applyLang(code) {
       errEl.textContent = msg;
     }
   });
+
+  /* Show conflict notice once handle field has content */
+  const modalHandleInput = document.getElementById('modal-handle');
+  const conflictNotice   = document.getElementById('modal-conflict-notice');
+  if (modalHandleInput && conflictNotice) {
+    modalHandleInput.addEventListener('input', () => {
+      conflictNotice.hidden = modalHandleInput.value.trim().length < 2;
+    });
+  }
 
   function showEmailSent(email, handle) {
     // Replace modal content with inbox-check state
