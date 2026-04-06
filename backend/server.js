@@ -1,5 +1,5 @@
 /**
- * server.js — hollr.to API Backend (v5.1.1)
+ * server.js — hollr.to API Backend (v5.2.0)
  *
  * Routes overview
  * ───────────────
@@ -175,7 +175,7 @@ function createSession(userId) {
 
 // ── Health ───────────────────────────────────────────────────────────────────
 
-app.get('/health', (_req, res) => res.json({ ok: true, version: '5.1.1' }));
+app.get('/health', (_req, res) => res.json({ ok: true, version: '5.2.0' }));
 
 // ── Email magic link auth ────────────────────────────────────────────────────
 
@@ -190,8 +190,26 @@ app.post('/api/auth/magic-link', authLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Valid email required' });
   }
 
-  // Validate handle if provided (will be pre-filled in onboarding after click)
-  const pendingHandle = (handle && /^[a-zA-Z0-9_-]{2,30}$/.test(handle)) ? handle : null;
+  // Validate handle format if provided
+  let pendingHandle = null;
+  if (handle) {
+    if (!/^[a-zA-Z0-9_-]{2,30}$/.test(handle)) {
+      return res.status(400).json({ error: 'Invalid handle format' });
+    }
+    // Security: reject immediately if handle is already taken.
+    // This prevents sending magic links that would let someone land on
+    // onboarding with a pre-filled handle they can't actually claim.
+    const takenByOther = db.prepare(
+      'SELECT id FROM users WHERE handle = ? COLLATE NOCASE AND handle NOT LIKE \'__pending_%\''
+    ).get(handle);
+    if (takenByOther) {
+      return res.status(409).json({
+        error: `hollr.to/${handle} is already taken.`,
+        code:  'handle_taken',
+      });
+    }
+    pendingHandle = handle;
+  }
 
   const token     = uuidv4();
   const expiresAt = Math.floor(Date.now() / 1000) + 15 * 60; // 15 min
@@ -478,8 +496,10 @@ app.post('/api/handle/check', (req, res) => {
     return res.json({ available: false, reason: 'Letters, numbers, hyphens and underscores only.' });
   }
 
-  // Database uniqueness check
-  const exists = db.prepare('SELECT id FROM users WHERE handle = ? COLLATE NOCASE').get(handle);
+  // Database uniqueness check — only consider real (non-pending) handles as taken
+  const exists = db.prepare(
+    'SELECT id FROM users WHERE handle = ? COLLATE NOCASE AND handle NOT LIKE \'__pending_%\''
+  ).get(handle);
   if (exists) {
     return res.json({
       available: false,
@@ -505,8 +525,11 @@ app.post('/api/handle/claim', requireAuth, async (req, res) => {
   const pinValue = pin || DEFAULT_PIN;
   if (!/^\d{4,8}$/.test(pinValue)) return res.status(400).json({ error: 'PIN must be 4-8 digits' });
 
-  const existing = db.prepare('SELECT id FROM users WHERE handle = ? AND id != ?').get(handle, req.user.user_id);
-  if (existing) return res.status(409).json({ error: 'Handle already taken' });
+  // Case-insensitive uniqueness check — prevents PAULFXYZ from slipping past paulfxyz
+  const existing = db.prepare(
+    'SELECT id FROM users WHERE handle = ? COLLATE NOCASE AND id != ? AND handle NOT LIKE \'__pending_%\''
+  ).get(handle, req.user.user_id);
+  if (existing) return res.status(409).json({ error: 'Handle already taken', code: 'handle_taken' });
 
   // If user has no email yet (X-only), require one
   const currentUser = db.prepare('SELECT email FROM users WHERE id = ?').get(req.user.user_id);
@@ -850,5 +873,5 @@ app.use((err, _req, res, _next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
-  console.log(`📢 hollr API v5.1.1 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  console.log(`📢 hollr API v5.2.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
 });

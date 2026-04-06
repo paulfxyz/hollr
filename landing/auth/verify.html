@@ -761,7 +761,30 @@ async function claimHandle() {
   showState('stateClaiming');
 
   try {
-    // Step 1: Claim the handle with PIN and optional display name
+    // Step 1: Re-verify handle is still available (race condition safety).
+    // Time passed since the step-1 availability check — someone could have
+    // grabbed the handle in the meantime. Re-check before the claim.
+    $('claimMsg').textContent = 'Checking handle…';
+    const checkRes  = await fetch(`${API}/api/handle/check`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ handle }),
+    });
+    const checkData = await checkRes.json();
+    if (!checkData.available) {
+      // Handle was taken in the race window — drop back to step 1 with clear error
+      showState('stateOnboarding');
+      setProgress(1); showObStep(1);
+      _handleOk = false;
+      $('availMsg').textContent = checkData.reason || `✗ hollr.to/${handle} was just taken. Pick another.`;
+      $('availMsg').className   = 'avail-msg avail-err';
+      $('handleInput').value    = '';
+      $('handleInput').focus();
+      btn.disabled = false; btn.textContent = '🎉 Launch my canvas →';
+      return;
+    }
+
+    // Step 2: Claim the handle with PIN and optional display name
     $('claimMsg').textContent = 'Reserving your handle…';
     const body = { handle, pin };
     if (displayName)  body.display_name = displayName;

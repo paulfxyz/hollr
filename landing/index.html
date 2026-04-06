@@ -4417,12 +4417,27 @@ function applyLang(code) {
     // Store desired handle so auth/verify pre-fills it during onboarding
     try { sessionStorage.setItem('hollr_pending_handle', handleVal); } catch {}
 
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending magic link…'; }
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Checking…'; }
 
     try {
-      // Include the desired handle so the backend stores it in the magic_links row.
-      // When the user clicks the link in a new tab, the handle is returned by the
-      // verify endpoint and pre-fills onboarding step 1 — no sessionStorage needed.
+      // Step 1: Verify handle is available BEFORE sending any magic link.
+      // This is the primary security gate — the backend also enforces this,
+      // but we check client-side first for immediate feedback.
+      const checkRes  = await fetch('https://hollr-api.fly.dev/api/handle/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ handle: handleVal }),
+      });
+      const checkData = await checkRes.json();
+      if (!checkData.available) {
+        showEmailErr(checkData.reason || `hollr.to/${handleVal} is already taken. Try another name.`);
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Claim handle →'; }
+        return;
+      }
+
+      // Step 2: Handle is free — send magic link with handle stored server-side.
+      // Backend performs a second availability check and rejects if taken (race safety).
+      submitBtn.textContent = 'Sending magic link…';
       const res  = await fetch('https://hollr-api.fly.dev/api/auth/magic-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -4430,9 +4445,9 @@ function applyLang(code) {
       });
       const data = await res.json();
       if (res.ok && data.ok) {
-        // Show "check your inbox" inside the modal
         showEmailSent(emailVal, handleVal);
       } else {
+        // Backend rejected — most likely handle was claimed in the race window
         showEmailErr(data.error || 'Something went wrong. Please try again.');
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Claim handle →'; }
       }
