@@ -1172,10 +1172,25 @@
           <button class="s-btn-secondary" id="s-pin-cancel">Cancel</button>
           <button class="s-btn-primary" id="s-pin-verify">Unlock →</button>
         </div>
-        <div style="text-align:center;margin-top:12px">
-          <button id="s-forgot-pin" style="background:none;border:none;font-size:12px;color:var(--fg-2);cursor:pointer;font-family:var(--body);text-decoration:underline">
-            Forgot PIN?
-          </button>
+        <div id="s-forgot-section" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+          <!-- Collapsed: just the "Forgot PIN?" link -->
+          <div id="s-forgot-link-row" style="text-align:center">
+            <button id="s-forgot-pin" style="background:none;border:none;font-size:12px;color:var(--fg-2);cursor:pointer;font-family:var(--body);text-decoration:underline">
+              Forgot PIN?
+            </button>
+          </div>
+          <!-- Expanded: email input + send button (hidden by default) -->
+          <div id="s-forgot-form" style="display:none;margin-top:10px">
+            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--fg-2);display:block;margin-bottom:6px">Your email</label>
+            <input type="email" id="s-forgot-email" placeholder="hello@you.com"
+                   style="width:100%;background:var(--bg-1);border:1px solid var(--border-md);border-radius:8px;padding:9px 12px;font-family:var(--body);font-size:13px;color:var(--fg);outline:none;margin-bottom:8px"
+                   autocomplete="email" />
+            <div style="display:flex;gap:8px">
+              <button id="s-forgot-send" class="s-btn-primary" style="flex:1;font-size:13px;padding:9px">Send reset link</button>
+              <button id="s-forgot-cancel" class="s-btn-secondary" style="font-size:13px;padding:9px 14px">Cancel</button>
+            </div>
+            <div id="s-forgot-msg" style="font-size:12px;color:var(--fg-2);margin-top:8px;min-height:16px;text-align:center"></div>
+          </div>
         </div>
       </div>
 
@@ -2633,7 +2648,10 @@
     $('settings-overlay').classList.add('open');
   };
 
-  const closeSettings = () => $('settings-overlay').classList.remove('open');
+  const closeSettings = () => {
+    $('settings-overlay').classList.remove('open');
+    _resetForgotForm();
+  };
 
   // ── Tab switching ─────────────────────────────────────────────────────
   document.querySelectorAll('.s-tab').forEach(tab => {
@@ -2682,29 +2700,67 @@
   $('s-pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') $('s-pin-verify').click(); });
 
   // ── Forgot PIN ────────────────────────────────────────────────────────
-  $('s-forgot-pin').addEventListener('click', async () => {
-    const btn = $('s-forgot-pin');
-    btn.textContent = 'Sending…'; btn.style.opacity = '0.5';
-    const tok = getSessionToken();
+  // Forgot PIN — expand inline email form (no session required)
+  $('s-forgot-pin').addEventListener('click', () => {
+    $('s-forgot-link-row').style.display = 'none';
+    $('s-forgot-form').style.display = '';
+    $('s-forgot-email').focus();
+    // Pre-fill with notification email if we have it in the settings form
+    const notifEl = $('s-notif-email');
+    if (notifEl?.value) $('s-forgot-email').value = notifEl.value;
+  });
+
+  $('s-forgot-cancel').addEventListener('click', () => {
+    $('s-forgot-form').style.display = 'none';
+    $('s-forgot-link-row').style.display = '';
+    $('s-forgot-email').value = '';
+    $('s-forgot-msg').textContent = '';
+  });
+
+  $('s-forgot-send').addEventListener('click', async () => {
+    const email = $('s-forgot-email').value.trim();
+    const msg   = $('s-forgot-msg');
+    const btn   = $('s-forgot-send');
+    msg.textContent = '';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      msg.textContent = 'Please enter a valid email address.';
+      msg.style.color = 'var(--error, #c0392b)';
+      return;
+    }
+    btn.disabled = true; btn.textContent = 'Sending…';
     try {
-      // Get email from api/me first
-      const me = await fetch(`${API_BASE}/api/me`, { headers: { Authorization: 'Bearer ' + tok } });
-      const meData = await me.json();
-      if (!meData.email) {
-        toast('No email on file — add one in settings first.');
-        btn.textContent = 'Forgot PIN?'; btn.style.opacity = '';
-        return;
-      }
+      // POST to forgot-pin — no session token needed, just the email.
+      // The server always responds ok (avoids email enumeration).
       await fetch(`${API_BASE}/api/auth/forgot-pin`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: meData.email }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       });
-      btn.textContent = '✓ Reset link sent to ' + meData.email;
-      btn.style.opacity = '0.6';
+      msg.textContent = '✓ If that email is on file, a reset link is on its way.';
+      msg.style.color = 'var(--fg-2)';
+      btn.textContent = 'Sent!';
     } catch {
-      btn.textContent = 'Forgot PIN?'; btn.style.opacity = '';
+      msg.textContent = 'Network error. Please try again.';
+      msg.style.color = 'var(--error, #c0392b)';
+      btn.disabled = false; btn.textContent = 'Send reset link';
     }
   });
+
+  $('s-forgot-email').addEventListener('keydown', e => {
+    if (e.key === 'Enter') $('s-forgot-send').click();
+  });
+
+  // Reset forgot-PIN form when settings is closed or re-opened
+  const _resetForgotForm = () => {
+    const fl = $('s-forgot-link-row');
+    const ff = $('s-forgot-form');
+    const fb = $('s-forgot-send');
+    if (fl) fl.style.display = '';
+    if (ff) ff.style.display = 'none';
+    if ($('s-forgot-email')) $('s-forgot-email').value = '';
+    if ($('s-forgot-msg')) $('s-forgot-msg').textContent = '';
+    if (fb) { fb.disabled = false; fb.textContent = 'Send reset link'; }
+  };
 
   // ── Display name save ─────────────────────────────────────────────────
   // Live preview: update the "Message to [name]" hint as user types
