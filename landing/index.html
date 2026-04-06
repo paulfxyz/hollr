@@ -1602,6 +1602,15 @@ a { color: inherit; }
   transition: color var(--t);
 }
 .footer__links a:hover { color: var(--text); }
+.footer__links-legal { cursor: pointer; }
+.footer__copy-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  text-underline-offset: 2px;
+  transition: text-decoration-color var(--t);
+}
+.footer__copy-link:hover { text-decoration-color: currentColor; }
 
 /* ── SCROLL REVEALS ──────────────────────────────────────────── */
 .js-reveal {
@@ -2140,14 +2149,27 @@ a { color: inherit; }
   border-color: var(--border-strong);
   box-shadow: 0 4px 24px rgba(0,0,0,.06);
 }
-/* Featured card spans full width on last row */
+/* Featured cards — amber tint. Two sit side-by-side using span 1 each
+   on the 3-col grid, which means they each fill half the row (1.5 cols each)
+   and naturally align. On smaller screens they fall back to full-width. */
 .coming-card--featured {
-  grid-column: 1 / -1;
   background: color-mix(in srgb, var(--amber) 5%, var(--surface));
   border-color: color-mix(in srgb, var(--amber) 25%, var(--border));
 }
 [data-theme="dark"] .coming-card--featured {
   background: color-mix(in srgb, var(--amber) 8%, var(--surface));
+}
+/* Make the two featured cards share the bottom row as a 2-col pair */
+.coming-grid .coming-card--featured:nth-last-child(-n+2):first-of-type,
+.coming-grid .coming-card--featured {
+  grid-column: span 1;
+}
+/* If there's only one featured card, let it span full width */
+.coming-grid .coming-card--featured:only-of-type {
+  grid-column: 1 / -1;
+}
+@media (max-width: 900px) {
+  .coming-card--featured { grid-column: 1 / -1; }
 }
 
 .coming-card__badge {
@@ -2890,6 +2912,28 @@ a { color: inherit; }
             </div>
           </div>
 
+          <!-- AI Digest -->
+          <div class="coming-card coming-card--featured js-reveal">
+            <div class="coming-card__badge-row">
+              <span class="coming-card__badge">Planned</span>
+              <span class="coming-card__eta">Q4 2026</span>
+            </div>
+            <div class="coming-card__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 0 6h-1v1a4 4 0 0 1-8 0v-1H7a3 3 0 0 1 0-6h1V6a4 4 0 0 1 4-4z"/>
+                <path d="M9 12h6M12 9v6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <h3 class="coming-card__title">AI Digest &amp; Smart Filtering</h3>
+            <p class="coming-card__desc">Your hollr link is public — spam will try. An AI layer scores each incoming message before it touches your inbox: urgency, authenticity, intent. You choose the cadence: instant ping for what's genuinely important, everything else rolled into a clean daily or weekly digest. No noise. Just signal.</p>
+            <div class="coming-card__examples">
+              <span class="coming-example">⚡ Instant for urgent hollrs</span>
+              <span class="coming-example">📅 Daily digest</span>
+              <span class="coming-example">📆 Weekly summary</span>
+              <span class="coming-example">🤖 AI spam detection</span>
+            </div>
+          </div>
+
           <!-- Verification Apps -->
           <div class="coming-card coming-card--featured js-reveal">
             <div class="coming-card__badge-row">
@@ -2945,10 +2989,10 @@ a { color: inherit; }
         </svg>
         hollr
       </a>
-      <p class="footer__copy">&copy; 2026 hollr &middot; <a href="https://github.com/paulfxyz/hollr/blob/main/LICENSE" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:2px">Under MIT License</a></p>
+      <p class="footer__copy">&copy; 2026 hollr &middot; <a href="https://github.com/paulfxyz/hollr/blob/main/LICENSE" target="_blank" rel="noopener" class="footer__copy-link">MIT License</a></p>
       <nav class="footer__links">
         <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener">GitHub &#8599;</a>
-        <button id="legal-modal-btn" style="background:none;border:none;font:inherit;color:inherit;cursor:pointer;padding:0;font-size:inherit;opacity:.7;transition:opacity 120ms" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">Legal &amp; Terms</button>
+        <a href="#" id="legal-modal-btn" class="footer__links-legal">Legal Terms</a>
       </nav>
     </div>
   </footer>
@@ -3995,7 +4039,9 @@ function applyLang(code) {
   const ctaNote = q('.claim-form__note'); if (ctaNote) ctaNote.textContent = t.cta_note;
 
   // Footer
-  const footCopy = q('.footer__copy'); if (footCopy) footCopy.textContent = t.footer_copy;
+  // footer__copy intentionally skipped from i18n — it contains an <a> tag
+  // (MIT License link) that textContent would strip. The copyright line is
+  // the same across all languages.
 
   // Modal — X auth flow
   const mTitle = q('#modal-title'); if (mTitle) mTitle.textContent = t.modal_title;
@@ -4498,7 +4544,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     document.body.style.overflow = '';
   }
 
-  btn.addEventListener('click', openLegal);
+  btn.addEventListener('click', e => { e.preventDefault(); openLegal(); });
   // Click outside the modal card closes it
   backdrop.addEventListener('click', e => {
     if (e.target === backdrop) closeLegal();
