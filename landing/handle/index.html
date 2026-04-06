@@ -368,6 +368,66 @@
       font-size: 11px; font-weight: 600; letter-spacing: .1em;
       text-transform: uppercase; color: var(--fg-2);
     }
+    /* Single flag button replaces the lang strip */
+    .welcome-lang-btn {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--bg-0); border: 1px solid var(--border);
+      border-radius: 20px; padding: 5px 10px;
+      cursor: pointer; font-size: 16px; color: var(--fg-2);
+      transition: background 120ms, border-color 120ms;
+      flex-shrink: 0;
+    }
+    .welcome-lang-btn:hover { background: var(--bg-1); border-color: var(--border-md); }
+    .welcome-lang-btn svg { opacity: .5; }
+
+    /* Language picker overlay — sits on top of welcome modal */
+    #lang-picker-overlay {
+      position: fixed; inset: 0; z-index: 1200;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 180ms;
+    }
+    #lang-picker-overlay.open { opacity: 1; pointer-events: all; }
+    #lang-picker-card {
+      background: var(--surface, var(--bg-card));
+      border: 1px solid var(--border);
+      border-radius: 18px; padding: 24px;
+      width: 320px; max-width: calc(100vw - 32px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.2);
+      transform: scale(.95); transition: transform 180ms;
+    }
+    #lang-picker-overlay.open #lang-picker-card { transform: scale(1); }
+    #lang-picker-card h3 {
+      font-size: 14px; font-weight: 700; letter-spacing: .02em;
+      color: var(--fg); margin-bottom: 14px;
+      text-transform: uppercase; letter-spacing: .08em;
+    }
+    #lang-picker-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+    .lp-btn {
+      display: flex; align-items: center; gap: 10px;
+      background: transparent; border: none;
+      border-radius: 10px; padding: 9px 11px;
+      cursor: pointer; text-align: left; width: 100%;
+      transition: background 100ms;
+    }
+    .lp-btn:hover { background: var(--bg-0, rgba(0,0,0,.05)); }
+    .lp-btn.active { background: var(--bg-0); }
+    .lp-flag { font-size: 20px; line-height: 1; flex-shrink: 0; }
+    .lp-name { font-size: 13px; font-weight: 500; color: var(--fg); line-height: 1.2; }
+    .lp-native { font-size: 11px; color: var(--fg-2); line-height: 1.2; }
+    #lang-picker-close {
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 14px; width: 100%; padding: 10px;
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 10px; color: var(--fg-2);
+      font-size: 13px; font-family: var(--body); cursor: pointer;
+      transition: background 100ms;
+    }
+    #lang-picker-close:hover { background: var(--bg-0); }
+
     #welcome-lang-strip {
       display: flex; align-items: center; gap: 1px; flex-wrap: wrap; justify-content: flex-end;
     }
@@ -788,7 +848,7 @@
 <!-- ── Topbar ──────────────────────────────────────────────────────────────── -->
 <header id="topbar">
   <div class="breadcrumb">
-    <span class="bc-page" data-i18n="topbar_title">✉️ Send a message to Paul Fleury</span>
+    <span class="bc-page" data-i18n="topbar_title">✉️ hollr</span>
   </div>
   <div class="controls">
     <div id="state-pill">
@@ -822,8 +882,8 @@
 <div id="layout">
   <main id="writing-area">
     <div id="writing-header">
-      <h1 data-i18n="page_title">Message to Paul Fleury</h1>
-      <p data-i18n="page_sub">Paul reads every message personally. Hit <strong>Start</strong> when you're ready to write.</p>
+      <h1 data-i18n="page_title">Message to…</h1>
+      <p data-i18n="page_sub">This is a timed, distraction-free canvas. Hit <strong>Start</strong> when you're ready to write.</p>
     </div>
     <div id="textarea-wrap">
       <textarea id="text" disabled></textarea>
@@ -899,7 +959,7 @@
       <p class="sb-label" data-i18n="send_label">Send</p>
       <button class="sbtn" id="send-btn" disabled>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        <span data-i18n="send_to_paul">Send to Paul</span>
+        <span data-i18n="send_to_paul">Send message</span>
         <span class="sc" id="send-sc">⌘↵</span>
       </button>
     </div>
@@ -914,17 +974,20 @@
 <div id="welcome-overlay">
   <div id="welcome-card">
     <div class="eyebrow-row">
-      <p class="eyebrow" data-i18n="welcome_eyebrow">Message to Paul Fleury</p>
-      <div id="welcome-lang-strip"></div>
+      <p class="eyebrow" data-i18n="welcome_eyebrow">Message to…</p>
+      <button id="welcome-lang-btn" class="welcome-lang-btn" title="Change language" aria-label="Change language">
+        <span id="welcome-lang-flag">🇬🇧</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
     </div>
     <h1 data-i18n="welcome_title">Say something worth writing.</h1>
     <p class="desc" data-i18n="welcome_desc1">This is a timed writing canvas. The clock only runs while you type — so every second counted is a second spent actually writing.</p>
-    <p class="desc" data-i18n="welcome_desc2">When you're done, your message is sent directly to Paul by email — with any voice note or files attached.</p>
+    <p class="desc" data-i18n="welcome_desc2">When you're done, the message is sent directly to the handle owner by email — with any voice note or files attached.</p>
     <div class="divider"></div>
     <div id="welcome-steps">
       <div class="wstep"><span class="wstep-n">1</span><span class="wstep-lbl" data-i18n="step1">Hit Start — the timer begins.</span></div>
       <div class="wstep"><span class="wstep-n">2</span><span class="wstep-lbl" data-i18n="step2">Write freely. Attach files or a voice note.</span></div>
-      <div class="wstep"><span class="wstep-n">3</span><span class="wstep-lbl" data-i18n="step3">Send Paul the message when ready.</span></div>
+      <div class="wstep"><span class="wstep-n">3</span><span class="wstep-lbl" data-i18n="step3">Send your message when ready.</span></div>
     </div>
     <button id="welcome-start">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M8 5v14l12-7z"/></svg>
@@ -934,13 +997,22 @@
   </div>
 </div>
 
+<!-- ── Language picker overlay (sits above welcome modal) ──────────────────── -->
+<div id="lang-picker-overlay">
+  <div id="lang-picker-card">
+    <h3>Choose language</h3>
+    <div id="lang-picker-grid"></div>
+    <button id="lang-picker-close">Close</button>
+  </div>
+</div>
+
 <!-- ── Send modal ─────────────────────────────────────────────────────────── -->
 <div id="send-overlay" class="modal-overlay">
   <div class="modal-box">
     <button class="modal-close" id="send-close">✕</button>
     <div id="form-step">
       <div class="modal-head">
-        <h2 data-i18n="send_modal_title">Send to Paul</h2>
+        <h2 data-i18n="send_modal_title">Send message</h2>
         <p class="msub" data-i18n="send_modal_sub">Your message is ready to share.</p>
         <div class="modal-stats">
           <div class="stat-cell"><div class="stat-lbl" data-i18n="stat_time">Active time</div><div class="stat-val mono" id="modal-time">00:00.000</div></div>
@@ -954,13 +1026,13 @@
           <input type="text" id="sender-name" data-i18n-placeholder="name_placeholder" placeholder="Jane Doe" />
         </div>
         <div class="mfield">
-          <label data-i18n="how_reach">How Paul can reach you</label>
+          <label data-i18n="how_reach">How they can reach you</label>
           <input type="text" id="sender-contact" data-i18n-placeholder="contact_placeholder" placeholder="Email, Telegram, phone…" />
         </div>
         <p class="msend-label" data-i18n="send_via">Send via</p>
         <button class="mbtn-email" id="mbtn-email">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg>
-          <span data-i18n="send_email_btn">Send email to Paul</span>
+          <span data-i18n="send_email_btn">Send message</span>
           <span class="mbtn-hint" id="mbtn-email-hint"></span>
         </button>
         <button class="mbtn-copy" id="mbtn-copy">
@@ -971,7 +1043,7 @@
       </div>
       <div class="modal-foot">
         <div class="modal-foot-dot"></div>
-        <p data-i18n="modal_foot_note">Email sent via Resend directly to Paul. Files hosted temporarily in /cache/.</p>
+        <p data-i18n="modal_foot_note">Message delivered via hollr. Files encrypted at rest.</p>
       </div>
     </div>
     <div id="send-progress">
@@ -983,14 +1055,14 @@
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       </div>
       <h2 data-i18n="sent_title">Message sent!</h2>
-      <p data-i18n="sent_sub">Paul will receive your message in his inbox. He reads every one personally.</p>
+      <p data-i18n="sent_sub">Your message has been delivered to their inbox.</p>
       <div id="sent-recap">
         <span id="sr-time"></span><span>·</span><span id="sr-words"></span><span>·</span><span id="sr-chars"></span>
       </div>
       <div id="sent-actions">
         <button class="sent-back" id="sent-back" data-i18n="write_another">← Write another</button>
         <a href="https://paulfleury.com" class="sent-goto" target="_blank" rel="noopener">
-          <span data-i18n="go_to_paul">Go to paulfleury.com</span>
+          <span data-i18n="go_to_paul">Back to hollr</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         </a>
       </div>
@@ -1260,40 +1332,40 @@
 
   const T = {
     en: {
-      topbar_title:'✉️ Send a message to Paul Fleury',
+      topbar_title:'✉️ hollr',
       state_idle:'Idle', state_running:'Running', state_paused:'Paused',
-      page_title:'Message to Paul Fleury',
-      page_sub:'Paul reads every message personally. Hit <strong>Start</strong> when you\'re ready to write.',
+      page_title:'Message to…',
+      page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.'re ready to write.',
       active_writing_time:'active writing time',
       controls:'Controls', start:'Start', pause:'Pause', reset:'Reset',
       attachments:'Attachments', attach_file:'Attach file', or_drag:'or drag',
-      record_voice:'Record voice', send_label:'Send', send_to_paul:'Send to Paul',
+      record_voice:'Record voice', send_label:'Send', send_to_paul:'Отправить сообщение',
       sidebar_footer:'Timer only runs while Start is active. Voice and files are uploaded securely.',
-      welcome_eyebrow:'Message to Paul Fleury',
+      welcome_eyebrow:'Message to…',
       welcome_title:'Say something worth writing.',
       welcome_desc1:'This is a timed writing canvas. The clock only runs while you type — so every second counted is a second spent actually writing.',
       welcome_desc2:'When you\'re done, your message is sent directly to Paul by email — with any voice note or files attached.',
       step1:'Hit Start — the timer begins.',
       step2:'Write freely. Attach files or a voice note.',
-      step3:'Send Paul the message when ready.',
+      step3:'Send your message when ready.',
       start_writing:'Start writing',
       welcome_hint:'Timer starts immediately. You can pause at any time with Esc',
       textarea_placeholder:'Write your message…',
       textarea_disabled:'Press Start in the sidebar to begin writing…',
       words:'words', word:'word', characters:'characters', character:'character',
       voice_message:'Voice message', play:'▶ Play', pause_play:'⏸ Pause',
-      send_modal_title:'Send to Paul',
+      send_modal_title:'Send message',
       send_modal_sub:'Your message is ready to share.',
       stat_time:'Active time', stat_words:'Words', stat_chars:'Characters',
       your_name:'Your name', name_placeholder:'Jane Doe',
-      how_reach:'How Paul can reach you', contact_placeholder:'Email, Telegram, phone…',
+      how_reach:'Как с вами связаться', contact_placeholder:'Email, Telegram, phone…',
       send_via:'Send via',
-      send_email_btn:'Send email to Paul', open_email_client:'Open email client', fallback:'Fallback',
-      modal_foot_note:'Email sent via Resend directly to Paul. Files hosted temporarily in /cache/.',
+      send_email_btn:'Send message', open_email_client:'Open email client', fallback:'Fallback',
+      modal_foot_note:'Message delivered via hollr. Files encrypted at rest.',
       sending:'Uploading files and sending message…',
       sent_title:'Message sent!',
-      sent_sub:'Paul will receive your message in his inbox. He reads every one personally.',
-      write_another:'← Write another', go_to_paul:'Go to paulfleury.com',
+      sent_sub:'Your message has been delivered to their inbox.',
+      write_another:'← Write another', go_to_paul:'Back to hollr',
       error_title:'Something went wrong', back:'← Back', try_again:'Try again',
       voice_modal_title:'Voice message', click_to_record:'Click to start recording',
       mic_error:'Microphone access is required to record a voice message.',
@@ -1330,11 +1402,11 @@
       topbar_title:'✉️ Envoyer un message à Paul Fleury',
       state_idle:'Inactif', state_running:'En cours', state_paused:'En pause',
       page_title:'Message à Paul Fleury',
-      page_sub:'Paul lit chaque message personnellement. Cliquez sur <strong>Démarrer</strong> pour commencer à écrire.',
+      page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'temps d\'écriture actif',
       controls:'Contrôles', start:'Démarrer', pause:'Pause', reset:'Réinitialiser',
       attachments:'Pièces jointes', attach_file:'Joindre un fichier', or_drag:'ou glisser',
-      record_voice:'Enregistrer la voix', send_label:'Envoyer', send_to_paul:'Envoyer à Paul',
+      record_voice:'Enregistrer la voix', send_label:'Envoyer', send_to_paul:'Отправить сообщение',
       sidebar_footer:'Le minuteur ne tourne que pendant l\'écriture. Fichiers transmis en toute sécurité.',
       welcome_eyebrow:'Message à Paul Fleury',
       welcome_title:'Dites quelque chose qui vaut la peine d\'être écrit.',
@@ -1352,14 +1424,14 @@
       send_modal_title:'Envoyer à Paul', send_modal_sub:'Votre message est prêt.',
       stat_time:'Temps actif', stat_words:'Mots', stat_chars:'Caractères',
       your_name:'Votre nom', name_placeholder:'Jean Dupont',
-      how_reach:'Comment Paul peut vous contacter', contact_placeholder:'E-mail, Telegram, téléphone…',
+      how_reach:'Как с вами связаться', contact_placeholder:'E-mail, Telegram, téléphone…',
       send_via:'Envoyer via',
       send_email_btn:'Envoyer un e-mail à Paul', open_email_client:'Ouvrir le client mail', fallback:'Alternatif',
-      modal_foot_note:'E-mail envoyé via Resend directement à Paul. Fichiers hébergés temporairement dans /cache/.',
+      modal_foot_note:'Message delivered securely via hollr.',
       sending:'Envoi du message en cours…',
       sent_title:'Message envoyé !',
-      sent_sub:'Paul recevra votre message dans sa boîte mail. Il lit chacun personnellement.',
-      write_another:'← Écrire un autre', go_to_paul:'Aller sur paulfleury.com',
+      sent_sub:'Votre message a été livré dans leur boîte mail.',
+      write_another:'← Écrire un autre', go_to_paul:'Retour à hollr.to',
       error_title:'Une erreur est survenue', back:'← Retour', try_again:'Réessayer',
       voice_modal_title:'Message vocal', click_to_record:'Cliquez pour enregistrer',
       mic_error:'L\'accès au microphone est nécessaire pour enregistrer un message vocal.',
@@ -1391,11 +1463,11 @@
       topbar_title:'✉️ Nachricht an Paul Fleury senden',
       state_idle:'Bereit', state_running:'Läuft', state_paused:'Pausiert',
       page_title:'Nachricht an Paul Fleury',
-      page_sub:'Paul liest jede Nachricht persönlich. Klicken Sie auf <strong>Starten</strong>, um zu schreiben.',
+      page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'aktive Schreibzeit',
       controls:'Steuerung', start:'Starten', pause:'Pause', reset:'Zurücksetzen',
       attachments:'Anhänge', attach_file:'Datei anhängen', or_drag:'oder ziehen',
-      record_voice:'Stimme aufnehmen', send_label:'Senden', send_to_paul:'An Paul senden',
+      record_voice:'Stimme aufnehmen', send_label:'Senden', send_to_paul:'Отправить сообщение',
       sidebar_footer:'Der Timer läuft nur beim Schreiben. Dateien werden sicher übertragen.',
       welcome_eyebrow:'Nachricht an Paul Fleury',
       welcome_title:'Sagen Sie etwas, das es wert ist, geschrieben zu werden.',
@@ -1413,14 +1485,14 @@
       send_modal_title:'An Paul senden', send_modal_sub:'Ihre Nachricht ist bereit.',
       stat_time:'Aktive Zeit', stat_words:'Wörter', stat_chars:'Zeichen',
       your_name:'Ihr Name', name_placeholder:'Max Mustermann',
-      how_reach:'Wie Paul Sie erreichen kann', contact_placeholder:'E-Mail, Telegram, Telefon…',
+      how_reach:'Как с вами связаться', contact_placeholder:'E-Mail, Telegram, Telefon…',
       send_via:'Senden über',
       send_email_btn:'E-Mail an Paul senden', open_email_client:'E-Mail-Programm öffnen', fallback:'Fallback',
-      modal_foot_note:'E-Mail über Resend direkt an Paul gesendet.',
+      modal_foot_note:'Message delivered securely via hollr.',
       sending:'Dateien werden hochgeladen und Nachricht gesendet…',
       sent_title:'Nachricht gesendet!',
-      sent_sub:'Paul erhält Ihre Nachricht in seinem Posteingang. Er liest jede persönlich.',
-      write_another:'← Weitere schreiben', go_to_paul:'Zu paulfleury.com',
+      sent_sub:'Ihre Nachricht wurde in den Posteingang zugestellt.',
+      write_another:'← Weitere schreiben', go_to_paul:'Zurück zu hollr.to',
       error_title:'Etwas ist schiefgelaufen', back:'← Zurück', try_again:'Erneut versuchen',
       voice_modal_title:'Sprachnachricht', click_to_record:'Klicken zum Aufnehmen',
       mic_error:'Mikrofonzugriff erforderlich.',
@@ -1452,11 +1524,11 @@
       topbar_title:'✉️ Invia un messaggio a Paul Fleury',
       state_idle:'Inattivo', state_running:'In corso', state_paused:'In pausa',
       page_title:'Messaggio a Paul Fleury',
-      page_sub:'Paul legge ogni messaggio personalmente. Premi <strong>Avvia</strong> per scrivere.',
+      page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'tempo di scrittura attivo',
       controls:'Controlli', start:'Avvia', pause:'Pausa', reset:'Reimposta',
       attachments:'Allegati', attach_file:'Allega file', or_drag:'o trascina',
-      record_voice:'Registra voce', send_label:'Invia', send_to_paul:'Invia a Paul',
+      record_voice:'Registra voce', send_label:'Invia', send_to_paul:'Отправить сообщение',
       sidebar_footer:'Il timer gira solo durante la scrittura. I file vengono caricati in modo sicuro.',
       welcome_eyebrow:'Messaggio a Paul Fleury',
       welcome_title:'Di\' qualcosa che valga la pena scrivere.',
@@ -1474,14 +1546,14 @@
       send_modal_title:'Invia a Paul', send_modal_sub:'Il tuo messaggio è pronto.',
       stat_time:'Tempo attivo', stat_words:'Parole', stat_chars:'Caratteri',
       your_name:'Il tuo nome', name_placeholder:'Mario Rossi',
-      how_reach:'Come Paul può contattarti', contact_placeholder:'Email, Telegram, telefono…',
+      how_reach:'Как с вами связаться', contact_placeholder:'Email, Telegram, telefono…',
       send_via:'Invia tramite',
       send_email_btn:'Invia e-mail a Paul', open_email_client:'Apri client e-mail', fallback:'Alternativo',
-      modal_foot_note:'Email inviata tramite Resend direttamente a Paul.',
+      modal_foot_note:'Message delivered securely via hollr.',
       sending:'Caricamento file e invio messaggio…',
       sent_title:'Messaggio inviato!',
-      sent_sub:'Paul riceverà il tuo messaggio nella sua casella. Li legge tutti personalmente.',
-      write_another:'← Scrivi un altro', go_to_paul:'Vai su paulfleury.com',
+      sent_sub:'Il tuo messaggio è stato consegnato nella loro casella.',
+      write_another:'← Scrivi un altro', go_to_paul:'Torna a hollr.to',
       error_title:'Qualcosa è andato storto', back:'← Indietro', try_again:'Riprova',
       voice_modal_title:'Messaggio vocale', click_to_record:'Clicca per registrare',
       mic_error:'È necessario l\'accesso al microfono.',
@@ -1513,11 +1585,11 @@
       topbar_title:'✉️ Enviar un mensaje a Paul Fleury',
       state_idle:'Inactivo', state_running:'En curso', state_paused:'Pausado',
       page_title:'Mensaje a Paul Fleury',
-      page_sub:'Paul lee cada mensaje personalmente. Pulsa <strong>Iniciar</strong> para escribir.',
+      page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'tiempo de escritura activo',
       controls:'Controles', start:'Iniciar', pause:'Pausar', reset:'Reiniciar',
       attachments:'Adjuntos', attach_file:'Adjuntar archivo', or_drag:'o arrastrar',
-      record_voice:'Grabar voz', send_label:'Enviar', send_to_paul:'Enviar a Paul',
+      record_voice:'Grabar voz', send_label:'Enviar', send_to_paul:'Отправить сообщение',
       sidebar_footer:'El temporizador solo funciona mientras Iniciar está activo.',
       welcome_eyebrow:'Mensaje a Paul Fleury',
       welcome_title:'Di algo que valga la pena escribir.',
@@ -1535,14 +1607,14 @@
       send_modal_title:'Enviar a Paul', send_modal_sub:'Tu mensaje está listo.',
       stat_time:'Tiempo activo', stat_words:'Palabras', stat_chars:'Caracteres',
       your_name:'Tu nombre', name_placeholder:'Juan García',
-      how_reach:'Cómo puede contactarte Paul', contact_placeholder:'Correo, Telegram, teléfono…',
+      how_reach:'Как с вами связаться', contact_placeholder:'Correo, Telegram, teléfono…',
       send_via:'Enviar por',
       send_email_btn:'Enviar correo a Paul', open_email_client:'Abrir cliente de correo', fallback:'Alternativo',
-      modal_foot_note:'Correo enviado a Paul mediante Resend.',
+      modal_foot_note:'Message delivered securely via hollr.',
       sending:'Subiendo archivos y enviando mensaje…',
       sent_title:'¡Mensaje enviado!',
-      sent_sub:'Paul recibirá tu mensaje en su bandeja de entrada. Los lee todos personalmente.',
-      write_another:'← Escribir otro', go_to_paul:'Ir a paulfleury.com',
+      sent_sub:'Tu mensaje ha sido entregado en su bandeja de entrada.',
+      write_another:'← Escribir otro', go_to_paul:'Volver a hollr.to',
       error_title:'Algo salió mal', back:'← Atrás', try_again:'Intentar de nuevo',
       voice_modal_title:'Mensaje de voz', click_to_record:'Clic para grabar',
       mic_error:'Se requiere acceso al micrófono.',
@@ -1574,11 +1646,11 @@
       topbar_title:'✉️ Stuur een bericht aan Paul Fleury',
       state_idle:'Inactief', state_running:'Actief', state_paused:'Gepauzeerd',
       page_title:'Bericht aan Paul Fleury',
-      page_sub:'Paul leest elk bericht persoonlijk. Klik op <strong>Starten</strong> om te beginnen.',
+      page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'actieve schrijftijd',
       controls:'Bediening', start:'Starten', pause:'Pauzeren', reset:'Resetten',
       attachments:'Bijlagen', attach_file:'Bestand bijvoegen', or_drag:'of slepen',
-      record_voice:'Stem opnemen', send_label:'Verzenden', send_to_paul:'Stuur naar Paul',
+      record_voice:'Stem opnemen', send_label:'Verzenden', send_to_paul:'Отправить сообщение',
       sidebar_footer:'Timer loopt alleen terwijl Starten actief is.',
       welcome_eyebrow:'Bericht aan Paul Fleury',
       welcome_title:'Zeg iets dat het waard is om te schrijven.',
@@ -1596,14 +1668,14 @@
       send_modal_title:'Stuur naar Paul', send_modal_sub:'Je bericht is klaar.',
       stat_time:'Actieve tijd', stat_words:'Woorden', stat_chars:'Tekens',
       your_name:'Je naam', name_placeholder:'Jan de Vries',
-      how_reach:'Hoe Paul je kan bereiken', contact_placeholder:'E-mail, Telegram, telefoon…',
+      how_reach:'Как с вами связаться', contact_placeholder:'E-mail, Telegram, telefoon…',
       send_via:'Verzenden via',
       send_email_btn:'E-mail sturen naar Paul', open_email_client:'E-mailprogramma openen', fallback:'Alternatief',
-      modal_foot_note:'E-mail verzonden via Resend rechtstreeks naar Paul.',
+      modal_foot_note:'Message delivered securely via hollr.',
       sending:'Bestanden uploaden en bericht verzenden…',
       sent_title:'Bericht verzonden!',
-      sent_sub:'Paul ontvangt je bericht in zijn inbox. Hij leest ze allemaal persoonlijk.',
-      write_another:'← Ander bericht schrijven', go_to_paul:'Ga naar paulfleury.com',
+      sent_sub:'Je bericht is bezorgd in hun inbox.',
+      write_another:'← Ander bericht schrijven', go_to_paul:'Terug naar hollr.to',
       error_title:'Er ging iets mis', back:'← Terug', try_again:'Opnieuw proberen',
       voice_modal_title:'Spraakbericht', click_to_record:'Klik om op te nemen',
       mic_error:'Microfoontoegang vereist.',
@@ -1635,11 +1707,11 @@
       topbar_title:'✉️ 向 Paul Fleury 发送消息',
       state_idle:'待机', state_running:'进行中', state_paused:'已暂停',
       page_title:'致 Paul Fleury 的消息',
-      page_sub:'Paul 会亲自阅读每一条消息。准备好后点击<strong>开始</strong>。',
+      page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'活跃写作时间',
       controls:'控制', start:'开始', pause:'暂停', reset:'重置',
       attachments:'附件', attach_file:'附加文件', or_drag:'或拖拽',
-      record_voice:'录制语音', send_label:'发送', send_to_paul:'发送给 Paul',
+      record_voice:'录制语音', send_label:'发送', send_to_paul:'Отправить сообщение',
       sidebar_footer:'计时器仅在开始状态下运行。文件已安全上传。',
       welcome_eyebrow:'致 Paul Fleury 的消息',
       welcome_title:'写一些值得写的话。',
@@ -1653,12 +1725,12 @@
       send_modal_title:'发送给 Paul', send_modal_sub:'您的消息已准备好发送。',
       stat_time:'活跃时间', stat_words:'字数', stat_chars:'字符数',
       your_name:'您的姓名', name_placeholder:'张三',
-      how_reach:'Paul 如何联系您', contact_placeholder:'邮箱、Telegram、电话…',
+      how_reach:'Как с вами связаться', contact_placeholder:'邮箱、Telegram、电话…',
       send_via:'发送方式',
       send_email_btn:'发送邮件给 Paul', open_email_client:'打开邮件客户端', fallback:'备用',
-      modal_foot_note:'通过 Resend 直接向 Paul 发送邮件。',
+      modal_foot_note:'Message delivered securely via hollr.',
       sending:'正在上传文件并发送消息…',
-      sent_title:'消息已发送！', sent_sub:'Paul 将在收件箱中收到您的消息。他会亲自阅读每一条。',
+      sent_title:'消息已发送！', sent_sub:'您的消息已发送到对方的收件箱。',
       write_another:'← 再写一条', go_to_paul:'前往 paulfleury.com',
       error_title:'出现问题', back:'← 返回', try_again:'重试',
       voice_modal_title:'语音消息', click_to_record:'点击开始录制',
@@ -1690,11 +1762,11 @@
       topbar_title:'✉️ Paul Fleury को संदेश भेजें',
       state_idle:'निष्क्रिय', state_running:'चल रहा है', state_paused:'रुका हुआ',
       page_title:'Paul Fleury को संदेश',
-      page_sub:'Paul हर संदेश व्यक्तिगत रूप से पढ़ते हैं। लिखने के लिए <strong>प्रारंभ</strong> करें।',
+      page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'सक्रिय लेखन समय',
       controls:'नियंत्रण', start:'प्रारंभ', pause:'रोकें', reset:'रीसेट',
       attachments:'अनुलग्नक', attach_file:'फ़ाइल संलग्न करें', or_drag:'या खींचें',
-      record_voice:'आवाज़ रिकॉर्ड करें', send_label:'भेजें', send_to_paul:'Paul को भेजें',
+      record_voice:'आवाज़ रिकॉर्ड करें', send_label:'भेजें', send_to_paul:'Отправить сообщение',
       sidebar_footer:'टाइमर केवल प्रारंभ सक्रिय होने पर चलता है।',
       welcome_eyebrow:'Paul Fleury को संदेश',
       welcome_title:'कुछ ऐसा लिखें जो लिखने योग्य हो।',
@@ -1708,12 +1780,12 @@
       send_modal_title:'Paul को भेजें', send_modal_sub:'आपका संदेश भेजने के लिए तैयार है।',
       stat_time:'सक्रिय समय', stat_words:'शब्द', stat_chars:'अक्षर',
       your_name:'आपका नाम', name_placeholder:'अमित शर्मा',
-      how_reach:'Paul आपसे कैसे संपर्क करें', contact_placeholder:'ईमेल, Telegram, फोन…',
+      how_reach:'Как с вами связаться', contact_placeholder:'ईमेल, Telegram, फोन…',
       send_via:'के द्वारा भेजें',
       send_email_btn:'Paul को ईमेल भेजें', open_email_client:'ईमेल क्लाइंट खोलें', fallback:'वैकल्पिक',
-      modal_foot_note:'Resend के ज़रिए सीधे Paul को ईमेल भेजा गया।',
+      modal_foot_note:'Message delivered securely via hollr.',
       sending:'फ़ाइलें अपलोड और संदेश भेजा जा रहा है…',
-      sent_title:'संदेश भेजा गया!', sent_sub:'Paul को आपका संदेश उनके इनबॉक्स में मिलेगा।',
+      sent_title:'संदेश भेजा गया!', sent_sub:'आपका संदेश उनके इनबॉक्स में पहुंच गया है।',
       write_another:'← दूसरा लिखें', go_to_paul:'paulfleury.com पर जाएं',
       error_title:'कुछ गलत हुआ', back:'← वापस', try_again:'फिर प्रयास करें',
       voice_modal_title:'वॉइस संदेश', click_to_record:'रिकॉर्ड करने के लिए क्लिक करें',
@@ -1745,11 +1817,11 @@
       topbar_title:'✉️ Paul Fleuryへメッセージを送る',
       state_idle:'待機中', state_running:'実行中', state_paused:'一時停止',
       page_title:'Paul Fleuryへのメッセージ',
-      page_sub:'Paulはすべてのメッセージを個人的に読みます。<strong>開始</strong>をクリックして書き始めてください。',
+      page_sub:'This is a timed, distraction-free writing canvas. Hit <strong>Start</strong> when ready.',
       active_writing_time:'アクティブな執筆時間',
       controls:'コントロール', start:'開始', pause:'一時停止', reset:'リセット',
       attachments:'添付ファイル', attach_file:'ファイルを添付', or_drag:'またはドラッグ',
-      record_voice:'音声を録音', send_label:'送信', send_to_paul:'Paulに送信',
+      record_voice:'音声を録音', send_label:'送信', send_to_paul:'Отправить сообщение',
       sidebar_footer:'タイマーは開始中のみ動作します。ファイルは安全に転送されます。',
       welcome_eyebrow:'Paul Fleuryへのメッセージ',
       welcome_title:'書く価値のあることを伝えよう。',
@@ -1763,10 +1835,10 @@
       send_modal_title:'Paulに送信', send_modal_sub:'メッセージの送信準備ができました。',
       stat_time:'アクティブ時間', stat_words:'単語数', stat_chars:'文字数',
       your_name:'お名前', name_placeholder:'山田 太郎',
-      how_reach:'Paulからの連絡方法', contact_placeholder:'メール、Telegram、電話…',
+      how_reach:'Как с вами связаться', contact_placeholder:'メール、Telegram、電話…',
       send_via:'送信方法',
       send_email_btn:'Paulにメールを送る', open_email_client:'メールクライアントを開く', fallback:'代替手段',
-      modal_foot_note:'Resend経由でPaulに直接メールが送信されます。',
+      modal_foot_note:'Message delivered securely via hollr.',
       sending:'ファイルをアップロードしてメッセージを送信中…',
       sent_title:'メッセージを送信しました！', sent_sub:'Paulは受信トレイでメッセージを受け取ります。',
       write_another:'← 別のメッセージを書く', go_to_paul:'paulfleury.comへ',
@@ -1804,7 +1876,7 @@
       active_writing_time:'активное время написания',
       controls:'Управление', start:'Начать', pause:'Пауза', reset:'Сбросить',
       attachments:'Вложения', attach_file:'Прикрепить файл', or_drag:'или перетащить',
-      record_voice:'Записать голос', send_label:'Отправить', send_to_paul:'Отправить Полю',
+      record_voice:'Записать голос', send_label:'Отправить', send_to_paul:'Отправить сообщение',
       sidebar_footer:'Таймер работает только пока активен режим "Начать".',
       welcome_eyebrow:'Сообщение Полю Флёри',
       welcome_title:'Скажите что-то, что стоит написать.',
@@ -1818,7 +1890,7 @@
       send_modal_title:'Отправить Полю', send_modal_sub:'Ваше сообщение готово.',
       stat_time:'Активное время', stat_words:'Слова', stat_chars:'Символы',
       your_name:'Ваше имя', name_placeholder:'Иван Иванов',
-      how_reach:'Как Поль может связаться с вами', contact_placeholder:'Email, Telegram, телефон…',
+      how_reach:'Как с вами связаться', contact_placeholder:'Email, Telegram, телефон…',
       send_via:'Отправить через',
       send_email_btn:'Отправить письмо Полю', open_email_client:'Открыть почтовый клиент', fallback:'Запасной вариант',
       modal_foot_note:'Письмо отправлено Полю через Resend.',
@@ -1856,7 +1928,7 @@
   /* ════════════════════════════════════════════════════════════════════════
    * I18N ENGINE
    * ════════════════════════════════════════════════════════════════════════ */
-  let currentLang = localStorage.getItem('to_lang') || 'en';
+  let currentLang = localStorage.getItem('hollr_lang') || 'en';
 
   const t = (key, vars) => {
     const str = (T[currentLang]?.[key] || T.en[key] || key);
@@ -1895,6 +1967,8 @@
     updateCounts();
     // Flag button
     document.getElementById('lang-flag').textContent = LANGS[currentLang]?.flag || '🌐';
+    const wlf = document.getElementById('welcome-lang-flag');
+    if (wlf) wlf.textContent = LANGS[currentLang]?.flag || '🌐';
     // Mobile buttons
     document.getElementById('mb-toggle').textContent = running ? t('pause') : t('start');
   };
@@ -1902,7 +1976,7 @@
   /* ════════════════════════════════════════════════════════════════════════
    * THEME ENGINE
    * ════════════════════════════════════════════════════════════════════════ */
-  let currentThemePref = localStorage.getItem('to_theme') || 'system';
+  let currentThemePref = localStorage.getItem('hollr_theme') || 'system';
 
   const getEffectiveTheme = () => {
     if (currentThemePref === 'system') {
@@ -2373,50 +2447,48 @@
    * Build (or rebuild) both the lang-picker modal list AND the welcome screen
    * flag strip. Called on init and whenever the language changes.
    */
+  // buildLangList — populates the topbar lang-overlay list (updated to use hollr_lang key)
   const buildLangList = () => {
-    /* ── Modal list ───────────────────────────────────────────────────────── */
-    const list = $('lang-list'); list.innerHTML = '';
+    const list = $('lang-list');
+    if (!list) return;
+    list.innerHTML = '';
     Object.entries(LANGS).forEach(([code, info]) => {
-      const btn = document.createElement('button'); btn.className = 'lang-item' + (code === currentLang ? ' active' : '');
+      const btn = document.createElement('button');
+      btn.className = 'lang-item' + (code === currentLang ? ' active' : '');
       btn.dataset.lang = code;
       btn.innerHTML = `<span class="lang-flag">${info.flag}</span><div class="lang-info"><div class="lang-name">${info.name}</div><div class="lang-native">${info.native}</div></div>`;
       btn.addEventListener('click', () => {
         currentLang = code;
-        localStorage.setItem('to_lang', code);
+        try { localStorage.setItem('hollr_lang', code); } catch {}
         applyTranslations();
         buildLangList();
-        document.getElementById('lang-flag').textContent = info.flag;
+        buildLangPickerGrid();
+        ['lang-flag','welcome-lang-flag'].forEach(id => {
+          const el = document.getElementById(id); if (el) el.textContent = info.flag;
+        });
+        $('lang-overlay')?.classList.remove('open');
         toast(info.name);
       });
       list.appendChild(btn);
     });
-
-    /* ── Welcome card flag strip ──────────────────────────────────────────── */
-    const strip = $('welcome-lang-strip');
-    if (strip) {
-      strip.innerHTML = '';
-      Object.entries(LANGS).forEach(([code, info]) => {
-        const btn = document.createElement('button');
-        btn.className = 'wl-btn' + (code === currentLang ? ' active' : '');
-        btn.title = info.name;
-        btn.setAttribute('aria-label', 'Switch to ' + info.name);
-        btn.textContent = info.flag;
-        btn.addEventListener('click', () => {
-          currentLang = code;
-          localStorage.setItem('to_lang', code);
-          applyTranslations();
-          buildLangList(); // refreshes both modal + strip
-          document.getElementById('lang-flag').textContent = info.flag;
-        });
-        strip.appendChild(btn);
-      });
-    }
   };
 
   const openLangModal = () => { buildLangList(); $('lang-overlay').classList.add('open'); };
   const closeLangModal = () => $('lang-overlay').classList.remove('open');
 
   $('lang-btn').addEventListener('click', openLangModal);
+
+  // Welcome modal single-flag language button → opens lang-picker-overlay
+  $('welcome-lang-btn')?.addEventListener('click', () => {
+    buildLangPickerGrid();
+    $('lang-picker-overlay').classList.add('open');
+  });
+  $('lang-picker-close')?.addEventListener('click', () => {
+    $('lang-picker-overlay').classList.remove('open');
+  });
+  $('lang-picker-overlay')?.addEventListener('click', (e) => {
+    if (e.target === $('lang-picker-overlay')) $('lang-picker-overlay').classList.remove('open');
+  });
   $('lang-close').addEventListener('click', closeLangModal);
   $('lang-overlay').addEventListener('click', e => { if (e.target === $('lang-overlay')) closeLangModal(); });
 
@@ -2433,7 +2505,7 @@
   document.querySelectorAll('.theme-item').forEach(btn => {
     btn.addEventListener('click', () => {
       currentThemePref = btn.dataset.themeVal;
-      localStorage.setItem('to_theme', currentThemePref);
+      localStorage.setItem('hollr_theme', currentThemePref);
       applyTheme();
       const names = { light: t('theme_light'), dark: t('theme_dark'), system: t('theme_system') };
       toast(names[currentThemePref] || currentThemePref);
@@ -3048,7 +3120,8 @@
 
   applyTheme();
   applyTranslations();
-  buildLangList();    // populate welcome flag strip + pre-build lang modal list
+  buildLangPickerGrid(); // pre-build the language picker grid
+  buildLangList();      // pre-build topbar lang-list overlay
   updateState('idle');
   updateButtons();
 

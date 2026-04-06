@@ -1,6 +1,6 @@
 {
   "name": "hollr-backend",
-  "version": "4.4.0",
+  "version": "4.5.0",
   "description": "hollr.to — open source SaaS messaging platform backend",
   "main": "server.js",
   "scripts": {

@@ -168,7 +168,7 @@ function createSession(userId) {
 
 // ── Health ───────────────────────────────────────────────────────────────────
 
-app.get('/health', (_req, res) => res.json({ ok: true, version: '4.4.0' }));
+app.get('/health', (_req, res) => res.json({ ok: true, version: '4.5.0' }));
 
 // ── Email magic link auth ────────────────────────────────────────────────────
 
@@ -781,14 +781,22 @@ app.post('/api/send/:handle', sendLimiter, async (req, res) => {
   if (user.resend_key) {
     try { resendKey = decrypt(user.resend_key); }
     catch { return res.status(500).json({ error: 'Failed to decrypt API key' }); }
-    fromEmail = user.from_email || `yo@hollr.to`;
+    // Use the owner's custom sender address if set, otherwise fall back to platform address.
+    fromEmail = user.from_email || process.env.PLATFORM_FROM_EMAIL || 'hollr <yo@hollr.to>';
   } else {
     resendKey = process.env.PLATFORM_RESEND_KEY;
     fromEmail = process.env.PLATFORM_FROM_EMAIL || 'hollr <yo@hollr.to>';
     if (!resendKey) return res.status(503).json({ error: 'Platform email not configured' });
   }
 
-  if (!user.email) return res.status(503).json({ error: 'No destination email for this handle' });
+  // Handle owner hasn't set a notification email yet — sender gets a friendly error,
+  // and the canvas should prompt the owner to add one in settings.
+  if (!user.email) {
+    return res.status(503).json({
+      error:   'This handle has no notification email configured yet.',
+      code:    'no_notification_email',
+    });
+  }
 
   try {
     const result = await forwardMessage({
@@ -828,5 +836,5 @@ app.use((err, _req, res, _next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
-  console.log(`📢 hollr API v4.4.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  console.log(`📢 hollr API v4.5.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
 });

@@ -17,6 +17,31 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [4.5.0] — 2026-04-06
+
+### 🔧 Bug fixes & UX overhaul
+
+### Fixed
+- **`PLATFORM_FROM_EMAIL` Fly.io secret** corrected to `hollr <yo@hollr.to>` — was incorrectly set to `to@up.paulfleury.com`, causing all platform notification emails to come from the wrong address.
+- **Message delivery when user has no notification email** — `POST /api/send/:handle` now returns a clear `{ error, code: 'no_notification_email' }` instead of silently trying to deliver. Canvas should prompt the handle owner to add their email in Settings.
+- **`fromEmail` fallback when using own Resend key** — now uses `PLATFORM_FROM_EMAIL` env var instead of hardcoded `yo@hollr.to` string.
+- **`localStorage` key was `to_lang` / `to_theme`** — legacy keys from the old `to` project. Corrected to `hollr_lang` / `hollr_theme`.
+
+### Changed
+- **Onboarding step 3 placeholder** — display name placeholder changed from `Paul Fleury` to `John Doe`.
+- **Full i18n audit** — all hardcoded "Paul", "Paul Fleury", "paulfleury.com", and old `to.paulfleury.com` references purged across all 10 language packs:
+  - `send_to_paul` → `Send message` (and translations)
+  - `sent_sub` → `Your message has been delivered to their inbox.`
+  - `how_reach` → `How they can reach you`
+  - `go_to_paul` → `Back to hollr.to`
+  - `page_sub` → removed "Paul reads every message" hardcode
+  - `topbar_title` → `✉️ hollr`
+  - `modal_foot_note` → `Message delivered securely via hollr.`
+- **Landing page** — removed `/* inspired by to.paulfleury.com */` CSS comment.
+- **Welcome modal language picker** — replaced the 10-flag strip inside the welcome modal with a single compact flag pill button (`🇬🇧 ▾`). Clicking it opens a dedicated **language picker overlay** that sits on top of the welcome modal: 2-column grid with flag, language name, and native name. Backdrop closes on click-outside.
+
+---
+
 ## [4.4.1] — 2026-04-06
 
 ### ✨ 3-step onboarding wizard + handle uniqueness + account reset
