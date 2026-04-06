@@ -509,11 +509,7 @@
     }
     .mfield input::placeholder { color: var(--fg-2); }
     .mfield input:focus { border-bottom-color: var(--fg); }
-    .msend-label {
-      font-size: 10.5px; font-weight: 600; letter-spacing: .07em;
-      text-transform: uppercase; color: var(--fg-2);
-      margin: 24px 0 10px;
-    }
+    /* .msend-label removed v5.2.0 */
     .mbtn-email {
       display: flex; align-items: center; gap: 12px;
       width: 100%; border: none; border-radius: 10px;
@@ -525,16 +521,7 @@
     }
     .mbtn-email:hover:not(:disabled) { opacity: .88; }
     .mbtn-email:disabled { opacity: .5; cursor: not-allowed; }
-    .mbtn-copy {
-      display: flex; align-items: center; gap: 12px;
-      width: 100%; border: 1px solid var(--border-md);
-      border-radius: 10px; padding: 13px 16px;
-      background: transparent; color: var(--fg);
-      font-family: var(--body); font-size: 14px; font-weight: 500;
-      letter-spacing: -.01em;
-      transition: background 80ms, border-color 200ms;
-    }
-    .mbtn-copy:hover { background: var(--bg-0); }
+    /* mbtn-copy (Open email client) removed v5.2.0 — not useful */
     .mbtn-hint { margin-left: auto; font-size: 12px; color: var(--fg-2); }
     .mbtn-email .mbtn-hint { color: rgba(255,255,255,.4); }
     [data-theme="dark"] .mbtn-email .mbtn-hint { color: rgba(0,0,0,.4); }
@@ -1037,16 +1024,10 @@
           <label data-i18n="how_reach">How they can reach you</label>
           <input type="text" id="sender-contact" data-i18n-placeholder="contact_placeholder" placeholder="Email, Telegram, phone…" />
         </div>
-        <p class="msend-label" data-i18n="send_via">Send via</p>
         <button class="mbtn-email" id="mbtn-email">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg>
           <span data-i18n="send_email_btn">Send message</span>
           <span class="mbtn-hint" id="mbtn-email-hint"></span>
-        </button>
-        <button class="mbtn-copy" id="mbtn-copy">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke-linecap="round"/></svg>
-          <span data-i18n="open_email_client">Open email client</span>
-          <span class="mbtn-hint" data-i18n="fallback">Fallback</span>
         </button>
       </div>
       <div class="modal-foot">
@@ -1382,8 +1363,7 @@
       stat_time:'Active time', stat_words:'Words', stat_chars:'Characters',
       your_name:'Your name', name_placeholder:'Jane Doe',
       how_reach:'Как с вами связаться', contact_placeholder:'Email, Telegram, phone…',
-      send_via:'Send via',
-      send_email_btn:'Send message', open_email_client:'Open email client', fallback:'Fallback',
+      send_email_btn:'Send message',
       modal_foot_note:'Message delivered via hollr. Files encrypted at rest.',
       sending:'Uploading files and sending message…',
       sent_title:'Message sent!',
@@ -1448,8 +1428,7 @@
       stat_time:'Temps actif', stat_words:'Mots', stat_chars:'Caractères',
       your_name:'Votre nom', name_placeholder:'Jean Dupont',
       how_reach:'Как с вами связаться', contact_placeholder:'E-mail, Telegram, téléphone…',
-      send_via:'Envoyer via',
-      send_email_btn:'Envoyer un e-mail à …', open_email_client:'Ouvrir le client mail', fallback:'Alternatif',
+      send_email_btn:'Envoyer un e-mail à …',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'Envoi du message en cours…',
       sent_title:'Message envoyé !',
@@ -1509,8 +1488,7 @@
       stat_time:'Aktive Zeit', stat_words:'Wörter', stat_chars:'Zeichen',
       your_name:'Ihr Name', name_placeholder:'Max Mustermann',
       how_reach:'Как с вами связаться', contact_placeholder:'E-Mail, Telegram, Telefon…',
-      send_via:'Senden über',
-      send_email_btn:'E-Mail an … senden', open_email_client:'E-Mail-Programm öffnen', fallback:'Fallback',
+      send_email_btn:'E-Mail an … senden',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'Dateien werden hochgeladen und Nachricht gesendet…',
       sent_title:'Nachricht gesendet!',
@@ -1570,8 +1548,7 @@
       stat_time:'Tempo attivo', stat_words:'Parole', stat_chars:'Caratteri',
       your_name:'Il tuo nome', name_placeholder:'Mario Rossi',
       how_reach:'Как с вами связаться', contact_placeholder:'Email, Telegram, telefono…',
-      send_via:'Invia tramite',
-      send_email_btn:'Invia e-mail a …', open_email_client:'Apri client e-mail', fallback:'Alternativo',
+      send_email_btn:'Invia e-mail a …',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'Caricamento file e invio messaggio…',
       sent_title:'Messaggio inviato!',
@@ -1631,8 +1608,7 @@
       stat_time:'Tiempo activo', stat_words:'Palabras', stat_chars:'Caracteres',
       your_name:'Tu nombre', name_placeholder:'Juan García',
       how_reach:'Как с вами связаться', contact_placeholder:'Correo, Telegram, teléfono…',
-      send_via:'Enviar por',
-      send_email_btn:'Enviar correo a …', open_email_client:'Abrir cliente de correo', fallback:'Alternativo',
+      send_email_btn:'Enviar correo a …',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'Subiendo archivos y enviando mensaje…',
       sent_title:'¡Mensaje enviado!',
@@ -1692,8 +1668,7 @@
       stat_time:'Actieve tijd', stat_words:'Woorden', stat_chars:'Tekens',
       your_name:'Je naam', name_placeholder:'Jan de Vries',
       how_reach:'Как с вами связаться', contact_placeholder:'E-mail, Telegram, telefoon…',
-      send_via:'Verzenden via',
-      send_email_btn:'E-mail sturen naar …', open_email_client:'E-mailprogramma openen', fallback:'Alternatief',
+      send_email_btn:'E-mail sturen naar …',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'Bestanden uploaden en bericht verzenden…',
       sent_title:'Bericht verzonden!',
@@ -1749,8 +1724,7 @@
       stat_time:'活跃时间', stat_words:'字数', stat_chars:'字符数',
       your_name:'您的姓名', name_placeholder:'张三',
       how_reach:'Как с вами связаться', contact_placeholder:'邮箱、Telegram、电话…',
-      send_via:'发送方式',
-      send_email_btn:'发送邮件给 …', open_email_client:'打开邮件客户端', fallback:'备用',
+      send_email_btn:'发送邮件给 …',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'正在上传文件并发送消息…',
       sent_title:'消息已发送！', sent_sub:'您的消息已发送到对方的收件箱。',
@@ -1804,8 +1778,7 @@
       stat_time:'सक्रिय समय', stat_words:'शब्द', stat_chars:'अक्षर',
       your_name:'आपका नाम', name_placeholder:'अमित शर्मा',
       how_reach:'Как с вами связаться', contact_placeholder:'ईमेल, Telegram, फोन…',
-      send_via:'के द्वारा भेजें',
-      send_email_btn:'… को ईमेल भेजें', open_email_client:'ईमेल क्लाइंट खोलें', fallback:'वैकल्पिक',
+      send_email_btn:'… को ईमेल भेजें',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'फ़ाइलें अपलोड और संदेश भेजा जा रहा है…',
       sent_title:'संदेश भेजा गया!', sent_sub:'आपका संदेश उनके इनबॉक्स में पहुंच गया है।',
@@ -1859,8 +1832,7 @@
       stat_time:'アクティブ時間', stat_words:'単語数', stat_chars:'文字数',
       your_name:'お名前', name_placeholder:'山田 太郎',
       how_reach:'Как с вами связаться', contact_placeholder:'メール、Telegram、電話…',
-      send_via:'送信方法',
-      send_email_btn:'メッセージを送信する', open_email_client:'メールクライアントを開く', fallback:'代替手段',
+      send_email_btn:'メッセージを送信する',
       modal_foot_note:'Message delivered securely via hollr.',
       sending:'ファイルをアップロードしてメッセージを送信中…',
       sent_title:'メッセージを送信しました！', sent_sub:'Your message has been delivered to their inbox.',
@@ -1914,8 +1886,7 @@
       stat_time:'Активное время', stat_words:'Слова', stat_chars:'Символы',
       your_name:'Ваше имя', name_placeholder:'Иван Иванов',
       how_reach:'Как с вами связаться', contact_placeholder:'Email, Telegram, телефон…',
-      send_via:'Отправить через',
-      send_email_btn:'Отправить письмо Полю', open_email_client:'Открыть почтовый клиент', fallback:'Запасной вариант',
+      send_email_btn:'Отправить письмо Полю',
       modal_foot_note:'Письмо отправлено Полю через Resend.',
       sending:'Загрузка файлов и отправка сообщения…',
       sent_title:'Сообщение отправлено!', sent_sub:'Поль получит ваше сообщение в папку входящих.',
@@ -2265,14 +2236,7 @@
     } catch (err) { showErrorStep(err.message); }
   };
 
-  const sendViaMailto = () => {
-    const name = $('sender-name').value.trim() || 'Someone';
-    const contact = $('sender-contact').value.trim();
-    const sub = encodeURIComponent('Message from ' + name);
-    const body = encodeURIComponent('Hi …,\n\n' + name + ' sent you a message:\n\n' + textEl.value + (contact ? '\n\nReply to: ' + contact : ''));
-    window.open('mailto:?subject=' + sub + '&body=' + body);
-    showSentStep();
-  };
+  // sendViaMailto removed — open email client fallback was not useful (v5.2.0)
 
   /* ════════════════════════════════════════════════════════════════════════
    * WORD COUNT
@@ -3004,7 +2968,7 @@
   $('send-close').addEventListener('click', () => sendOverlay.classList.remove('open'));
   sendOverlay.addEventListener('click', e => { if (e.target === sendOverlay) sendOverlay.classList.remove('open'); });
   $('mbtn-email').addEventListener('click', doSend);
-  $('mbtn-copy').addEventListener('click', sendViaMailto);
+  // mbtn-copy removed (v5.2.0)
   $('sent-back').addEventListener('click', () => { sendOverlay.classList.remove('open'); reset(); });
   $('err-back').addEventListener('click', showFormStep);
   $('err-retry').addEventListener('click', doSend);

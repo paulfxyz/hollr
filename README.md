@@ -35,15 +35,16 @@ The project is deliberately free of framework overhead: Node.js + Express + SQLi
 9. [Deep-dive: Frontend architecture](#deep-dive-frontend-architecture)
 10. [Deep-dive: Infrastructure](#deep-dive-infrastructure)
 11. [Deep-dive: Security decisions](#deep-dive-security-decisions)
-12. [API reference](#api-reference)
-13. [Environment variables](#environment-variables)
-14. [Versioning guideline](#versioning-guideline)
-15. [Roadmap](#roadmap)
-16. [Issues, bottlenecks & lessons learned](#issues-bottlenecks--lessons-learned)
-17. [Self-hosting](#self-hosting)
-18. [Contributing](#contributing)
-19. [License](#license)
-20. [A note on vibe coding](#a-note-on-vibe-coding)
+12. [Deep-dive: Handle ownership & registration security](#deep-dive-handle-ownership--registration-security)
+13. [API reference](#api-reference)
+14. [Environment variables](#environment-variables)
+15. [Versioning guideline](#versioning-guideline)
+16. [Roadmap](#roadmap)
+17. [Issues, bottlenecks & lessons learned](#issues-bottlenecks--lessons-learned)
+18. [Self-hosting](#self-hosting)
+19. [Contributing](#contributing)
+20. [License](#license)
+21. [A note on vibe coding](#a-note-on-vibe-coding)
 
 ---
 
@@ -86,8 +87,9 @@ No account. No login. No app. Just a link and a canvas.
 | 🌍 | **10 languages** | EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU. Auto-detected from browser. Persisted in `localStorage`. |
 | 🌙 | **Dark / light mode** | CSS custom properties. No-flash inline script reads preference before first paint. |
 | 🛡️ | **PIN-protected settings** | 4–8 digit PIN, bcrypt cost 12. Default 1234 forced-change on first settings open. |
-| 🔑 | **Forgot PIN** | Magic link resets PIN to 1234 and flags `pin_is_default`, forcing change on next settings open. |
+| 🔑 | **Forgot PIN** | Inline email input in the PIN gate sends a reset link — no session required. Resets PIN to 1234 and flags `pin_is_default`, forcing change on next settings open. |
 | 🧩 | **3-step onboarding wizard** | Handle → PIN (confirmed, no defaults) → Display name + notification email. Single API call on finish. |
+| 🛡️ | **Handle squatting protection** | Three-layer defence-in-depth: frontend pre-check, backend magic-link gate, claim-time race protection with `COLLATE NOCASE`. |
 | 🛠️ | **MIT open source** | Fork it, self-host on Fly.io, extend it. No vendor lock-in. |
 
 ---
@@ -146,7 +148,9 @@ Landing modal
       │
       ├── "Continue with X" ──────────────────────────────────────────────────────┐
       │                                                                            │
-      └── "Register with email" → POST /api/auth/magic-link                       │
+      └── "Register with email" → POST /api/handle/check (availability gate)      │
+              ↓ available? yes                                                     │
+              POST /api/auth/magic-link                                            │
               (handle stored in magic_links.pending_handle)                        │
                     │                                                              │
                     ▼                                                              ▼
@@ -165,11 +169,11 @@ Landing modal
                     │        │                                  │             │
                     │        └────────────────── stateOnboarding ────────────┘
                     │                                   │
-                    │              Step 1: Pick handle (live availability check)
+                    │              Step 1: Pick handle (re-check + live availability)
                     │              Step 2: Set PIN (confirmed, rejects 1234)
                     │              Step 3: Display name + notification email
                     │                                   │
-                    │              POST /api/handle/claim (one round-trip)
+                    │              POST /api/handle/claim (COLLATE NOCASE race guard)
                     │                                   │
                     └───────────────────── /:handle?setup=1 (settings auto-opens)
 ```
@@ -231,15 +235,15 @@ messages
 The registration experience is a 3-step wizard in `auth/verify.html`. The full flow from landing page to live canvas looks like this:
 
 **Via email (new user):**
-1. Landing modal → enter desired handle + email → "Sending magic link…"
-2. Backend stores `{email, token, pending_handle}` in `magic_links` table.
+1. Landing modal → enter desired handle + email → modal calls `POST /api/handle/check` first. If taken, shows inline error — no email sent.
+2. If available: `POST /api/auth/magic-link` stores `{email, token, pending_handle}` in `magic_links` table (after re-checking availability at the backend).
 3. Magic link arrives in inbox — user clicks it in their email client (new tab).
 4. `GET /api/auth/verify/:token` returns `{ ok, session_token, pending_handle }`.
 5. `pending_handle` pre-fills step 1 of the wizard — **this survives the new-tab context switch** because it came from the API response, not `sessionStorage`.
-6. Step 1: confirm/change the handle. Live availability check fires at 450ms debounce — "Continue" button is blocked until confirmed available.
+6. Step 1: confirm/change the handle. `verify.html` re-calls `/api/handle/check` before allowing proceed. Live availability check fires at 450ms debounce — "Continue" button is blocked until confirmed available.
 7. Step 2: choose a PIN (4–8 digits, confirmed, rejects `1234`). Dot-fill visualizer.
 8. Step 3: display name (optional) + notification email (optional). Live preview of "Message to [name]".
-9. Single `POST /api/handle/claim` — all data in one request.
+9. Single `POST /api/handle/claim` — all data in one request. Backend enforces `COLLATE NOCASE` uniqueness at the database level.
 10. Redirect to `/:handle?setup=1` → canvas opens with Settings modal auto-opened.
 
 **Via X OAuth (new user):**
@@ -448,7 +452,7 @@ New users get a temporary `__pending_xxxxxxxx` handle immediately on account cre
 handle TEXT NOT NULL UNIQUE COLLATE NOCASE
 ```
 
-This enforces case-insensitive uniqueness at the database level. `PaulFxyz` and `paulfxyz` are treated as the same handle. Without `COLLATE NOCASE`, two users could claim what appear to be identical handles differing only in case.
+This enforces case-insensitive uniqueness at the database level. `PaulFxyz` and `paulfxyz` are treated as the same handle. Without `COLLATE NOCASE`, two users could claim what appear to be identical handles differing only in case. See [Handle ownership & registration security](#deep-dive-handle-ownership--registration-security) for how this interacts with the multi-layer registration system.
 
 ---
 
@@ -527,9 +531,9 @@ The `origin` function (not a string/array) enables dynamic origin checking. `cre
 
 ### Why no framework
 
-The frontend is plain HTML, CSS, and vanilla JavaScript. No React, no Vue, no Next.js, no build step. The reasons:
+The frontend is plain HTML, CSS, and vanilla JavaScript. The reasons:
 
-1. **Deploy simplicity.** FTP `mirror` uploads the changed files. There's no `npm run build`, no artifact, no CI pipeline needed.
+1. **Zero build tooling.** `index.html` is a file. Changes deploy immediately. There's no `npm run build`, no artifact, no CI pipeline needed.
 2. **Zero dependency churn.** A React app from 2023 needs dependency updates every month. An HTML file from 2023 still works perfectly.
 3. **Auditability.** The entire codebase is readable in a browser's View Source. There's no minified bundle obscuring the logic.
 4. **Performance.** The landing page is a single HTTP request (CSS and JS inlined). The canvas page loads its fonts from Google, but everything else is one file.
@@ -553,21 +557,25 @@ Result: one HTTP request to load the entire page (minus Google Fonts). The sourc
 ### i18n system
 
 ```javascript
-const STRINGS = {
-  en: { 'nav.how': 'How it works', 'hero.title': '...', ... },
-  fr: { 'nav.how': 'Comment ça marche', ... },
+const T = {
+  en: { page_title: 'Message to…', page_sub: 'Hit Start when you\'re ready to write.', ... },
+  fr: { page_title: 'Message à…', ... },
   // 8 more languages
 };
 
 function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
-    el.innerHTML = STRINGS[currentLang][key] ?? STRINGS.en[key] ?? '';
+    // Skip page_title and welcome_eyebrow if display name is already injected
+    if ((key === 'page_title' || key === 'welcome_eyebrow') && window._hollrDisplayName) return;
+    el.innerHTML = T[currentLang][key] ?? T.en[key] ?? '';
   });
 }
 ```
 
-Language auto-detection: `navigator.language.slice(0, 2)`. Persisted in `localStorage('hollr_lang')`. The language switcher in the welcome modal is a single flag pill button — clicking opens a language picker overlay with a 2-column flag + name grid.
+Language auto-detection: `navigator.language.slice(0, 2)`. Persisted in `localStorage('hollr_lang')`. The language switcher in the welcome modal is a single flag pill button — clicking opens a language picker overlay with a 2-column flag + name grid populated by `buildLangPickerGrid()`.
+
+**The `_hollrDisplayName` guard:** `applyTranslations()` is called on every state change (timer start, pause, language switch). Without the guard, each call would overwrite the dynamically injected "Message to Paul Fleury" with the template string "Message to…". The guard ensures that once `loadHollrProfile()` has set the display name, translation re-renders leave it alone.
 
 ### `sessionStorage` vs `localStorage`
 
@@ -650,7 +658,7 @@ Fly.io runs Docker containers as Firecracker microVMs. Key decisions:
 - **Region: cdg (Paris).** Lowest latency for the expected European user base.
 - **Persistent volume: 3 GB `hollr_data`.** SQLite file and uploads live on `/data`. The volume survives deploys, restarts, and even app destruction (if the volume isn't explicitly deleted).
 - **`--remote-only` flag.** Builds the Docker image on Fly's remote builders. Avoids arm64/amd64 cross-compilation issues on Apple Silicon Macs.
-- **Health check.** Fly polls `GET /health` every 30s. If it fails, the machine is replaced. Response: `{ ok: true, version: "4.6.0" }`.
+- **Health check.** Fly polls `GET /health` every 30s. If it fails, the machine is replaced. Response: `{ ok: true, version: "5.2.0" }`.
 - **Zero-downtime deploys.** Rolling strategy: new machine starts, health check passes, old machine stops. Database migrations run on startup — they're fast (ALTER TABLE) so there's no meaningful window where the old and new schemas conflict.
 
 **The CNAME trap:** When you rename a Fly.io app, the old `*.fly.dev` hostname disappears immediately. Any DNS CNAME pointing to the old name breaks silently — requests return DNS resolution failures, which surface in the browser as "Network error." Always update CNAMEs before or simultaneously with an app rename.
@@ -719,6 +727,87 @@ Sets security headers on every response: `X-Frame-Options`, `X-Content-Type-Opti
 ### Email enumeration prevention
 
 `POST /api/auth/forgot-pin` always returns `{ ok: true }` regardless of whether the email exists. An attacker cannot use the endpoint to determine which emails are registered.
+
+---
+
+## Deep-dive: Handle ownership & registration security
+
+Handle registration in hollr is a multi-step flow: a user types a handle in the landing modal, receives a magic link, lands on the onboarding wizard, and finally claims the handle. That's four distinct moments where a race condition or missing check could allow one user to steal another's chosen — or worse, existing — handle.
+
+v5.2.0 closes all four gaps with a three-layer defence-in-depth system.
+
+### Layer 1 — Frontend gate (landing modal)
+
+Before sending any magic link, the modal calls `POST /api/handle/check`. If the handle is taken, an inline error is shown immediately. No email is dispatched, no backend resources are consumed, and the user can pick a different handle without leaving the page.
+
+```javascript
+// Step 1: verify handle is free BEFORE touching email delivery
+const checkRes = await fetch('/api/handle/check', { method: 'POST', body: JSON.stringify({ handle }) });
+const { available, reason } = await checkRes.json();
+if (!available) { showEmailErr(reason); return; }
+// Step 2: only now send the magic link
+await fetch('/api/auth/magic-link', { method: 'POST', body: JSON.stringify({ email, handle }) });
+```
+
+This layer is UX: it gives users fast, accurate feedback without round-tripping through email. It is not the security boundary — a determined attacker can bypass it entirely by calling the API directly. That's why Layer 2 exists.
+
+### Layer 2 — Backend magic-link gate
+
+`POST /api/auth/magic-link` queries the database directly for the handle before calling Resend. Even if someone bypasses the frontend entirely — via curl, a custom script, or a browser devtools fetch — the magic link is never sent if the handle is already registered:
+
+```javascript
+const taken = db.prepare(
+  "SELECT id FROM users WHERE handle = ? COLLATE NOCASE AND handle NOT LIKE '__pending_%'"
+).get(handle);
+if (taken) return res.status(409).json({ error: `hollr.to/${handle} is already taken.`, code: 'handle_taken' });
+```
+
+This is the hard gate. Resend is never called. The `magic_links` row is never created. The handle cannot be claimed via this flow.
+
+### Layer 3 — Claim-time race protection
+
+Between the moment a user types a handle and the moment they click "Launch", time passes: an email is sent, the user reads it, opens the wizard, fills in a PIN, sets a display name. That window could be seconds or hours. Someone else could claim the handle during that window.
+
+Two sub-layers prevent this:
+
+**3a — verify.html re-check:** `verify.html` calls `/api/handle/check` immediately before `POST /api/handle/claim`. If the handle was taken between magic-link send and claim, the wizard shows an error and the user is invited to pick a different handle.
+
+**3b — Database-level uniqueness:** `POST /api/handle/claim` uses `COLLATE NOCASE AND handle NOT LIKE '__pending_%'` in its own uniqueness check before writing. If two users click "Launch" in the same millisecond, the database constraint — not application code — decides the winner. The loser gets a 409.
+
+### Why `COLLATE NOCASE` matters
+
+SQLite, by default, treats `paulfxyz` and `PAULFXYZ` as different strings for uniqueness purposes. Without `COLLATE NOCASE` on the handle column, an attacker can claim `PaulFxyz` while `paulfxyz` is already taken, producing a handle that looks identical in the browser address bar.
+
+The column declaration:
+
+```sql
+handle TEXT NOT NULL UNIQUE COLLATE NOCASE
+```
+
+enforces case-insensitive uniqueness at the database constraint level — not just in application code. This means it's impossible to bypass via direct SQL, tool calls, or any future code path that forgets to add the check. The database itself is the invariant holder.
+
+### The `__pending_` exclusion
+
+New users receive a temporary `__pending_xxxxxxxx` handle the moment their account row is created — before they complete onboarding and pick a real name. This row exists in the `users` table and is a real handle value.
+
+Without the `NOT LIKE '__pending_%'` filter, `POST /api/handle/check` would query:
+
+```sql
+SELECT id FROM users WHERE handle = '__pending_a1b2c3d4' COLLATE NOCASE
+```
+
+…and return `{ available: false }` for the string `__pending_a1b2c3d4` — which is meaningless to anyone registering. More critically, it would cause the backend to block any handle that literally matches a pending token. The filter excludes all temporary handles from the uniqueness check so only real, claimed handles are treated as taken.
+
+### Defence-in-depth summary
+
+| Layer | Where | What it blocks |
+|---|---|---|
+| Layer 1 | Frontend (landing modal) | UX — shows inline error before email is sent |
+| Layer 2 | Backend (`/api/auth/magic-link`) | Hard gate — no magic link sent for taken handle |
+| Layer 3a | Frontend (`verify.html` pre-claim) | Race window — re-checks just before claim |
+| Layer 3b | Database (`COLLATE NOCASE` constraint) | Case-variant squatting — enforced at DB level |
+
+**The principle:** Security checks must be enforced at the server, not trusted to the client. Frontend validation is UX. Backend validation is security. Both are needed. When the same invariant (handle is unique) must hold throughout a multi-step flow, check it at every step — not just the last one.
 
 ---
 
@@ -810,15 +899,26 @@ hollr uses [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH`
 
 ## Roadmap
 
-These features are on the plan. None are live yet.
+| Feature | Status | ETA |
+|---|---|---|
+| **REST API** | Building | Q3 2026 |
+| **Webhooks** | Planned | Q3 2026 |
+| **MCP Server** | Planned | Q4 2026 |
+| **AI Digest & Smart Filtering** | Planned | Q4 2026 |
+| **Verification Apps** ✨ | New idea | 2027 |
+| **Self-hosted Storage** | Planned | Q3 2026 |
 
-**REST API** — Full HTTP API to read hollrs, manage your handle, integrate with external tools. `GET /v1/hollrs`, `GET /v1/hollrs/:id`, handle management endpoints.
+**REST API** — Full HTTP API to read hollrs, manage your handle, integrate with external tools. `GET /v1/hollrs`, `GET /v1/hollrs/:id`, handle management endpoints. OAuth tokens for third-party access.
 
 **Webhooks** — POST each incoming hollr to a URL of your choosing, the moment it arrives. No polling. Works with Zapier, Make, n8n, your own server, Notion API, anything.
 
 **MCP Server** — Model Context Protocol integration so Claude, Cursor, and other AI tools can read your hollrs as a data source. Your inbox becomes a tool your AI can query.
 
-**Verification Apps** — Before a sender can reach you, they complete a micro-task you define: donate to a charity, follow your account, download your app, solve a puzzle, pay a small fee. You set the gate, hollr handles the verification. Designed to make every incoming message meaningful — real signal, zero spam.
+**AI Digest & Smart Filtering** — Instead of instant notifications for every hollr, choose a daily or weekly AI digest. The AI reads your messages (with your permission), filters noise, and surfaces the ones worth your attention. Smart batching for high-volume handles.
+
+**Verification Apps** ✨ — Before a sender can reach you, they complete a micro-task you define: donate to a charity, follow your account, download your app, solve a puzzle, pay a small fee. You set the gate, hollr handles the verification. Designed to make every incoming message meaningful — real signal, zero spam.
+
+**Self-hosted Storage** — Right now, encrypted data lives on hollr servers. Soon you'll be able to point hollr at your own storage — FTP, S3, or a custom endpoint. Every byte on infrastructure you control. Zero trust required.
 
 ---
 
@@ -925,6 +1025,147 @@ A complete record of everything that went wrong and why. Read this before you bu
 4. Moved all secrets to Fly.io secrets (`flyctl secrets set ...`).
 
 **Lesson:** Secrets in git history are compromised even after deletion — the history is permanent unless rewritten. Use `git filter-repo` (not `git filter-branch`). Rotate immediately. Set up pre-commit hooks or a tool like `gitleaks` to catch secrets before they're committed.
+
+---
+
+### 🔴 Handle squatting — anyone could claim any existing handle
+
+**Symptom:** After completing the full A-to-Z registration flow, the user was able to type an existing handle in the landing modal, receive a magic link, land on onboarding with that handle pre-filled, and claim it successfully. The system never checked whether the requested handle already belonged to someone.
+
+**Root cause:** Three independent failures:
+1. The landing modal sent the magic link immediately without checking availability
+2. `POST /api/auth/magic-link` stored the `pending_handle` without checking if it was taken
+3. The race window between the step-1 availability check and the final claim was unprotected
+
+**Fix:** Three-layer defence described in [Handle ownership & registration security](#deep-dive-handle-ownership--registration-security).
+
+**Lesson:** Security checks must be enforced at the server, not trusted to the client. Frontend validation is UX. Backend validation is security. Both are needed. When the same invariant (handle is unique) must hold throughout a multi-step flow, check it at every step — not just the last one.
+
+---
+
+### 🔴 Canvas permanently frozen — one broken string in i18n
+
+**Symptom:** `hollr.to/paulfxyz` showed the intro modal but clicking "Start writing" did nothing. The timer didn't start. The overlay never dismissed. The page appeared to load correctly.
+
+**Root cause:** A prior edit left a broken JavaScript string in the English i18n object:
+```javascript
+// BROKEN — two string literals merged without closing quote or separator
+page_sub: 'Hit Start when ready.'re ready to write.',
+//                              ↑ this apostrophe ended the string, but 're ready...' is a syntax error
+```
+This `SyntaxError: Unexpected identifier 're'` caused the entire IIFE to fail during parse. **Every event listener in the file — including the one that dismisses the welcome overlay — was never attached.** The page looked fine because the HTML rendered correctly; only the JavaScript was dead.
+
+**Fix:** `'Hit Start when you\'re ready to write.'` — escape the apostrophe.
+
+**Detection:** The error was invisible in the browser console until directly inspected because the IIFE was wrapped in a try/catch in some paths. Node.js `new Function(src)` caught it immediately.
+
+**Lesson:** Test JavaScript syntax separately from browser rendering. An IIFE can fail silently if the surrounding code suppresses errors. The `new Function()` constructor is a fast way to check syntax without running the code. For production: a pre-deploy syntax check (`node -e 'new Function(src)'`) would have caught this instantly.
+
+---
+
+### 🔴 `STRINGS is not defined` — display name never rendered
+
+**Symptom:** Every handle page showed "Message to…" instead of the owner's display name. The welcome overlay, page title, and send button all showed the raw placeholder.
+
+**Root cause:** `loadHollrProfile()` contained a loop iterating over `STRINGS`:
+```javascript
+for (const lang in STRINGS) { ... } // STRINGS does not exist — the object is named T
+```
+This threw `ReferenceError: STRINGS is not defined` inside the `try/catch` block in `loadHollrProfile`. The catch silently swallowed it. Display name injection never happened.
+
+**Fix:** Removed the dead loop entirely. Display name is injected by direct DOM updates (which already existed correctly below the broken loop).
+
+**Lesson:** Silent try/catch blocks hide bugs. Log errors even if you handle them. A `console.error('hollr: profile load failed', err)` would have surfaced this immediately. The entire display-name system appeared to work during unit testing but failed in production because the test environment didn't have a real profile response.
+
+---
+
+### 🔴 `buildLangPickerGrid is not defined` — language picker broken
+
+**Symptom:** Clicking the flag button in the welcome modal threw a `ReferenceError` and the language picker overlay was never populated. Language selection in the welcome modal was completely non-functional.
+
+**Root cause:** The function `buildLangPickerGrid()` was called in 4 places (welcome flag button click, `buildLangList`, `buildLangPickerGrid` call after language switch, init). It was never defined. A dead reference.
+
+**Fix:** Implemented `buildLangPickerGrid()` alongside `buildLangList()`, using `LANGS` (the metadata object) and `T` (the translation object) to populate a 2-column grid of language buttons.
+
+**Lesson:** Dead function references are silent in JavaScript until the call path is executed. A lint step (`eslint --no-eslintrc --rule 'no-undef: error'`) would catch undefined references before production. Alternatively: integration-test every interactive element, not just the happy path.
+
+---
+
+### 🔴 Display name reset on every timer state change
+
+**Symptom:** After a profile loaded and injected "Message to Paul Fleury", the name reverted to "Message to…" the moment the timer started, paused, or any other state change triggered a re-render.
+
+**Root cause:** `applyTranslations()` re-rendered ALL `[data-i18n]` elements from the `T` translation object on every call. `T.*.page_title` contains `'Message to…'` for every language. So every state change wiped the dynamically injected name.
+
+**Fix:**
+```javascript
+// Skip page_title and welcome_eyebrow if display name is already set
+if ((key === 'page_title' || key === 'welcome_eyebrow') && window._hollrDisplayName) return;
+```
+The display name is stored in `window._hollrDisplayName` by `loadHollrProfile`. `applyTranslations` checks this flag before overwriting.
+
+**Lesson:** When a templating system and a dynamic data loader both write to the same DOM elements, they will conflict. Establish clear ownership: either the template always wins (and you re-run the full inject after every language change), or the dynamic data wins (and you guard template writes). Don't have both write to the same nodes without a flag.
+
+---
+
+### 🔴 Forgot PIN showed "No email on file" despite email existing
+
+**Symptom:** Clicking "Forgot PIN?" showed the toast "No email on file — add one in settings first." even though the user's email was correctly saved in the database.
+
+**Root cause:** The forgot-PIN handler called `GET /api/me` to retrieve the email. This endpoint requires a valid session token (`Authorization: Bearer <token>`). When the user opened the page without being logged in, or in a new tab where `sessionStorage` was empty, `getSessionToken()` returned `null`. The code then sent `Authorization: Bearer null` — which the backend correctly rejected with `{ error: "Invalid or expired session" }`. `meData.email` was therefore `undefined`, not because the email was absent, but because the API call failed.
+
+**Fix:** Replaced the `api/me` lookup with an inline email input field directly in the PIN gate. No session required. The user types their email, the backend sends the reset link (or silently does nothing for unknown addresses to prevent enumeration).
+
+**Lesson:** Operations that should be available to unauthenticated users (password/PIN reset being the canonical example) must not depend on an authenticated API call. Always ask: "Can a logged-out user do this?" If yes, the implementation cannot require a session.
+
+---
+
+### 🟡 CSS `display:flex` overrides HTML `hidden` attribute
+
+**Symptom:** The email registration form in the landing modal was always expanded — visible before the user clicked the "Register with email instead" button.
+
+**Root cause:**
+```css
+/* WRONG — this overrides the HTML hidden attribute */
+.modal__email-form {
+  display: flex; /* this wins over [hidden] { display: none } */
+}
+```
+The HTML had `<form class="modal__email-form" hidden>` which sets `display: none` via the browser's default stylesheet. But an explicit `display: flex` in the author stylesheet has higher specificity and overrides it.
+
+**Fix:**
+```css
+.modal__email-form {
+  display: none; /* collapsed by default */
+}
+.modal__email-form:not([hidden]) {
+  display: flex; /* shown only when JS removes the hidden attribute */
+}
+```
+
+**Lesson:** The `hidden` attribute sets `display: none` via the browser's user-agent stylesheet, which has the lowest possible specificity. Any `display` value in your CSS overrides it. Either don't use `hidden` if you set `display` in CSS, or use `[hidden] { display: none !important }` to force the hidden state. The `:not([hidden])` pattern is the cleanest solution.
+
+---
+
+### 🟡 Pre-fill fired before its own listener was attached (race in your own code)
+
+**Symptom:** Users arrived on the onboarding wizard with their handle correctly pre-filled, but "Continue" was blocked by "Please wait for availability check to complete" — even after waiting. The check never ran.
+
+**Root cause:** The code pre-filled `handleInput.value = pre` and immediately called `handleInput.dispatchEvent(new Event('input'))` to trigger the availability check. But the `addEventListener('input', ...)` that runs the check was registered *3 lines later*. The event fired before the listener existed — it was silently discarded.
+
+**Fix:** Register the event listener first, then pre-fill and dispatch:
+```javascript
+// 1. Attach listener FIRST
+hi.addEventListener('input', () => { /* availability check */ });
+
+// 2. THEN pre-fill and trigger — with a small delay for safety
+if (pre) {
+  hi.value = pre;
+  setTimeout(() => hi.dispatchEvent(new Event('input')), 50);
+}
+```
+
+**Lesson:** `dispatchEvent` is synchronous — it fires immediately, before the next line. If your listener hasn't been attached yet, the event is gone. Always register listeners before triggering events, especially when initializing pre-filled form state.
 
 ---
 
@@ -1086,10 +1327,17 @@ The result is a full-stack SaaS platform with:
 - Magic-link authentication that survives new-tab opens
 - A 3-step onboarding wizard
 - 10 languages
+- Three-layer handle registration security
 
 Is the code perfect? No. Are there things a senior engineer would do differently? Absolutely. Is it running in production, handling real requests, and doing what it's supposed to do? Yes.
 
 That's the point.
+
+v5.x was built in a single extended session — roughly the equivalent of a long sprint day. The session started with a broken canvas (a misplaced apostrophe in an i18n string that killed the entire page script), passed through a full security audit that found a handle-squatting vulnerability affecting every existing user, and ended with a production-hardened system with three independent layers of registration security, correct SEO meta tags, and a forgot-PIN flow that works without a session.
+
+The debugging process looked like this: screenshot the bug, read the DOM output, read the JavaScript, form a hypothesis, write a targeted fix, verify syntax, deploy. No guesswork. No shotgun changes. Each fix addressed a specific root cause identified through evidence. That's not vibe coding in the dismissive sense — that's engineering, piloted by someone who understands the domain well enough to direct it.
+
+What's remarkable isn't that an AI can write code. It's that the combination of a human who understands what "correct" looks like and an AI that can reason about code at scale can converge on a genuinely well-constructed system faster than either could alone.
 
 This README — with its detailed explanations of PKCE, authTag wire formats, and SQLite migration strategies — exists not because I wrote it from memory, but because I asked good questions and understood the answers well enough to direct what came next. The distinction between "knowing how to build something" and "knowing enough to guide something being built" is collapsing fast.
 
