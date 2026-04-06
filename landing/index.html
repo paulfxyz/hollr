@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>hollr — holla at me.</title>
-  <meta name="description" content="Your personal hollr link, encrypted end-to-end. Works instantly — messages land at yo@hollr.to or your own inbox. Free & open source." />
+  <meta name="description" content="Your personal hollr link, encrypted end-to-end. Add your email and hollrs land straight in your inbox. Free & open source." />
   <meta property="og:title" content="hollr — holla at me." />
   <meta property="og:description" content="Claim your handle, share your link. Messages arrive PGP-encrypted — zero setup, or bring your own Resend key. Free & open source." />
   <meta property="og:type" content="website" />
@@ -2657,7 +2657,7 @@ a { color: inherit; }
             <span class="step-row__num">03</span>
             <div class="step-row__content">
               <h3>Works out of the box</h3>
-              <p>Messages arrive at <code class="inline-code">yo@hollr.to</code> by default — zero setup. Or plug in your own Resend key and they go straight to you.</p>
+              <p>Add your notification email and hollrs land straight in your inbox — sent from <code class="inline-code">yo@hollr.to</code>. Bring your own Resend key and they come from your domain instead.</p>
             </div>
             <p class="step-row__aside">Either way, every hollr is PGP-encrypted before it leaves the sender's browser. We deliver the ciphertext — nothing sits in plaintext, ever.</p>
           </li>
@@ -2764,7 +2764,7 @@ a { color: inherit; }
                 <!-- Sent text -->
                 <text x="160" y="122" font-family="Georgia, serif" font-size="16" fill="var(--mock-text, #1a1814)" text-anchor="middle" font-weight="500">Message sent</text>
                 <text x="160" y="142" font-family="Inter, sans-serif" font-size="9.5" fill="var(--mock-muted, #8a837a)" text-anchor="middle">3 minutes, 27 seconds of writing</text>
-                <text x="160" y="157" font-family="Inter, sans-serif" font-size="9.5" fill="var(--mock-muted, #8a837a)" text-anchor="middle">Delivered via yo@hollr.to or your key</text>
+                <text x="160" y="157" font-family="Inter, sans-serif" font-size="9.5" fill="var(--mock-muted, #8a837a)" text-anchor="middle">Sent from yo@hollr.to or your own domain</text>
                 <!-- Timer display -->
                 <text x="160" y="185" font-family="'SF Mono', monospace" font-size="11" fill="var(--mock-amber, #c96a2a)" text-anchor="middle" font-weight="500">03:27.84</text>
                 <!-- Lock icon bottom -->
@@ -2773,7 +2773,7 @@ a { color: inherit; }
               </svg>
             </div>
             <h3 class="sender-panel__title">Hollr received</h3>
-            <p class="sender-panel__body">PGP-encrypted before it left their browser, routed through yo@hollr.to or your own Resend key. It lands in your inbox — and nowhere else.</p>
+            <p class="sender-panel__body">PGP-encrypted before it left their browser, then delivered to your notification inbox — sent from <code style="font-size:0.85em;background:var(--surface-2);padding:1px 5px;border-radius:4px">yo@hollr.to</code> or your own domain. It lands in your inbox — and nowhere else.</p>
           </div>
         </div>
       </div>
@@ -2889,7 +2889,7 @@ a { color: inherit; }
             <div class="sec-flow__icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             </div>
-            <p class="sec-flow__label">Via yo@hollr.to</p>
+            <p class="sec-flow__label">From yo@hollr.to</p>
             <p class="sec-flow__sub">Or your own Resend key</p>
           </div>
 
@@ -2929,7 +2929,7 @@ a { color: inherit; }
           <div class="sec-claim">
             <div class="sec-claim__num">03</div>
             <h3 class="sec-claim__title">Your inbox, your rules</h3>
-            <p class="sec-claim__body">By default, the PGP-armored payload routes through <code class="inline-code" style="font-size:0.8em">yo@hollr.to</code>. Plug in your own Resend key and it goes direct — not through a shared pool, not a hollr relay. Either way, same encryption, zero storage.</p>
+            <p class="sec-claim__body">By default, notifications are sent from <code class="inline-code" style="font-size:0.8em">yo@hollr.to</code> to whatever email you set in settings. Plug in your own Resend key and they come from your domain instead — not a shared relay. Either way, same encryption, zero storage.</p>
           </div>
 
           <div class="sec-claim">
@@ -3122,7 +3122,7 @@ a { color: inherit; }
       <div class="container container--narrow">
         <p class="eyebrow eyebrow--center">Your hollr link is waiting.</p>
         <h2 class="cta-title">Let them holler.</h2>
-        <p class="cta-sub">Connect with X, your handle is live in seconds. Hollrs arrive encrypted at yo@hollr.to — or wire up your own inbox. One link. Everyone can reach you.</p>
+        <p class="cta-sub">Connect with X, your handle is live in seconds. Set your notification email and hollrs land straight in your inbox. One link. Everyone can reach you.</p>
         <button class="btn btn--primary btn--hero" data-modal-open style="margin: 0 auto; display: flex;">
           Get your hollr link
           <span class="btn-arrow" aria-hidden="true">&rarr;</span>
@@ -3391,7 +3391,7 @@ a { color: inherit; }
         <a href="/auth/verify" class="btn btn--primary btn--full modal__success-btn">
           Open my canvas →
         </a>
-        <p class="modal__note">Hollrs arrive at <strong>yo@hollr.to</strong> by default. Add your own Resend key anytime in settings.</p>
+        <p class="modal__note">Set your notification email in settings and hollrs land straight in your inbox. Bring your own Resend key anytime for custom delivery.</p>
       </div>
     </div>
   </div>
@@ -3420,7 +3420,7 @@ const LANGS = {
     how_sub: "No app to download, no credit card, no DM requests sitting unread. Just a link people can actually use to reach you.",
     step1_title: 'Drop your email', step1_body: 'A magic link hits your inbox. No password, no account setup. One click and you\'re in.',
     step2_title: 'Claim your handle', step2_body: 'hollr.to/yourname — first come, first served. Your canvas goes live the second you pick it.',
-    step3_title: 'Zero setup. Or bring your own.', step3_body: 'By default, hollrs arrive at yo@hollr.to — instant, no config. Plug in your own Resend key anytime and messages go straight to you.',
+    step3_title: 'Zero setup. Or bring your own.', step3_body: 'Set your notification email and hollrs land in your inbox — sent from yo@hollr.to. Plug in your own Resend key anytime and messages come from your domain instead.',
     step4_title: 'Put it out there', step4_body: 'Bio, email sig, business card, anywhere. Now anyone can holler at you — and actually reach you.',
     senders_eyebrow: 'What your senders see', senders_title: 'A canvas built for', senders_title_em: 'thoughtful messages.',
     senders_sub: 'When someone visits your hollr link, they get a distraction-free writing experience — not a contact form.',
@@ -3485,7 +3485,7 @@ const LANGS = {
     how_sub: 'Aucune configuration complexe. Juste votre email et un handle que vous voudrez partager.',
     step1_title: 'Entrez votre email', step1_body: 'Un lien magique arrive dans votre boîte mail. Aucun mot de passe. Un clic et vous êtes connecté.',
     step2_title: 'Choisissez votre handle', step2_body: 'hollr.to/tonnom — premier arrivé, premier servi. Votre espace est instantanément actif.',
-    step3_title: 'Zéro config. Ou votre propre clé.', step3_body: 'Par défaut, vos hollrs arrivent à yo@hollr.to — sans configuration. Ajoutez votre clé Resend quand vous voulez.',
+    step3_title: 'Zéro config. Ou votre propre clé.', step3_body: 'Renseignez votre email et vos hollrs arrivent directement dans votre boîte — envoyés depuis yo@hollr.to. Ajoutez votre clé Resend pour utiliser votre propre domaine.',
     step4_title: 'Partagez votre lien', step4_body: 'Mettez-le dans votre bio, signature ou carte de visite. N\u2019importe qui peut vous écrire, partout.',
     senders_eyebrow: 'Ce que vos expéditeurs voient', senders_title: 'Un canvas conçu pour', senders_title_em: 'des messages réfléchis.',
     senders_sub: 'Quand quelqu\u2019un visite votre lien hollr, il obtient un espace d\u2019écriture — pas un formulaire de contact.',
@@ -3550,7 +3550,7 @@ const LANGS = {
     how_sub: 'Kein kompliziertes Setup. Nur deine E-Mail und ein Handle, den du teilen willst.',
     step1_title: 'E-Mail eingeben', step1_body: 'Ein Magic Link landet in deinem Postfach. Kein Passwort. Ein Klick und du bist drin.',
     step2_title: 'Handle wählen', step2_body: 'hollr.to/deinname — wer zuerst kommt, mahlt zuerst.',
-    step3_title: 'Null Setup. Oder eigener Key.', step3_body: 'Standardmäßig kommen Hollrs bei yo@hollr.to an — sofort, ohne Konfiguration. Deinen Resend-Key kannst du jederzeit hinzufügen.',
+    step3_title: 'Null Setup. Oder eigener Key.', step3_body: 'Trag deine E-Mail ein und Hollrs landen direkt in deinem Postfach — gesendet von yo@hollr.to. Füge deinen Resend-Key hinzu, um deine eigene Domain zu nutzen.',
     step4_title: 'Link teilen', step4_body: 'In Bio, E-Mail-Signatur oder Visitenkarte. Jeder kann dich von überall erreichen.',
     senders_eyebrow: 'Was deine Absender sehen', senders_title: 'Ein Canvas für', senders_title_em: 'durchdachte Nachrichten.',
     senders_sub: 'Wenn jemand deinen hollr-Link besucht, bekommt er einen ablenkungsfreien Schreibbereich.',
@@ -3615,7 +3615,7 @@ const LANGS = {
     how_sub: 'Nessuna configurazione complessa. Solo la tua email e un handle che vorrai condividere.',
     step1_title: 'Inserisci la tua email', step1_body: 'Un link magico arriva nella tua casella. Nessuna password. Un clic e sei dentro.',
     step2_title: 'Scegli il tuo handle', step2_body: 'hollr.to/tuonome — primo arrivato, primo servito.',
-    step3_title: 'Zero config. O chiave tua.', step3_body: 'Di default, i hollr arrivano a yo@hollr.to — istantaneamente, senza setup. Aggiungi la tua chiave Resend quando vuoi.',
+    step3_title: 'Zero config. O chiave tua.', step3_body: 'Inserisci la tua email e i hollr arrivano direttamente nella tua casella — inviati da yo@hollr.to. Aggiungi la tua chiave Resend per usare il tuo dominio.',
     step4_title: 'Condividi il link', step4_body: 'Mettilo nella bio, firma email o biglietto da visita.',
     senders_eyebrow: 'Cosa vedono i tuoi mittenti', senders_title: 'Un canvas per', senders_title_em: 'messaggi pensati.',
     senders_sub: 'Quando qualcuno visita il tuo link hollr, ottiene uno spazio di scrittura — non un modulo di contatto.',
@@ -3680,7 +3680,7 @@ const LANGS = {
     how_sub: 'Sin configuración compleja. Solo tu email y un handle que querrás compartir.',
     step1_title: 'Introduce tu email', step1_body: 'Un enlace mágico llega a tu bandeja. Sin contraseña. Un clic y ya estás dentro.',
     step2_title: 'Elige tu handle', step2_body: 'hollr.to/tunombre — el primero en llegar, el primero en ser servido.',
-    step3_title: 'Cero config. O tu propia clave.', step3_body: 'Por defecto, los hollrs llegan a yo@hollr.to — sin configuración. Añade tu clave Resend cuando quieras.',
+    step3_title: 'Cero config. O tu propia clave.', step3_body: 'Añade tu email y los hollrs llegan directamente a tu bandeja — enviados desde yo@hollr.to. Usa tu clave Resend para enviarlos desde tu propio dominio.',
     step4_title: 'Comparte tu enlace', step4_body: 'Ponlo en tu bio, firma de email o tarjeta de visita.',
     senders_eyebrow: 'Lo que ven tus remitentes', senders_title: 'Un lienzo para', senders_title_em: 'mensajes reflexivos.',
     senders_sub: 'Cuando alguien visita tu enlace hollr, obtiene un espacio de escritura — no un formulario de contacto.',
@@ -3745,7 +3745,7 @@ const LANGS = {
     how_sub: 'Geen ingewikkelde setup. Alleen je e-mail en een handle die je wilt delen.',
     step1_title: 'Vul je e-mail in', step1_body: 'Een magische link komt in je inbox. Geen wachtwoord. Één klik en je bent binnen.',
     step2_title: 'Kies je handle', step2_body: 'hollr.to/jounaam — wie het eerst komt, het eerst maalt.',
-    step3_title: 'Nul setup. Of eigen sleutel.', step3_body: 'Standaard komen hollrs binnen bij yo@hollr.to — direct, zonder configuratie. Voeg je Resend-sleutel toe wanneer je wilt.',
+    step3_title: 'Nul setup. Of eigen sleutel.', step3_body: 'Voeg je e-mailadres toe en hollrs landen direct in je inbox — verstuurd vanaf yo@hollr.to. Gebruik je eigen Resend-sleutel voor jouw domein.',
     step4_title: 'Deel je link', step4_body: 'Zet hem in je bio, e-mailhandtekening of visitekaartje.',
     senders_eyebrow: 'Wat je verzenders zien', senders_title: 'Een doek voor', senders_title_em: 'doordachte berichten.',
     senders_sub: 'Wanneer iemand je hollr-link bezoekt, krijgt hij een schrijfervaring — geen contactformulier.',
@@ -3810,7 +3810,7 @@ const LANGS = {
     how_sub: '无需复杂设置。只需您的邮箱和一个手柄。',
     step1_title: '输入邮箱', step1_body: '魔法链接将发送到您的邮箱。无需密码。',
     step2_title: '选择手柄', step2_body: 'hollr.to/您的名字 — 先到先得。您的画布立即上线。',
-    step3_title: '零配置，或使用您自己的密钥', step3_body: '默认情况下，hollrs 发送至 yo@hollr.to — 即时，无需配置。随时添加您自己的 Resend 密钥。',
+    step3_title: '零配置，或使用您自己的密钥', step3_body: '填写您的通知邮箱，hollrs 将从 yo@hollr.to 发送到您的收件箱。随时添加自己的 Resend 密钥以使用您的域名。',
     step4_title: '分享链接', step4_body: '放在您的个人介绍、签名或名片中。任何人都可以随时联系您。',
     senders_eyebrow: '您的发件人看到什么', senders_title: '一个为', senders_title_em: '深思熟虑的消息而设计的画布。',
     senders_sub: '当有人访问您的 hollr 链接时，他们获得写作体验 — 而不是联系表单。',
@@ -3875,7 +3875,7 @@ const LANGS = {
     how_sub: 'कोई जटिल सेटअप नहीं। सिर्फ आपका ईमेल और एक हैंडल।',
     step1_title: 'अपना ईमेल दर्ज करें', step1_body: 'ऐडरेस पर मैजिक लिंक आएगा। कोई पासवर्ड नहीं।',
     step2_title: 'हैंडल चुनें', step2_body: 'hollr.to/आपकानाम — पहले आए, पहले पाएं।',
-    step3_title: 'शून्य सेटअप। या अपनी कुंजी।', step3_body: 'डिफ़ॉल्ट रूप से hollrs yo@hollr.to पर आते हैं — तुरंत, बिना कॉन्फ़िग के।',
+    step3_title: 'शून्य सेटअप। या अपनी कुंजी।', step3_body: 'अपना नोटिफिकेशन ईमेल जोड़ें और hollrs सीधे आपके इनबॉक्स में पहुंचें — yo@hollr.to से भेजे जाते हैं। अपनी Resend कुंजी से अपना डोमेन उपयोग करें।',
     step4_title: 'अपना लिंक शेयर करें', step4_body: 'बायो, सिग्नेचर या विजिटिंग कार्ड में डालें।',
     senders_eyebrow: 'आपके भेजनेवाले क्या देखते हैं', senders_title: 'एक कैन्वास', senders_title_em: 'सोच-समझकर संदेशों के लिए।',
     senders_sub: 'जब कोई आपका hollr लिंक खोलता है, उन्हें लेखन अनुभव मिलता है।',
@@ -3940,7 +3940,7 @@ const LANGS = {
     how_sub: '複雑な設定は不要です。メールアドレスと共有したいハンドルだけ。',
     step1_title: 'メールを入力', step1_body: 'マジックリンクが届きます。パスワード不要。',
     step2_title: 'ハンドルを選択', step2_body: 'hollr.to/あなたの名前 — 先着先勝。',
-    step3_title: 'ゼロセットアップ。または独自キー。', step3_body: 'デフォルトでhollrはyo@hollr.toに届きます。独自のResendキーはいつでも追加できます。',
+    step3_title: 'ゼロセットアップ。または独自キー。', step3_body: '通知メールを設定すれば、hollrはyo@hollr.toからあなたの受信箱に届きます。独自のResendキーを使えば、自分のドメインから送信できます。',
     step4_title: 'リンクを共有', step4_body: 'プロフィール、メール署名、名刺に追加。どこからでも連絡可能。',
     senders_eyebrow: '送信者に見えるもの', senders_title: 'キャンバスは', senders_title_em: '思慮深いメッセージのために。',
     senders_sub: '誰かがあなたのhollrリンクを訪れると、コンタクトフォームではなく執筆体験を得ます。',
@@ -4005,7 +4005,7 @@ const LANGS = {
     how_sub: 'Никакой сложной настройки. Только е-мейл и хэндл.',
     step1_title: 'Введите е-мейл', step1_body: 'Магическая ссылка придёт на почту. Без пароля.',
     step2_title: 'Выберите хэндл', step2_body: 'hollr.to/вашеимя — кто первый, тот и забрал.',
-    step3_title: 'Ноль настроек. Или свой ключ.', step3_body: 'По умолчанию hollrs приходят на yo@hollr.to — мгновенно. Добавьте свой Resend-ключ в любое время.',
+    step3_title: 'Ноль настроек. Или свой ключ.', step3_body: 'Укажите email для уведомлений и hollrs будут приходить прямо в ваш ящик — отправлены с yo@hollr.to. Добавьте свой Resend-ключ, чтобы отправлять с вашего домена.',
     step4_title: 'Поделитесь ссылкой', step4_body: 'Добавьте в bio, подпись емейла или визитку.',
     senders_eyebrow: 'Что видят отправители', senders_title: 'Холст для', senders_title_em: 'вдумчивых сообщений.',
     senders_sub: 'Когда кто-то открывает вашу ссылку hollr, он получает пространство для письма — не форму контакта.',
