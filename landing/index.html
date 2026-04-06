@@ -2064,355 +2064,109 @@ a { color: inherit; }
   font-style: italic;
 }
 
-/* ── API / MCP / WEBHOOKS SECTION ────────────────────────────── */
-.api-section { background: var(--bg); }
+/* ── COMING SOON SECTION ─────────────────────────────────────────────── */
+.coming-section { background: var(--bg); }
+.coming-header  { margin-bottom: var(--sp-7); }
 
-.api-section__header {
-  max-width: 640px;
-  margin-bottom: clamp(var(--sp-12), 6vw, var(--sp-16));
-}
-
-/* 3-col grid of cards */
-.api-grid {
+.coming-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--sp-5);
-  margin-bottom: clamp(var(--sp-12), 6vw, var(--sp-16));
+  gap: var(--sp-4);
 }
+@media (max-width: 900px) { .coming-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .coming-grid { grid-template-columns: 1fr; } }
 
-@media (max-width: 860px) {
-  .api-grid { grid-template-columns: 1fr; gap: var(--sp-4); }
-}
-
-/* API card */
-.api-card {
-  background: var(--surface-raised);
+.coming-card {
+  position: relative;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r-xl);
-  padding: var(--sp-6);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-5);
-  position: relative;
-  transition: border-color var(--t), box-shadow var(--t), transform var(--t);
+  gap: var(--sp-3);
+  transition: border-color 200ms, box-shadow 200ms;
 }
-.api-card:hover {
+.coming-card:hover {
   border-color: var(--border-strong);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 24px rgba(0,0,0,.06);
+}
+/* Featured card spans full width on last row */
+.coming-card--featured {
+  grid-column: 1 / -1;
+  background: color-mix(in srgb, var(--amber) 5%, var(--surface));
+  border-color: color-mix(in srgb, var(--amber) 25%, var(--border));
+}
+[data-theme="dark"] .coming-card--featured {
+  background: color-mix(in srgb, var(--amber) 8%, var(--surface));
 }
 
-/* Featured card (MCP) — slightly darker bg, amber accent border */
-.api-card--featured {
-  background: var(--surface);
-  border-color: color-mix(in srgb, var(--amber) 35%, var(--border));
-}
-.api-card--featured:hover {
-  border-color: var(--amber);
-  box-shadow: 0 8px 28px color-mix(in srgb, var(--amber) 15%, transparent);
-}
-
-/* "Coming soon" badge */
-.api-card__badge {
-  position: absolute;
-  top: var(--sp-4);
-  right: var(--sp-4);
-  font-size: 0.6rem;
+.coming-card__badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: .08em;
   text-transform: uppercase;
-  color: var(--amber);
-  background: var(--amber-light);
-  border: 1px solid color-mix(in srgb, var(--amber) 25%, transparent);
+  background: var(--surface-subtle);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  border-radius: 99px;
   padding: 3px 10px;
-  border-radius: var(--r-pill);
+  width: fit-content;
+}
+.coming-card__badge--new {
+  background: color-mix(in srgb, var(--amber) 15%, var(--surface));
+  color: var(--amber);
+  border-color: color-mix(in srgb, var(--amber) 35%, transparent);
 }
 
-.api-card__icon {
-  width: 44px; height: 44px;
+.coming-card__icon {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-md);
   background: var(--surface-subtle);
   border: 1px solid var(--border);
-  border-radius: var(--r-lg);
   display: flex; align-items: center; justify-content: center;
   color: var(--text-2);
   flex-shrink: 0;
 }
-.api-card--featured .api-card__icon {
-  background: var(--amber-light);
-  border-color: color-mix(in srgb, var(--amber) 25%, transparent);
-  color: var(--amber);
-}
-
-.api-card__body { display: flex; flex-direction: column; gap: var(--sp-2); }
-
-.api-card__title {
-  font-family: var(--serif);
-  font-size: var(--text-xl);
-  font-weight: 600;
-  color: var(--text);
-  font-variation-settings: 'opsz' 36, 'wght' 600;
-  line-height: 1.2;
-}
-.api-card__desc {
-  font-size: var(--text-sm);
-  color: var(--text-2);
-  line-height: 1.65;
-}
-
-/* Code snippet row */
-.api-card__code {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  margin-top: var(--sp-2);
-  background: var(--surface-subtle);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: var(--sp-2) var(--sp-3);
-  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
-  font-size: 0.72rem;
-  overflow: hidden;
-}
-.code-verb {
-  background: var(--text);
-  color: var(--text-inv);
-  padding: 2px 6px;
-  border-radius: 3px;
+.coming-card__title {
+  font-size: var(--text-md);
   font-weight: 700;
-  letter-spacing: 0.04em;
-  flex-shrink: 0;
-  font-size: 0.65rem;
-}
-.code-verb--post { background: #1a7a5e; }
-.code-verb--mcp  { background: var(--amber); color: #fff; }
-.code-path {
-  color: var(--text-2);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Delivery strip — horizontal option selector */
-.delivery-strip {
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--r-xl);
-  padding: clamp(var(--sp-6), 4vw, var(--sp-8));
-}
-.delivery-strip__label {
-  font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-3);
-  margin-bottom: var(--sp-4);
-}
-.delivery-options {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--sp-4);
-  margin-bottom: var(--sp-4);
-}
-@media (max-width: 640px) {
-  .delivery-options { grid-template-columns: 1fr; gap: var(--sp-3); }
-}
-
-.delivery-opt {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--sp-3);
-  padding: var(--sp-4);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  transition: border-color var(--t);
-}
-.delivery-opt--active {
-  border-color: var(--amber);
-  background: var(--amber-light);
-}
-.delivery-opt strong {
-  display: block;
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 0.75rem;
-  font-weight: 600;
+  letter-spacing: -.02em;
   color: var(--text);
-  margin-bottom: 2px;
 }
-.delivery-opt span {
-  font-size: var(--text-xs);
-  color: var(--text-2);
-  line-height: 1.4;
-}
-.delivery-opt__dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--amber);
-  flex-shrink: 0;
-  margin-top: 3px;
-  animation: pulse 2.5s ease-in-out infinite;
-}
-.delivery-opt__dot--muted {
-  background: var(--border-strong);
-  animation: none;
-}
-.delivery-strip__note {
-  font-size: var(--text-xs);
-  color: var(--text-3);
-  line-height: 1.55;
-  padding-top: var(--sp-3);
-  border-top: 1px solid var(--divider);
-}
-
-/* ── MODAL EMAIL FALLBACK + CONFLICT NOTICE ──────────────────── */
-
-/* Divider "or" */
-.modal__divider {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  margin: var(--sp-4) 0 var(--sp-3);
-  color: var(--text-3);
-  font-size: var(--text-xs);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.modal__divider::before,
-.modal__divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--divider);
-}
-
-/* Email toggle trigger */
-.modal__email-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sp-2);
-  width: 100%;
-  padding: 0.65rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  background: transparent;
-  color: var(--text-2);
+.coming-card__desc {
   font-size: var(--text-sm);
+  line-height: 1.65;
+  color: var(--text-2);
+  flex: 1;
+}
+.coming-card__code {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.coming-card__examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: var(--sp-1);
+}
+.coming-example {
+  font-size: 12px;
   font-weight: 500;
-  cursor: pointer;
-  transition: border-color var(--t), background var(--t), color var(--t);
-}
-.modal__email-trigger:hover {
-  border-color: var(--border-strong);
   background: var(--surface-subtle);
-  color: var(--text);
-}
-.modal__email-trigger svg {
-  transition: transform 0.2s var(--ease);
-  flex-shrink: 0;
-}
-.modal__email-trigger.is-open svg {
-  transform: rotate(180deg);
-}
-
-/* Email form — animated expand */
-.modal__email-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-  padding-top: var(--sp-3);
-  animation: fadeUp 0.22s var(--ease) both;
-}
-.modal__email-form[hidden] { display: none !important; }
-
-.modal__email-fields {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-}
-
-.modal__handle-row {
-  display: flex;
-  align-items: center;
   border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  overflow: hidden;
-  transition: border-color var(--t), box-shadow var(--t);
-  background: var(--surface-raised);
-}
-.modal__handle-row:focus-within {
-  border-color: var(--text);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--text) 8%, transparent);
-}
-.modal__handle-prefix {
-  padding: 0 var(--sp-3);
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 0.75rem;
-  color: var(--text-3);
-  background: var(--surface-subtle);
-  border-right: 1px solid var(--border);
-  height: 100%;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  user-select: none;
-}
-.modal__input--handle {
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  background: transparent;
-  flex: 1;
-  min-width: 0;
-  padding: 0.6rem var(--sp-3);
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 0.82rem;
-  color: var(--text);
-}
-.modal__input--handle::placeholder { color: var(--text-3); }
-.modal__input--handle:focus { outline: none; }
-
-.modal__input {
-  width: 100%;
-  padding: 0.6rem var(--sp-3);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--surface-raised);
-  color: var(--text);
-  font-size: var(--text-sm);
-  transition: border-color var(--t), box-shadow var(--t);
-}
-.modal__input:focus {
-  outline: none;
-  border-color: var(--text);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--text) 8%, transparent);
-}
-.modal__input::placeholder { color: var(--text-3); }
-
-/* Handle conflict notice */
-.modal__conflict-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--sp-2);
-  background: var(--amber-light);
-  border: 1px solid color-mix(in srgb, var(--amber) 25%, transparent);
-  border-radius: var(--r-md);
-  padding: var(--sp-3);
-}
-.modal__conflict-notice svg {
-  flex-shrink: 0;
-  color: var(--amber);
-  margin-top: 1px;
-}
-.modal__conflict-notice p {
-  font-size: 0.72rem;
+  border-radius: 99px;
+  padding: 4px 12px;
   color: var(--text-2);
-  line-height: 1.55;
-}
-.modal__conflict-notice strong {
-  color: var(--text);
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 0.7rem;
+  white-space: nowrap;
 }
 
 /* ── DELIVERY STRIP — 4 columns ─────────────────────────────── */
@@ -2813,7 +2567,7 @@ a { color: inherit; }
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </div>
             <h3 class="feature-card__title">Zero setup. Or full control.</h3>
-            <p class="feature-card__body">By default, hollrs arrive at <code class="inline-code">yo@hollr.to</code> — instant, no config. Bring your own Resend key and messages go straight to you. Same encryption, your choice.</p>
+            <p class="feature-card__body">Add your notification email and hollrs land right in your inbox — no config needed. Bring your own Resend key and domain for custom delivery. Same AES-256-GCM encryption either way. You choose how deep you go.</p>
           </div>
 
           <div class="feature-card js-reveal">
@@ -2828,8 +2582,8 @@ a { color: inherit; }
             <div class="feature-card__icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>
             </div>
-            <h3 class="feature-card__title">Voice hollrs</h3>
-            <p class="feature-card__body">Sometimes you just need to hear someone's voice. Record in-browser, no app needed. Audio arrives as a download link straight in your inbox.</p>
+            <h3 class="feature-card__title">Voice &amp; files</h3>
+            <p class="feature-card__body">Record a voice note or attach any file — right in the browser, no app needed. Everything is encrypted before upload. A secure decrypt link lands in your inbox.</p>
           </div>
 
           <div class="feature-card js-reveal">
@@ -2837,7 +2591,7 @@ a { color: inherit; }
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
             <h3 class="feature-card__title">Locked down, always</h3>
-            <p class="feature-card__body">Your Resend key (if provided) is encrypted at rest with AES-256-CBC + PBKDF2. PIN-protected. Every hollr is PGP-encrypted at source. Nothing sits in plaintext — not even close.</p>
+            <p class="feature-card__body">Everything encrypted. Messages optionally PGP end-to-end from sender’s browser. Files and voice notes AES-256-GCM at rest. Your Resend key AES-256-CBC + PBKDF2. Settings PIN-protected. Nothing in plaintext — ever.</p>
           </div>
 
           <div class="feature-card js-reveal">
@@ -2987,118 +2741,96 @@ a { color: inherit; }
       </div>
     </section>
 
-    <!-- API / MCP / WEBHOOKS -->
-    <section class="section api-section js-reveal" id="api">
+    <!-- COMING SOON -->
+    <section class="section coming-section js-reveal" id="api">
       <div class="container">
 
-        <div class="api-section__header">
-          <p class="eyebrow">Built for developers</p>
-          <h2 class="section__title">Your hollrs,<br><em>anywhere you need them.</em></h2>
-          <p class="section__sub">hollr isn't just a link. It’s an open platform. Pipe your incoming messages into any system — your CRM, your Notion, your terminal, your AI stack.</p>
+        <div class="coming-header">
+          <p class="eyebrow eyebrow--center">What’s next</p>
+          <h2 class="section__title" style="text-align:center">More power,<br><em>coming soon.</em></h2>
+          <p class="section__sub" style="text-align:center;max-width:560px;margin:0 auto">hollr is just getting started. Here’s what’s on the roadmap — built to give you more control over who reaches you and how.</p>
         </div>
 
-        <div class="api-grid">
+        <div class="coming-grid">
 
           <!-- REST API -->
-          <div class="api-card js-reveal">
-            <div class="api-card__icon">
+          <div class="coming-card js-reveal">
+            <div class="coming-card__badge">Coming soon</div>
+            <div class="coming-card__icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                 <path d="M4 6h16M4 12h10M4 18h7"/>
                 <circle cx="19" cy="18" r="3"/>
                 <path d="M22 21l-1.5-1.5"/>
               </svg>
             </div>
-            <div class="api-card__body">
-              <h3 class="api-card__title">REST API</h3>
-              <p class="api-card__desc">Full HTTP API. List hollrs, fetch content, manage your handle. Build anything on top.</p>
-              <div class="api-card__code">
-                <span class="code-verb">GET</span>
-                <span class="code-path">/v1/hollrs</span>
-              </div>
+            <h3 class="coming-card__title">REST API</h3>
+            <p class="coming-card__desc">Full HTTP API to read your hollrs, manage your handle, and integrate with any system. Build your own inbox, CRM integration, or notification bot on top.</p>
+            <div class="coming-card__code">
+              <span class="code-verb">GET</span>
+              <span class="code-path">/v1/hollrs</span>
             </div>
           </div>
 
           <!-- Webhooks -->
-          <div class="api-card js-reveal">
-            <div class="api-card__icon">
+          <div class="coming-card js-reveal">
+            <div class="coming-card__badge">Coming soon</div>
+            <div class="coming-card__icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                 <path d="M18 16.016a4 4 0 1 1-7.198-2.016H6a4 4 0 1 1 3.2-6.4"/>
                 <path d="m15 6 3 3-3 3"/>
               </svg>
             </div>
-            <div class="api-card__body">
-              <h3 class="api-card__title">Webhooks</h3>
-              <p class="api-card__desc">POST each hollr to any URL the moment it arrives. Zapier, Make, your own server — no polling.</p>
-              <div class="api-card__code">
-                <span class="code-verb code-verb--post">POST</span>
-                <span class="code-path">your-endpoint.com/hook</span>
-              </div>
+            <h3 class="coming-card__title">Webhooks</h3>
+            <p class="coming-card__desc">POST each hollr to any URL the moment it arrives. Wire it to Zapier, Make, your own server, or a Notion database — no polling, just instant delivery.</p>
+            <div class="coming-card__code">
+              <span class="code-verb code-verb--post">POST</span>
+              <span class="code-path">your-endpoint.com/hook</span>
             </div>
           </div>
 
-          <!-- MCP -->
-          <div class="api-card api-card--featured js-reveal">
-            <div class="api-card__badge">Coming soon</div>
-            <div class="api-card__icon">
+          <!-- MCP Server -->
+          <div class="coming-card js-reveal">
+            <div class="coming-card__badge">Coming soon</div>
+            <div class="coming-card__icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                 <rect x="2" y="3" width="20" height="14" rx="2"/>
                 <path d="M8 21h8M12 17v4"/>
                 <path d="M7 7h.01M11 7h6M7 11h3m2 0h4"/>
               </svg>
             </div>
-            <div class="api-card__body">
-              <h3 class="api-card__title">MCP Server</h3>
-              <p class="api-card__desc">Read your hollrs directly from Claude, Cursor, or any AI tool via the Model Context Protocol. Your inbox becomes a tool your AI can use.</p>
-              <div class="api-card__code">
-                <span class="code-verb code-verb--mcp">MCP</span>
-                <span class="code-path">hollr://yourhandle/hollrs</span>
-              </div>
+            <h3 class="coming-card__title">MCP Server</h3>
+            <p class="coming-card__desc">Read your hollrs directly from Claude, Cursor, or any AI tool via the Model Context Protocol. Your inbox becomes a tool your AI can use — no copy-paste.</p>
+            <div class="coming-card__code">
+              <span class="code-verb code-verb--mcp">MCP</span>
+              <span class="code-path">hollr://yourhandle/hollrs</span>
             </div>
           </div>
 
-        </div>
-
-        <!-- Delivery toggle strip -->
-        <div class="delivery-strip js-reveal">
-          <p class="delivery-strip__label">Where your hollrs land</p>
-          <div class="delivery-options delivery-options--4">
-            <div class="delivery-opt delivery-opt--active">
-              <span class="delivery-opt__dot"></span>
-              <div>
-                <strong>yo@hollr.to</strong>
-                <span>Default &mdash; zero setup, instant</span>
-              </div>
+          <!-- Verification Apps -->
+          <div class="coming-card coming-card--featured js-reveal">
+            <div class="coming-card__badge coming-card__badge--new">New idea</div>
+            <div class="coming-card__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M9 12l2 2 4-4"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              </svg>
             </div>
-            <div class="delivery-opt">
-              <span class="delivery-opt__dot delivery-opt__dot--muted"></span>
-              <div>
-                <strong>Your Resend key</strong>
-                <span>Direct to your inbox, no relay</span>
-              </div>
-            </div>
-            <div class="delivery-opt delivery-opt--x">
-              <span class="delivery-opt__dot delivery-opt__dot--muted"></span>
-              <div>
-                <strong>X / Twitter DM</strong>
-                <span>Pinged right in your X inbox</span>
-              </div>
-              <svg class="delivery-opt__x-icon" viewBox="0 0 24 24" fill="currentColor" width="13" height="13" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            </div>
-            <div class="delivery-opt">
-              <span class="delivery-opt__dot delivery-opt__dot--muted"></span>
-              <div>
-                <strong>Webhook URL</strong>
-                <span>POST to any endpoint you control</span>
-              </div>
+            <h3 class="coming-card__title">Verification Apps</h3>
+            <p class="coming-card__desc">Before someone can send you a hollr, they complete a micro-task you choose. A donation to a charity. Following your account. Downloading your app. Solving a puzzle. You set the gate — we handle the verification. Real signal, zero spam.</p>
+            <div class="coming-card__examples">
+              <span class="coming-example">💸 Donate $1 to a cause</span>
+              <span class="coming-example">📲 Follow on social</span>
+              <span class="coming-example">📥 Download an app</span>
+              <span class="coming-example">🧩 Complete a challenge</span>
             </div>
           </div>
-          <p class="delivery-strip__note">Every option delivers the same PGP-encrypted payload. Same security, your choice of channel. <strong>X DM delivery</strong> is available because you connect your account — we never read your existing DMs.</p>
+
         </div>
 
       </div>
     </section>
 
-    <!-- SIGNAL FILTER — AI spam + human verified -->
+        <!-- SIGNAL FILTER — AI spam + human verified -->
     <section class="section signal-section js-reveal" id="signal">
       <div class="container">
 
@@ -3495,10 +3227,10 @@ const LANGS = {
     canvas_b3: 'Drag-and-drop file attachments', canvas_b4: 'Message lands in your inbox instantly',
     canvas_send: 'Send message',
     feat_eyebrow: 'Features', feat_title: 'Everything you need,\nnothing you don\'t.',
-    f1_title: 'Your API key, your inbox', f1_body: 'Messages are delivered via your own Resend account. hollr is never an intermediary — we see nothing.',
+    f1_title: 'Zero setup. Or full control.', f1_body: 'Add your notification email and hollrs land right in your inbox — no config needed. Bring your own Resend key and domain for custom delivery. Same AES-256-GCM encryption either way.',
     f2_title: 'Timed canvas', f2_body: "An always-running timer shows senders how long they've been composing. No idle drifting — it's a writing tool.",
-    f3_title: 'Voice notes', f3_body: 'Record directly in the browser. Audio is attached and delivered as a download link in your email.',
-    f4_title: 'AES-256 encrypted', f4_body: 'Your Resend key is encrypted at rest with AES-256-CBC + PBKDF2. PIN-protected settings. Nothing in plaintext.',
+    f3_title: 'Voice & files', f3_body: 'Record a voice note or attach any file — right in the browser. Everything is encrypted before upload. A secure decrypt link lands in your inbox.',
+    f4_title: 'Locked down, always', f4_body: 'Everything encrypted. Messages optionally PGP end-to-end. Files and voice AES-256-GCM at rest. Your Resend key AES-256-CBC + PBKDF2. Settings PIN-protected. Nothing in plaintext — ever.',
     f5_title: '10 languages', f5_body: "EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU. The canvas speaks your senders' language automatically.",
     f6_title: 'Fully open source', f6_body: 'MIT licensed. Fork it, self-host on Fly.io, extend it however you want. The code is yours.',
     priv_eyebrow: 'Privacy by design', priv_title: 'Everything encrypted.', priv_title_em: 'Nothing stored.',
@@ -4713,7 +4445,12 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
       if (wordEl) wordEl.textContent = countWords(shown) + ' words';
 
       if (charIndex <= 0) {
-        // Erased everything — short pause then type again
+        // Erased everything — reset timer to starting position, then type again
+        secs = 107;
+        ms   = 28;
+        if (timerEl) timerEl.textContent = '01:47';
+        if (msEl)    msEl.textContent    = '.28';
+        if (wordEl)  wordEl.textContent  = '0 words';
         pauseTicks = 20;
         direction = 1;
         setTimeout(typeTick, FORWARD_DELAY);

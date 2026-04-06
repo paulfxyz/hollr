@@ -17,6 +17,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [4.6.0] — 2026-04-06
+
+### 🏗️ Landing page refresh
+
+### Changed
+- **API & MCP section** → redesigned as **"What's next — Coming soon"** section. REST API, Webhooks, and MCP Server all marked "Coming soon" with proper cards. Copy updated to explain what each will do.
+- **Verification Apps** — new full-width "New idea" card teasing the upcoming micro-task gate feature: before someone can send a hollr, they complete a task the owner chooses (donation, follow, download, puzzle). Real signal, zero spam.
+- **Hero timer** — resets to `01:47` when the typewriter animation erases and restarts, instead of counting endlessly.
+- **Features grid** — updated copy to reflect actual v4.5 stack:
+  - Feature 1 (delivery): now mentions notification email, Resend + domain, AES-256-GCM
+  - Feature 3 (voice): renamed "Voice & files", mentions encrypted file upload
+  - Feature 4 (encryption): full stack listed — PGP optional E2E, AES-256-GCM files/voice, AES-256-CBC+PBKDF2 for Resend key
+- **Delivery strip** — Webhook and X DM delivery marked "Coming soon"; removed misleading "available now" framing.
+
+---
+
 ## [4.5.1] — 2026-04-06
 
 ### 🐛 Handle pre-fill fix + full cleanup
