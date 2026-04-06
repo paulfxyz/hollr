@@ -17,6 +17,31 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [4.7.0] — 2026-04-06
+
+### 🏗️ Landing cleanup + roadmap + legal modal
+
+### Changed
+
+- **Nav**: `API & MCP` renamed to `Roadmap` — honest label for a roadmap section.
+- **Roadmap section** rebuilt:
+  - New title: *"What's coming to hollr."*
+  - Status legend (● Live · ● Building · ● Planned · ● Idea) with coloured dots
+  - Green "Live now — v4.6.0" strip listing all 10 current features as chips
+  - Roadmap cards now show status badge (Building / Planned) and ETA (Q3 / Q4 2026 / 2027)
+- **Signal / AI filter section removed** — this section described reading and filtering message content, which is incompatible with end-to-end PGP encryption. Messages are encrypted before they leave the sender's browser; hollr cannot read them.
+- **Footer**: 
+  - `Privacy` and `Terms` links replaced with single `Legal & Terms` button
+  - `MIT License` → `Under MIT License` (links to LICENSE file on GitHub)
+  - `GitHub` → `GitHub ↗`
+- **Legal modal** (new) — opens from footer "Legal & Terms" button:
+  - Who built hollr (Paul Fleury, hacker-turned-entrepreneur, no legal entity)
+  - MIT license explanation
+  - Three links: GitHub repo, @paulfxyz on X, MIT License full text
+  - Click outside or Esc to close
+
+---
+
 ## [4.6.0] — 2026-04-06
 
 ### 🏗️ Landing page refresh

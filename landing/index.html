@@ -2066,7 +2066,56 @@ a { color: inherit; }
 
 /* ── COMING SOON SECTION ─────────────────────────────────────────────── */
 .coming-section { background: var(--bg); }
-.coming-header  { margin-bottom: var(--sp-7); }
+.coming-header  { margin-bottom: var(--sp-5); text-align: center; }
+
+/* Status legend */
+.roadmap-legend {
+  display: flex; align-items: center; justify-content: center;
+  gap: 28px; flex-wrap: wrap; margin-top: 20px;
+}
+.roadmap-legend__item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; color: var(--text-2);
+  letter-spacing: .06em; text-transform: uppercase;
+}
+.roadmap-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.roadmap-dot--live     { background: #2d9e6b; }
+.roadmap-dot--building { background: #e8b84b; }
+.roadmap-dot--planned  { background: var(--amber); opacity: .7; }
+.roadmap-dot--idea     { background: var(--border-strong, #aaa); }
+
+/* Live features strip */
+.roadmap-live-strip {
+  background: color-mix(in srgb, #2d9e6b 7%, var(--surface));
+  border: 1px solid color-mix(in srgb, #2d9e6b 22%, transparent);
+  border-radius: 14px; padding: 18px 22px;
+  margin-bottom: 36px;
+}
+[data-theme="dark"] .roadmap-live-strip {
+  background: color-mix(in srgb, #2d9e6b 10%, var(--surface));
+}
+.roadmap-live-strip__label {
+  font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: #2d9e6b;
+  margin-bottom: 12px;
+}
+.roadmap-live-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.roadmap-chip {
+  font-size: 12px; font-weight: 500;
+  background: var(--surface); color: var(--text-2);
+  border: 1px solid var(--border); border-radius: 99px; padding: 4px 11px;
+  white-space: nowrap; transition: background 200ms;
+}
+
+/* Card badge row */
+.coming-card__badge-row { display: flex; align-items: center; gap: 8px; }
+.coming-card__eta {
+  font-size: 10px; font-weight: 600; letter-spacing: .04em;
+  color: var(--text-3, var(--text-2)); opacity: .6;
+}
+
 
 .coming-grid {
   display: grid;
@@ -2235,7 +2284,7 @@ a { color: inherit; }
       <nav class="nav__links" aria-label="Primary navigation">
         <a href="#how">How it works</a>
         <a href="#features">Features</a>
-        <a href="#api">API &amp; MCP</a>
+        <a href="#api">Roadmap</a>
         <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener">GitHub &#8599;</a>
       </nav>
 
@@ -2746,16 +2795,45 @@ a { color: inherit; }
       <div class="container">
 
         <div class="coming-header">
-          <p class="eyebrow eyebrow--center">What’s next</p>
-          <h2 class="section__title" style="text-align:center">More power,<br><em>coming soon.</em></h2>
-          <p class="section__sub" style="text-align:center;max-width:560px;margin:0 auto">hollr is just getting started. Here’s what’s on the roadmap — built to give you more control over who reaches you and how.</p>
+          <p class="eyebrow eyebrow--center">Roadmap</p>
+          <h2 class="section__title" style="text-align:center">What&#x2019;s coming<br><em>to hollr.</em></h2>
+          <p class="section__sub" style="text-align:center;max-width:580px;margin:0 auto 48px">
+            hollr is an early-stage, open-source project. Here&#x2019;s an honest look at what&#x2019;s live, what&#x2019;s being built, and what&#x2019;s on the horizon.
+          </p>
+          <!-- Status legend -->
+          <div class="roadmap-legend">
+            <span class="roadmap-legend__item"><span class="roadmap-dot roadmap-dot--live"></span>Live</span>
+            <span class="roadmap-legend__item"><span class="roadmap-dot roadmap-dot--building"></span>Building</span>
+            <span class="roadmap-legend__item"><span class="roadmap-dot roadmap-dot--planned"></span>Planned</span>
+            <span class="roadmap-legend__item"><span class="roadmap-dot roadmap-dot--idea"></span>Idea</span>
+          </div>
+        </div>
+
+        <!-- Live features strip -->
+        <div class="roadmap-live-strip js-reveal">
+          <p class="roadmap-live-strip__label">&#x2705; Live now &mdash; v4.6.0</p>
+          <div class="roadmap-live-chips">
+            <span class="roadmap-chip">X OAuth + Magic links</span>
+            <span class="roadmap-chip">PGP end-to-end encryption</span>
+            <span class="roadmap-chip">AES-256-GCM file &amp; voice</span>
+            <span class="roadmap-chip">In-browser decrypt viewer</span>
+            <span class="roadmap-chip">Timed writing canvas</span>
+            <span class="roadmap-chip">10 languages</span>
+            <span class="roadmap-chip">Resend integration</span>
+            <span class="roadmap-chip">Display names</span>
+            <span class="roadmap-chip">PIN-protected settings</span>
+            <span class="roadmap-chip">3-step onboarding</span>
+          </div>
         </div>
 
         <div class="coming-grid">
 
           <!-- REST API -->
           <div class="coming-card js-reveal">
-            <div class="coming-card__badge">Coming soon</div>
+            <div class="coming-card__badge-row">
+              <span class="coming-card__badge">Building</span>
+              <span class="coming-card__eta">Q3 2026</span>
+            </div>
             <div class="coming-card__icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                 <path d="M4 6h16M4 12h10M4 18h7"/>
@@ -2773,7 +2851,10 @@ a { color: inherit; }
 
           <!-- Webhooks -->
           <div class="coming-card js-reveal">
-            <div class="coming-card__badge">Coming soon</div>
+            <div class="coming-card__badge-row">
+              <span class="coming-card__badge">Planned</span>
+              <span class="coming-card__eta">Q3 2026</span>
+            </div>
             <div class="coming-card__icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                 <path d="M18 16.016a4 4 0 1 1-7.198-2.016H6a4 4 0 1 1 3.2-6.4"/>
@@ -2790,7 +2871,10 @@ a { color: inherit; }
 
           <!-- MCP Server -->
           <div class="coming-card js-reveal">
-            <div class="coming-card__badge">Coming soon</div>
+            <div class="coming-card__badge-row">
+              <span class="coming-card__badge">Planned</span>
+              <span class="coming-card__eta">Q4 2026</span>
+            </div>
             <div class="coming-card__icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                 <rect x="2" y="3" width="20" height="14" rx="2"/>
@@ -2808,7 +2892,10 @@ a { color: inherit; }
 
           <!-- Verification Apps -->
           <div class="coming-card coming-card--featured js-reveal">
-            <div class="coming-card__badge coming-card__badge--new">New idea</div>
+            <div class="coming-card__badge-row">
+              <span class="coming-card__badge coming-card__badge--new">New idea</span>
+              <span class="coming-card__eta">2027</span>
+            </div>
             <div class="coming-card__icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                 <path d="M9 12l2 2 4-4"/>
@@ -2830,131 +2917,7 @@ a { color: inherit; }
       </div>
     </section>
 
-        <!-- SIGNAL FILTER — AI spam + human verified -->
-    <section class="section signal-section js-reveal" id="signal">
-      <div class="container">
-
-        <div class="signal-layout">
-
-          <!-- LEFT: editorial copy -->
-          <div class="signal-copy">
-            <p class="eyebrow">Only the good stuff</p>
-            <h2 class="section__title">We filter the noise.<br><em>You keep the signal.</em></h2>
-            <p class="signal-lead">Your hollr link is public. We get it — spam happens. Our AI reads every incoming hollr before it touches your inbox and handles the trash so you never see it.</p>
-
-            <div class="signal-claims">
-
-              <div class="signal-claim">
-                <div class="signal-claim__icon signal-claim__icon--ai">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                    <path d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 0 6h-1v1a4 4 0 0 1-8 0v-1H7a3 3 0 0 1 0-6h1V6a4 4 0 0 1 4-4z"/>
-                    <path d="M9 12h6M12 9v6" stroke-linecap="round"/>
-                  </svg>
-                </div>
-                <div>
-                  <strong>AI spam filter, always on</strong>
-                  <p>Every hollr is scored before delivery. Bot floods, link spam, abuse — caught automatically, before they reach you. Nothing hits your inbox that hasn't cleared the filter.</p>
-                </div>
-              </div>
-
-              <div class="signal-claim">
-                <div class="signal-claim__icon signal-claim__icon--verified">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M12 2l2.4 4.8L20 8l-4 3.9.9 5.3L12 14.8l-4.9 2.4.9-5.3L4 8l5.6-1.2z"/>
-                  </svg>
-                </div>
-                <div>
-                  <strong>Smart notifications — urgent or digest</strong>
-                  <p>AI scores each hollr on urgency. Anything that reads genuine and time-sensitive triggers an <em>instant ping</em> — email, or a DM straight to your X inbox. Everything else rolls up into a clean daily or weekly digest. You decide the cadence. No spam, no false alarms.</p>
-                </div>
-              </div>
-
-              <div class="signal-claim">
-                <div class="signal-claim__icon signal-claim__icon--inbox">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    <path d="M3 9h18M9 21V9"/>
-                  </svg>
-                </div>
-                <div>
-                  <strong>Quick inbox view, no setup</strong>
-                  <p>A lightweight JavaScript snippet drops a pending-hollrs panel anywhere on your site or dashboard. See what's waiting, approve or dismiss — all in-browser, no backend required.</p>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- RIGHT: inbox mock widget -->
-          <div class="signal-mock js-reveal">
-
-            <!-- Header bar -->
-            <div class="inbox-mock">
-              <div class="inbox-mock__header">
-                <div class="inbox-mock__title">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-                  Pending hollrs
-                </div>
-                <span class="inbox-mock__count">3 pending</span>
-              </div>
-
-              <!-- Hollr row 1 — human verified -->
-              <div class="inbox-row inbox-row--verified">
-                <div class="inbox-row__meta">
-                  <span class="inbox-badge inbox-badge--verified">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622C17.176 19.29 21 14.591 21 9c0-1.042-.133-2.052-.382-3.016z"/></svg>
-                    Human verified
-                  </span>
-                  <span class="inbox-row__time">2 min ago</span>
-                </div>
-                <p class="inbox-row__preview">"Hey — huge fan of your work on hollr. Would love to collab on something..."</p>
-                <div class="inbox-row__actions">
-                  <button class="inbox-action inbox-action--read">Read &rarr;</button>
-                  <button class="inbox-action inbox-action--dismiss">Dismiss</button>
-                </div>
-              </div>
-
-              <!-- Hollr row 2 — pending review -->
-              <div class="inbox-row">
-                <div class="inbox-row__meta">
-                  <span class="inbox-badge inbox-badge--pending">Pending review</span>
-                  <span class="inbox-row__time">14 min ago</span>
-                </div>
-                <p class="inbox-row__preview">"Quick question about your setup — I'm working on something similar and..."</p>
-                <div class="inbox-row__actions">
-                  <button class="inbox-action inbox-action--read">Read &rarr;</button>
-                  <button class="inbox-action inbox-action--dismiss">Dismiss</button>
-                </div>
-              </div>
-
-              <!-- Hollr row 3 — filtered spam -->
-              <div class="inbox-row inbox-row--spam">
-                <div class="inbox-row__meta">
-                  <span class="inbox-badge inbox-badge--spam">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-7v2h2v-2h-2zm0-8v6h2V7h-2z"/></svg>
-                    AI filtered
-                  </span>
-                  <span class="inbox-row__time">1 hr ago</span>
-                </div>
-                <p class="inbox-row__preview">"Congratulations! You've been selected for a special crypto opportuni..."</p>
-                <div class="inbox-row__actions">
-                  <button class="inbox-action inbox-action--restore">Restore</button>
-                </div>
-              </div>
-
-              <!-- Footer -->
-              <div class="inbox-mock__footer">
-                <code class="inbox-snippet">hollr.inbox({ handle: 'you', token: '...' })</code>
-                <span class="inbox-mock__footer-note">Drops anywhere. Pure JS.</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-    </section>
-
+    
     <!-- CTA -->
     <section class="cta-section js-reveal" id="claim">
       <div class="container container--narrow">
@@ -2982,14 +2945,58 @@ a { color: inherit; }
         </svg>
         hollr
       </a>
-      <p class="footer__copy">&copy; 2026 hollr &middot; MIT License</p>
+      <p class="footer__copy">&copy; 2026 hollr &middot; <a href="https://github.com/paulfxyz/hollr/blob/main/LICENSE" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:2px">Under MIT License</a></p>
       <nav class="footer__links">
-        <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener">GitHub</a>
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
+        <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener">GitHub &#8599;</a>
+        <button id="legal-modal-btn" style="background:none;border:none;font:inherit;color:inherit;cursor:pointer;padding:0;font-size:inherit;opacity:.7;transition:opacity 120ms" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">Legal &amp; Terms</button>
       </nav>
     </div>
   </footer>
+
+  <!-- LEGAL MODAL -->
+  <div id="legal-backdrop" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px">
+    <div id="legal-modal" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);position:relative">
+      <button onclick="document.getElementById('legal-backdrop').style.display='none'" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--text-2);font-size:18px;line-height:1;padding:4px 8px">&times;</button>
+
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 8.5H7.5L15 5V19L7.5 15.5H3V8.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M7.5 15.5V20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M18 9.5C18.9 10.4 19.5 11.6 19.5 13C19.5 14.4 18.9 15.6 18 16.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <span style="font-family:var(--serif);font-size:18px;font-weight:600;letter-spacing:-.02em">hollr &mdash; legal &amp; terms</span>
+      </div>
+
+      <p style="font-size:14px;line-height:1.7;color:var(--text-2);margin-bottom:18px">
+        hollr is a free, open-source project built and maintained by <strong style="color:var(--text)">Paul Fleury</strong> &mdash; a hacker-turned-entrepreneur. There is no company behind it, no legal entity, no terms of service beyond common sense. It&rsquo;s a platform built in public for the community.
+      </p>
+
+      <p style="font-size:14px;line-height:1.7;color:var(--text-2);margin-bottom:24px">
+        The entire codebase is released under the <strong style="color:var(--text)">MIT License</strong>. You are free to fork it, self-host it, extend it, or use it however you want. No restrictions. No warranties either &mdash; use it at your own risk.
+      </p>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <a href="https://github.com/paulfxyz/hollr" target="_blank" rel="noopener"
+           style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid var(--border);border-radius:10px;text-decoration:none;color:var(--text);font-size:14px;font-weight:500;transition:background 120ms"
+           onmouseover="this.style.background='var(--surface-subtle)'" onmouseout="this.style.background='transparent'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          github.com/paulfxyz/hollr &nbsp;&#8599;
+        </a>
+        <a href="https://x.com/paulfxyz" target="_blank" rel="noopener"
+           style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid var(--border);border-radius:10px;text-decoration:none;color:var(--text);font-size:14px;font-weight:500;transition:background 120ms"
+           onmouseover="this.style.background='var(--surface-subtle)'" onmouseout="this.style.background='transparent'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          @paulfxyz on X &nbsp;&#8599;
+        </a>
+        <a href="https://github.com/paulfxyz/hollr/blob/main/LICENSE" target="_blank" rel="noopener"
+           style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid var(--border);border-radius:10px;text-decoration:none;color:var(--text);font-size:14px;font-weight:500;transition:background 120ms"
+           onmouseover="this.style.background='var(--surface-subtle)'" onmouseout="this.style.background='transparent'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          MIT License (full text) &nbsp;&#8599;
+        </a>
+      </div>
+    </div>
+  </div>
 
   <!-- LANGUAGE MODAL — Redesigned bottom sheet / centered modal -->
   <div class="lang-backdrop" id="lang-backdrop" hidden>
@@ -4472,6 +4479,34 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     if (timerEl) timerEl.textContent = `${m}:${s}`;
     if (msEl)    msEl.textContent    = '.' + String(ms).padStart(2, '0');
   }, 100);
+})();
+
+
+/* ── Legal modal ───────────────────────────────────────────────── */
+(function() {
+  const btn      = document.getElementById('legal-modal-btn');
+  const backdrop = document.getElementById('legal-backdrop');
+  if (!btn || !backdrop) return;
+
+  function openLegal() {
+    backdrop.style.display = 'flex';
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLegal() {
+    backdrop.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  btn.addEventListener('click', openLegal);
+  // Click outside the modal card closes it
+  backdrop.addEventListener('click', e => {
+    if (e.target === backdrop) closeLegal();
+  });
+  // Escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && backdrop.style.display === 'flex') closeLegal();
+  });
 })();
 
 </script>

@@ -1,861 +1,643 @@
-# hollr.to
+# 📢 hollr
 
-[![Version](https://img.shields.io/badge/version-4.6.0-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v4.3.0)
+[![Version](https://img.shields.io/badge/version-4.7.0-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v4.6.0)
 [![License: MIT](https://img.shields.io/badge/license-MIT-c96a2a?style=flat-square)](LICENSE)
 [![Node](https://img.shields.io/badge/node-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![SQLite](https://img.shields.io/badge/SQLite-WAL-003b57?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org)
 [![Deployed on Fly.io](https://img.shields.io/badge/Fly.io-deployed-7c3aed?style=flat-square)](https://fly.io)
 [![Open Source](https://img.shields.io/badge/open_source-MIT-f9f6f1?style=flat-square)](https://github.com/paulfxyz/hollr)
+[![Vibe Coded](https://img.shields.io/badge/vibe_coded-100%25-c96a2a?style=flat-square)](https://github.com/paulfxyz/hollr)
+
+> **Live:** [hollr.to](https://hollr.to) · **Example canvas:** [hollr.to/paulfxyz](https://hollr.to/paulfxyz) · **API health:** [hollr-api.fly.dev/health](https://hollr-api.fly.dev/health)
 
 ---
 
 ## What is hollr?
 
-**hollr.to** is a personal encrypted message canvas. Sign in with X or email, claim a handle, and share `hollr.to/yourname`. Anyone with that link gets a timed, distraction-free canvas to write you a message — no account required. Messages can be PGP-encrypted end-to-end so the server never sees the plaintext, and file or voice attachments are encrypted with AES-256-GCM before they ever touch disk. Everything is MIT-licensed and self-hostable in under an hour.
+**hollr** is a personal encrypted message canvas. Claim `hollr.to/yourname`, share the link, and anyone can write you a thoughtful message — no account required, no DMs, no algorithm deciding whether you see it.
 
-The project is deliberately free of framework overhead. The backend is Node.js + Express + SQLite. The frontend is static HTML/CSS/JS deployed to SiteGround via FTP. There is no build step, no bundler, no ORM. Every technical decision in this codebase was made consciously — this README exists to document those decisions so you can learn from them, steal them, or argue with them.
+The sender gets a timed, distraction-free writing space. The clock only runs while they type, so every second on the timer is a second actually spent composing. Messages arrive in your inbox, optionally PGP-encrypted end-to-end so not even hollr's servers can read them. Files and voice recordings are encrypted with AES-256-GCM before they touch disk. Resend API key optional — the platform delivers from `yo@hollr.to` by default.
+
+The project is deliberately free of framework overhead: Node.js + Express + SQLite on the backend, static HTML/CSS/JS on the frontend. No build step. No bundler. No ORM. Deployed to Fly.io (backend) and SiteGround via FTP (frontend). The entire codebase is MIT-licensed, self-hostable, and documented in this README at a level where you can understand every decision.
 
 ---
 
 ## Table of Contents
 
-1. [Features](#features)
-2. [Architecture](#architecture)
-3. [Deep-dive: Authentication](#deep-dive-authentication)
-4. [Deep-dive: Encryption](#deep-dive-encryption)
-5. [Deep-dive: Database Design](#deep-dive-database-design)
-6. [Deep-dive: The HTTP API](#deep-dive-the-http-api)
-7. [Deep-dive: Frontend Architecture](#deep-dive-frontend-architecture)
-8. [Deep-dive: Infrastructure](#deep-dive-infrastructure)
-9. [Deep-dive: Security Decisions](#deep-dive-security-decisions)
-10. [Versioning Guideline](#versioning-guideline)
-11. [Issues, Bottlenecks & Lessons Learned](#issues-bottlenecks--lessons-learned)
-12. [Contributing](#contributing)
-13. [License](#license)
+1. [The product](#the-product)
+2. [Feature list](#feature-list)
+3. [Architecture](#architecture)
+4. [Onboarding flow](#onboarding-flow)
+5. [Deep-dive: Authentication](#deep-dive-authentication)
+6. [Deep-dive: Encryption](#deep-dive-encryption)
+7. [Deep-dive: Database design](#deep-dive-database-design)
+8. [Deep-dive: The HTTP API](#deep-dive-the-http-api)
+9. [Deep-dive: Frontend architecture](#deep-dive-frontend-architecture)
+10. [Deep-dive: Infrastructure](#deep-dive-infrastructure)
+11. [Deep-dive: Security decisions](#deep-dive-security-decisions)
+12. [API reference](#api-reference)
+13. [Environment variables](#environment-variables)
+14. [Versioning guideline](#versioning-guideline)
+15. [Roadmap](#roadmap)
+16. [Issues, bottlenecks & lessons learned](#issues-bottlenecks--lessons-learned)
+17. [Self-hosting](#self-hosting)
+18. [Contributing](#contributing)
+19. [License](#license)
+20. [A note on vibe coding](#a-note-on-vibe-coding)
 
 ---
 
-## Features
+## The product
 
-| Feature | Details |
-|---|---|
-| 🔐 PGP E2E Encryption | OpenPGP.js client-side — server never sees message plaintext |
-| 🗂️ AES-256-GCM File Encryption | Files encrypted before write; authenticated encryption detects tampering |
-| 🎙️ AES-256-GCM Voice Recording | Voice blobs treated identically to file uploads |
-| 🐦 X OAuth 2.0 PKCE | Full RFC 7636 PKCE flow; no implicit grant, no client secret exposure |
-| 📧 Magic-link Auth | Passwordless email login; UUID tokens, 15-min TTL, single-use |
-| 📬 Optional Resend API | Email delivery is optional; app works without it (canvas-only mode) |
-| ⏱️ Timed Canvas | Sender UI auto-locks after configurable time; no lingering access |
-| 📁 File Upload | Any file type; multer memoryStorage → encrypt → write .enc to volume |
-| 🎙️ Voice Recording | Web MediaRecorder API; same encryption pipeline as file uploads |
-| 🌍 10 Languages | i18n via STRINGS object + `data-i18n` attributes; no library needed |
-| 🌙 Dark / Light / System Mode | CSS custom properties; no-flash inline script reads theme before paint |
-| 📜 MIT License | Fully open source; fork it, self-host it, build on it |
+hollr started as a personal contact form and grew into a small SaaS platform in the span of a few days. Here is what it does, from the perspective of the two people involved in any hollr interaction.
+
+**As a handle owner (you):**
+1. Sign in with X (Twitter) OAuth or a magic-link email — no password ever.
+2. Pick `hollr.to/yourname` — permanent, first-come first-served.
+3. Add a notification email so messages reach your inbox.
+4. Optionally: paste your PGP public key so messages are end-to-end encrypted from the sender's browser. Add a Resend key and verified domain for custom delivery. That's it.
+5. Share `hollr.to/yourname` everywhere — bio, email footer, business card.
+
+**As a sender:**
+1. Visit `hollr.to/someone`.
+2. Click Start — the timer begins. It only runs while you type.
+3. Write. Attach a file or record a voice note if you want.
+4. Hit Send. Drop your name and how they can reach you back.
+5. Done. Your message, voice note, or files land in their inbox, encrypted.
+
+No account. No login. No app. Just a link and a canvas.
+
+---
+
+## Feature list
+
+| | Feature | Detail |
+|---|---|---|
+| 𝕏 | **X OAuth 2.0 PKCE** | One-click sign-in with Twitter/X. PKCE code verifier lives server-side in express-session — not the browser. |
+| 📬 | **Magic-link email auth** | No passwords. Enter email → click link → you're in. Tokens are UUID v4, 15-min TTL, single-use. |
+| 🔐 | **PGP end-to-end encryption** | Paste your OpenPGP public key in Settings. Senders encrypt in-browser via OpenPGP.js v5 (lazy-loaded from esm.sh). You decrypt offline. |
+| 🔒 | **AES-256-GCM file & voice encryption** | Every upload encrypted with a fresh 32-byte key + 12-byte IV server-side before touching disk. Key/IV returned in the email as URL hash params. |
+| 🌐 | **In-browser decrypt viewer** | `/decrypt` page — Web Crypto API (`SubtleCrypto.decrypt`). Key never leaves the URL hash, never sent to server. |
+| ⏱️ | **Timed writing canvas** | Timer runs only while typing. Idle time doesn't count. Makes senders think before they holler. |
+| 🎤 | **Voice recording** | Record in-browser via MediaRecorder API. Encrypted, uploaded, linked in notification email. |
+| 📎 | **File attachments** | Drag-and-drop any file. Encrypted with AES-256-GCM. Decrypt viewer linked in email. |
+| 📧 | **Optional Resend integration** | Platform sends from `yo@hollr.to` by default. Plug in your Resend key + verified domain for custom delivery. |
+| ✏️ | **Display name** | Set a name that appears as "Message to [Name]" on your canvas. Updates live — no page reload. |
+| 🌍 | **10 languages** | EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU. Auto-detected from browser. Persisted in `localStorage`. |
+| 🌙 | **Dark / light mode** | CSS custom properties. No-flash inline script reads preference before first paint. |
+| 🛡️ | **PIN-protected settings** | 4–8 digit PIN, bcrypt cost 12. Default 1234 forced-change on first settings open. |
+| 🔑 | **Forgot PIN** | Magic link resets PIN to 1234 and flags `pin_is_default`, forcing change on next settings open. |
+| 🧩 | **3-step onboarding wizard** | Handle → PIN (confirmed, no defaults) → Display name + notification email. Single API call on finish. |
+| 🛠️ | **MIT open source** | Fork it, self-host on Fly.io, extend it. No vendor lock-in. |
 
 ---
 
 ## Architecture
 
-### Request Flow
-
-Every user-visible request travels through two distinct infrastructure layers. The frontend is a static site hosted on SiteGround's Apache servers. The API lives on a Fly.io Firecracker VM. They communicate over HTTPS, separated by origin, with CORS and Bearer-token auth bridging them.
-
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                         BROWSER                                         │
-│  hollr.to/yourname   →   static HTML/CSS/JS (SiteGround/Apache)        │
-│                                                                         │
-│  API calls           →   hollr-api.fly.dev  (HTTPS + Bearer token)     │
-└────────────────────────────┬───────────────────────────────────────────┘
-                             │ HTTPS
-                             ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│                     Fly.io (cdg / Paris)                                │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │  Express app  (server.js)                                        │  │
-│  │                                                                  │  │
-│  │  Middleware stack                                                │  │
-│  │   helmet → cors → json → session → rate-limiters → routes       │  │
-│  │                                                                  │  │
-│  │  Route groups                                                    │  │
-│  │   /api/auth/*   → auth.js   (magic links, X OAuth, sessions)    │  │
-│  │   /api/user/*   → user.js   (handle, settings, profile)         │  │
-│  │   /api/send     → send.js   (message delivery)                  │  │
-│  │   /api/files/*  → files.js  (upload, download)                  │  │
-│  │   /health       → inline    (200 OK, version, uptime)           │  │
-│  └──────────────┬───────────────────────────────┬───────────────────┘  │
-│                 │                               │                       │
-│         ┌───────▼────────┐           ┌──────────▼───────────┐          │
-│         │  SQLite (WAL)  │           │  /data volume (3 GB) │          │
-│         │  /data/db.db   │           │  *.enc files         │          │
-│         └────────────────┘           └──────────────────────┘          │
-└──────────────────────────────┬─────────────────────────────────────────┘
-                               │ HTTPS (outbound)
-              ┌────────────────┼─────────────────┐
-              │                │                 │
-       ┌──────▼──────┐  ┌──────▼──────┐  ┌──────▼──────┐
-       │  Resend API  │  │  X / Twitter │  │   (future)  │
-       │  email send  │  │  OAuth 2.0   │  │             │
-       └─────────────┘  └─────────────┘  └─────────────┘
+╔══════════════════════════════════════╗        ╔══════════════════════════════════╗
+║        hollr.to (SiteGround)         ║        ║  hollr-api.fly.dev (Fly.io)      ║
+║  Apache · static HTML/CSS/JS · FTP   ║        ║  Node.js 20 · Express 4          ║
+║                                      ║        ║  SQLite (WAL) · /data/hollr.db   ║
+║  /                → index.html       ║◄──────►║  Persistent volume: 3 GB         ║
+║  /auth/verify     → auth page        ║  REST  ║  Region: cdg (Paris)             ║
+║  /decrypt         → decrypt viewer   ║        ╚══════════════════════════════════╝
+║  /:handle         → canvas           ║                    │          │
+╚══════════════════════════════════════╝            ┌───────┘          └────────┐
+                                               ┌────▼──────┐           ┌───────▼──────┐
+                                               │  Resend   │           │  X (Twitter)  │
+                                               │  REST API │           │  OAuth 2.0    │
+                                               │  emails   │           │  PKCE         │
+                                               └───────────┘           └──────────────┘
 ```
 
-### Auth State Machine
-
-Two authentication paths converge on the same `sessions` table row and Bearer token. Once authenticated, the client is indistinguishable regardless of how it authenticated.
+### Request flow (complete trace)
 
 ```
-EMAIL PATH
-──────────
-  User enters email
-       │
-       ▼
-  POST /api/auth/magic-link
-  ├─ Generate UUID v4 token
-  ├─ INSERT INTO magic_links (email, token, expires_at, used=0)
-  └─ Send link via Resend → hollr.to/auth/verify?token=UUID
-       │
-       ▼  (user clicks link)
-  GET /api/auth/verify?token=UUID
-  ├─ SELECT * FROM magic_links WHERE token=? AND used=0 AND expires_at > now()
-  ├─ BEGIN; UPDATE magic_links SET used=1; (atomic — prevents race conditions)
-  ├─ UPSERT users ON CONFLICT(email)
-  ├─ INSERT INTO sessions (user_id, token=UUID_v4, expires_at=+30d)
-  └─ Redirect → hollr.to/auth/verify?x_session=SESSION_TOKEN
-       │
-       ▼
-  Frontend reads x_session from URL param
-  ├─ Stores in sessionStorage['hollr-token']
-  └─ Redirects to /dashboard or /onboarding
-
-X OAUTH PATH
-────────────
-  User clicks "Sign in with X"
-       │
-       ▼
-  GET /api/auth/x
-  ├─ Generate code_verifier (random bytes, base64url)
-  ├─ code_challenge = base64url(sha256(code_verifier))
-  ├─ Generate state (random bytes)
-  ├─ Store { code_verifier, state } in express-session
-  └─ Redirect → api.twitter.com/oauth2/authorize?
-       code_challenge=...&state=...&response_type=code
-       │
-       ▼  (Twitter redirects back)
-  GET /api/auth/x/callback?code=AUTH_CODE&state=STATE
-  ├─ Verify state matches session (CSRF check)
-  ├─ POST api.twitter.com/2/oauth2/token
-  │   with code_verifier (PKCE exchange)
-  ├─ GET api.twitter.com/2/users/me
-  ├─ UPSERT users ON CONFLICT(x_id)
-  ├─ INSERT INTO sessions
-  └─ If no email on record: redirect with needsEmail=1
-       │
-       ▼
-  Frontend: hollr.to/auth/verify?x_session=TOKEN[&needsEmail=1]
-  └─ If needsEmail=1 → show email collection modal
+Browser                         SiteGround (Apache)          hollr-api.fly.dev
+  │                                     │                            │
+  │── GET hollr.to/paulfxyz ──────────► │                            │
+  │                    .htaccess routes │                            │
+  │◄── handle/index.html ───────────── │                            │
+  │                                     │                            │
+  │── GET /api/profile/paulfxyz ────────────────────────────────── ►│
+  │                                                    SELECT users  │
+  │◄── { handle, display_name, pgp_public_key } ───────────────────│
+  │                                     │                            │
+  │  [sender writes, optionally PGP-encrypts in browser]            │
+  │                                     │                            │
+  │── POST /api/upload/paulfxyz ────────────────────────────────── ►│
+  │                              multer memoryStorage                │
+  │                              encryptBuffer(AES-256-GCM)         │
+  │                              write .enc to /data/uploads/        │
+  │◄── { url, file_key, file_iv, name } ──────────────────────────│
+  │                                     │                            │
+  │── POST /api/send/paulfxyz ─────────────────────────────────── ►│
+  │                              validate, store in messages table   │
+  │                              pick Resend key (user or platform)  │
+  │                              forwardMessage() → Resend REST API  │
+  │◄── { ok: true } ──────────────────────────────────────────────│
 ```
 
-### Encryption Layers
-
-| Layer | Algorithm | What is protected | Key source |
-|---|---|---|---|
-| Text secrets | AES-256-CBC + PBKDF2 | User settings (API keys, tokens) stored in DB | `MASTER_SECRET` env var |
-| File/voice content | AES-256-GCM | Attachment bytes on Fly.io volume | Random per-file key (in URL hash) |
-| PINs | bcrypt (cost 12) | Settings access PIN | Irreversible — stored as hash only |
-| Message body | OpenPGP.js (RSA/ECC) | Message plaintext | Recipient's public key (client-side) |
-| Transport | TLS 1.3 | All data in transit | Fly.io / SiteGround certificates |
-
-### Database Schema
-
-The database lives in a single file at `/data/db.db`. All tables are created on first startup; columns added in later versions are applied via a try/catch ALTER TABLE loop on every boot.
+### Auth state machine
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│  users                                                           │
-│  ─────                                                           │
-│  id             INTEGER  PRIMARY KEY AUTOINCREMENT               │
-│  handle         TEXT     UNIQUE, COLLATE NOCASE                  │
-│  email          TEXT     UNIQUE                                  │
-│  x_id           TEXT     UNIQUE  (Twitter user ID)               │
-│  x_username     TEXT                                             │
-│  pgp_public_key TEXT     (armored PGP public key, optional)      │
-│  pin_hash       TEXT     (bcrypt hash of 4-8 digit PIN)          │
-│  pin_is_default INTEGER  DEFAULT 1 (1 = still on "1234")         │
-│  resend_api_key TEXT     (AES-256-CBC encrypted)                 │
-│  resend_from    TEXT     (AES-256-CBC encrypted)                 │
-│  notification_email TEXT                                         │
-│  created_at     INTEGER  DEFAULT (unixepoch())                   │
-└──────────────────────────────────────────────────────────────────┘
-         │ 1
-         │
-         │ N
-┌──────────────────────────────────────────────────────────────────┐
-│  sessions                                                        │
-│  ────────                                                        │
-│  id         INTEGER  PRIMARY KEY AUTOINCREMENT                   │
-│  user_id    INTEGER  REFERENCES users(id)                        │
-│  token      TEXT     UNIQUE (UUID v4 — the Bearer token)         │
-│  expires_at INTEGER  (unix timestamp, default now+30d)           │
-│  created_at INTEGER  DEFAULT (unixepoch())                       │
-└──────────────────────────────────────────────────────────────────┘
-
-┌──────────────────────────────────────────────────────────────────┐
-│  magic_links                                                     │
-│  ───────────                                                     │
-│  id         INTEGER  PRIMARY KEY AUTOINCREMENT                   │
-│  email      TEXT                                                 │
-│  token      TEXT     UNIQUE (UUID v4 — the one-time link token)  │
-│  expires_at INTEGER  (unix timestamp, now+15min)                 │
-│  used       INTEGER  DEFAULT 0                                   │
-│  created_at INTEGER  DEFAULT (unixepoch())                       │
-└──────────────────────────────────────────────────────────────────┘
+Landing modal
+      │
+      ├── "Continue with X" ──────────────────────────────────────────────────────┐
+      │                                                                            │
+      └── "Register with email" → POST /api/auth/magic-link                       │
+              (handle stored in magic_links.pending_handle)                        │
+                    │                                                              │
+                    ▼                                                              ▼
+             Email arrives                                          GET /api/auth/x (PKCE)
+                    │                                                        │
+                    ▼                                              X OAuth callback
+           GET /api/auth/verify/:token                                       │
+                    │                                              POST /api/auth/x/callback
+                    ├── returning user with handle ──────────────────────────┤
+                    │        └── redirect /:handle                           │
+                    │                                                        │
+                    ├── new user ────────────────────────────────────────────┤
+                    │        │                            needs_email=1?     │
+                    │        │                            ────────────────── │
+                    │        │                            stateNeedEmail      │
+                    │        │                                  │             │
+                    │        └────────────────── stateOnboarding ────────────┘
+                    │                                   │
+                    │              Step 1: Pick handle (live availability check)
+                    │              Step 2: Set PIN (confirmed, rejects 1234)
+                    │              Step 3: Display name + notification email
+                    │                                   │
+                    │              POST /api/handle/claim (one round-trip)
+                    │                                   │
+                    └───────────────────── /:handle?setup=1 (settings auto-opens)
 ```
 
-**Relationships:** A `users` row can have many `sessions` (one per login). Magic links are ephemeral — they're never joined to sessions or users by FK; the email column is the join key.
+### Encryption layers
 
-**Indexes:**
-- `idx_sessions_token` on `sessions(token)` — every authenticated request does a token lookup
-- `idx_sessions_user_id` on `sessions(user_id)` — for logout-all-sessions queries
-- `idx_users_x_id` on `users(x_id)` — X OAuth upsert lookup
-- `idx_magic_links_token` on `magic_links(token)` — verify endpoint lookup
+| Data | Algorithm | Where |
+|---|---|---|
+| Resend API key | AES-256-CBC + PBKDF2-SHA256 (100k iterations, random salt per value) | SQLite `users.resend_key` as `"salt:iv:cipher"` hex |
+| PIN | bcrypt (cost 12, built-in salt) | SQLite `users.pin_hash` |
+| File / audio uploads | AES-256-GCM (random 32-byte key + 12-byte IV per file) | Fly.io persistent volume |
+| Message body (optional) | OpenPGP (client-side, sender's browser, owner's public key) | SQLite `messages.body` |
+| Magic link tokens | UUID v4 (cryptographically random) | SQLite `magic_links.token` |
+| Session tokens | `crypto.randomBytes(32).toString('hex')` | SQLite `sessions.token` |
 
-### File Upload Flow
+### Database schema
 
+```sql
+users
+  id             INTEGER PK
+  email          TEXT UNIQUE          -- notification address + magic-link login
+  x_id           TEXT UNIQUE          -- Twitter/X numeric user ID
+  x_username     TEXT                 -- @handle (display only)
+  handle         TEXT UNIQUE NOCASE   -- public URL slug
+  display_name   TEXT                 -- "Message to [name]" on canvas
+  resend_key     TEXT                 -- AES-256-CBC encrypted Resend API key
+  from_email     TEXT                 -- verified Resend sender address
+  pin_hash       TEXT                 -- bcrypt(pin, 12)
+  pin_is_default INTEGER DEFAULT 0    -- 1 if PIN is still "1234"
+  pgp_public_key TEXT                 -- armoured OpenPGP public key
+
+magic_links
+  email          TEXT
+  token          TEXT UNIQUE          -- UUID v4
+  expires_at     INTEGER              -- Unix timestamp, 15-min TTL
+  used           INTEGER DEFAULT 0    -- marked 1 immediately on click
+  is_pin_reset   INTEGER DEFAULT 0    -- resets pin to 1234, forces change
+  pending_handle TEXT                 -- pre-fills onboarding (survives new tab)
+
+sessions
+  user_id        INTEGER FK → users
+  token          TEXT UNIQUE          -- 32-byte random hex, Bearer auth
+  expires_at     INTEGER              -- 30-day TTL
+
+messages
+  handle         TEXT                 -- recipient
+  sender         TEXT                 -- freeform contact field
+  body           TEXT                 -- plaintext or PGP armoured block
+  is_pgp         INTEGER DEFAULT 0
+  file_urls      TEXT DEFAULT '[]'    -- JSON array
+  audio_url      TEXT
+  audio_encrypted INTEGER DEFAULT 0
 ```
-Browser
-  │  multipart/form-data POST /api/files/upload
-  │  (file bytes in memory — multer memoryStorage)
-  ▼
-multer middleware
-  │  req.file.buffer = raw bytes (never written to disk as plaintext)
-  ▼
-crypto.encryptFile(buffer)
-  │  Generate random 32-byte key
-  │  Generate random 12-byte IV
-  │  AES-256-GCM encrypt → { ciphertext, authTag, key, iv }
-  │  Write [authTag][ciphertext] to /data/uploads/<uuid>.enc
-  ▼
-Response to browser:
-  {
-    fileId: "<uuid>",
-    key: "<hex>",
-    iv:  "<hex>"
-  }
-  │
-  ▼
-Browser constructs decrypt URL:
-  hollr.to/decrypt#fileId=<uuid>&key=<hex>&iv=<hex>
-  │  (hash fragment — never sent to server)
-  ▼
-Link embedded in message or shared directly
-```
 
-### In-Browser Decrypt Flow
+---
 
-```
-User opens hollr.to/decrypt#fileId=abc&key=...&iv=...
-  │
-  ▼
-decrypt.html inline script
-  │  Parse window.location.hash
-  │  Extract fileId, key (hex), iv (hex)
-  │
-  ▼
-fetch('/api/files/raw/' + fileId)
-  │  Returns raw bytes: [16-byte authTag][ciphertext...]
-  │
-  ▼
-SubtleCrypto pipeline
-  │  hexToBytes(key) → rawKeyBytes
-  │  SubtleCrypto.importKey('raw', rawKeyBytes, {name:'AES-GCM'}, false, ['decrypt'])
-  │
-  │  Re-order bytes: [ciphertext][authTag]   ← SubtleCrypto expects this order
-  │  SubtleCrypto.decrypt({name:'AES-GCM', iv, tagLength:128}, key, combinedBuffer)
-  │
-  ▼
-Plaintext bytes
-  │  Detect MIME type from magic bytes
-  │  If image/audio/video → render in <img>/<audio>/<video>
-  │  Otherwise → createObjectURL → trigger download
-```
+## Onboarding flow
+
+The registration experience is a 3-step wizard in `auth/verify.html`. The full flow from landing page to live canvas looks like this:
+
+**Via email (new user):**
+1. Landing modal → enter desired handle + email → "Sending magic link…"
+2. Backend stores `{email, token, pending_handle}` in `magic_links` table.
+3. Magic link arrives in inbox — user clicks it in their email client (new tab).
+4. `GET /api/auth/verify/:token` returns `{ ok, session_token, pending_handle }`.
+5. `pending_handle` pre-fills step 1 of the wizard — **this survives the new-tab context switch** because it came from the API response, not `sessionStorage`.
+6. Step 1: confirm/change the handle. Live availability check fires at 450ms debounce — "Continue" button is blocked until confirmed available.
+7. Step 2: choose a PIN (4–8 digits, confirmed, rejects `1234`). Dot-fill visualizer.
+8. Step 3: display name (optional) + notification email (optional). Live preview of "Message to [name]".
+9. Single `POST /api/handle/claim` — all data in one request.
+10. Redirect to `/:handle?setup=1` → canvas opens with Settings modal auto-opened.
+
+**Via X OAuth (new user):**
+1. Landing modal → "Continue with X" → redirect to `GET /api/auth/x`.
+2. Backend generates `code_verifier`, `code_challenge` (SHA-256 → base64url), `state`. Stored in `express-session`.
+3. Redirect to `https://twitter.com/i/oauth2/authorize?...` with PKCE params.
+4. X redirects back to `/api/auth/x/callback`. Backend validates `state` from session, exchanges code + verifier for tokens.
+5. Fetch `/2/users/me` — get X numeric ID and username.
+6. If no email on file: redirect to `auth/verify?x_session=TOKEN&needs_email=1`.
+7. `stateNeedEmail` collects an email. Skippable (notifications disabled until set).
+8. Same 3-step wizard, handle pre-filled with X username.
 
 ---
 
 ## Deep-dive: Authentication
 
-### Magic Links — Why and How
+### Magic links — why and how
 
-**Why magic links instead of passwords?** Passwords introduce an entire class of problems: storage (you must hash and salt correctly), recovery (forgot-password flows that are themselves security holes), reuse (users reuse passwords across sites), and strength (users choose weak ones). Magic links sidestep all of this. There is no password to hash, no credential to steal, and no database of secrets to leak. The security model shifts to: "can the attacker access your email inbox?" — which is the same question for any password-reset flow anyway.
+**Why not passwords?** Because passwords have to be stored (even hashed, they're a target), users forget them, and they create support burden. Magic links expire in 15 minutes, work once, and require access to the user's email — which is a reasonable second factor on its own.
 
-The UX benefit is equally significant. Users don't need to remember a password for a service they might use once a month. Clicking a link is lower friction than remembering a credential. This matters when your conversion goal is "get someone to the canvas and send a message."
+**Token generation:** `uuidv4()` — cryptographically random 36-character string. Stored in the `magic_links` table alongside the email, expiry timestamp (`unixepoch() + 900`), and a `used` flag.
 
-**How the token is generated:** On `POST /api/auth/magic-link`, the server calls `crypto.randomUUID()` — Node's built-in UUID v4 generator, which uses a cryptographically secure random source. The token is stored in the `magic_links` table alongside the email, an expiry timestamp (`unixepoch() + 900` — 15 minutes in seconds), and `used = 0`. The full link is `https://hollr.to/auth/verify?token=UUID` and is delivered via the Resend REST API.
+**Single-use guarantee:** The first thing the verify endpoint does after finding a valid token is set `used = 1`. This is synchronous (better-sqlite3) so there's no race condition window where two simultaneous requests could both succeed.
 
-**Single-use enforcement:** When the verify endpoint receives a token, it runs this sequence inside a SQLite transaction:
+**Pending handle survives new tabs:** Early versions stored the desired handle in `sessionStorage`. `sessionStorage` is tab-scoped — clicking a magic link in an email client opens a new tab with empty `sessionStorage`. The handle was lost. Fix: the handle is stored in the `magic_links.pending_handle` column (server-side) and returned in the verify response. The browser never needs to remember it.
 
-```sql
--- Step 1: find the token
-SELECT id, email FROM magic_links
-WHERE token = ? AND used = 0 AND expires_at > unixepoch()
+**Email enumeration prevention:** `POST /api/auth/forgot-pin` always returns `{ ok: true }` even if the email doesn't exist. Attackers cannot use the endpoint to discover registered addresses.
 
--- Step 2: mark it used (inside the same transaction)
-UPDATE magic_links SET used = 1 WHERE id = ?
-```
+**Platform emails:** All magic links are sent from `yo@hollr.to` via the platform Resend key. Users can add their own Resend key for message notifications — but magic links always go through the platform key to ensure deliverability.
 
-SQLite's serialized writer model means no two requests can execute this sequence concurrently and both succeed. The `used = 1` flag is set atomically before the session row is created. A second click on the same link will hit the `used = 0` condition and fail cleanly — returning a 401 with a "link already used" message.
+### X OAuth 2.0 PKCE — full explanation
 
-**Email enumeration prevention:** `POST /api/auth/forgot-pin` always returns `{ ok: true }` regardless of whether the email exists in the database. If we returned an error for unknown emails, an attacker could POST arbitrary emails and learn which ones are registered. Returning the same response for both cases closes that information leak. This is a standard defense described in OWASP's Authentication Cheat Sheet.
-
-**Why no SDK for Resend?** The Resend API is a single HTTPS POST with a JSON body and an Authorization header. Node's built-in `https` module handles this in ~20 lines. Adding `@resend/node` or `axios` just to make one HTTP call adds a dependency (and its transitive dependencies) with no meaningful benefit. The `mailer.js` module uses `https.request()` directly.
-
----
-
-### X OAuth 2.0 PKCE — Full Explanation
-
-**What PKCE is and why it exists:** PKCE stands for Proof Key for Code Exchange (RFC 7636). It was designed to protect public clients — apps that cannot safely store a client secret — from authorization code interception attacks. In the classic OAuth 2.0 authorization code flow, an attacker who intercepts the authorization code (e.g., via a malicious app registered for the same redirect URI on mobile) can exchange it for tokens. PKCE prevents this by binding the code to a secret that only the original requester knows: the `code_verifier`.
-
-**The four-step flow:**
+OAuth 2.0 with PKCE (Proof Key for Code Exchange, RFC 7636) protects the authorization code flow from interception attacks. Here's every step:
 
 ```
-Step 1 — Generate verifier and challenge (server-side, before redirect)
-  code_verifier  = random 32 bytes → base64url encode (43-128 chars)
-  code_challenge = base64url(sha256(code_verifier))
+1. Client generates:
+   code_verifier  = crypto.randomBytes(32).toString('base64url')  // 43+ chars
+   code_challenge = base64url(SHA-256(code_verifier))
 
-Step 2 — Redirect to Twitter with challenge (not verifier)
-  GET https://twitter.com/i/oauth2/authorize
-    ?response_type=code
-    &client_id=YOUR_CLIENT_ID
-    &redirect_uri=https://hollr-api.fly.dev/api/auth/x/callback
-    &scope=tweet.read%20users.read%20offline.access
-    &state=RANDOM_STATE
-    &code_challenge=BASE64URL_SHA256_OF_VERIFIER
-    &code_challenge_method=S256
+2. Store in express-session (server-side — NOT the browser):
+   req.session.xState        = crypto.randomBytes(16).toString('hex')
+   req.session.xCodeVerifier = code_verifier
 
-Step 3 — Twitter redirects back with auth code
-  GET /api/auth/x/callback?code=AUTH_CODE&state=STATE
+3. Redirect to X authorize URL with:
+   ?response_type=code
+   &client_id=...
+   &redirect_uri=https://hollr-api.fly.dev/api/auth/x/callback
+   &scope=tweet.read users.read
+   &state=<random>
+   &code_challenge=<sha256_base64url>
+   &code_challenge_method=S256
 
-Step 4 — Exchange code for tokens, sending the verifier (not the challenge)
-  POST https://api.twitter.com/2/oauth2/token
-    code=AUTH_CODE
-    &grant_type=authorization_code
-    &redirect_uri=...
-    &code_verifier=ORIGINAL_VERIFIER   ← Twitter re-derives challenge and compares
+4. X redirects to callback with ?code=AUTH_CODE&state=STATE
+
+5. Backend validates state === req.session.xState (CSRF check)
+
+6. POST to https://api.twitter.com/2/oauth2/token:
+   { code, code_verifier, grant_type: 'authorization_code', ... }
+   X verifies that SHA-256(code_verifier) === code_challenge from step 3
+
+7. Exchange succeeds → access token → GET /2/users/me
 ```
 
-Twitter verifies that `sha256(code_verifier) == code_challenge` it stored in step 2. An attacker who stole the auth code but not the verifier cannot complete the exchange.
+Why PKCE matters: if an attacker intercepts the authorization code (e.g. via a malicious redirect), they still need the `code_verifier` to exchange it. The verifier never leaves the server.
 
-**Why verifier must live in express-session, not the browser:** The callback (step 3) hits the *backend*, not the frontend. When Twitter redirects, the browser navigates to `/api/auth/x/callback` on the API server. The frontend JavaScript is not involved at this point — it's just the browser following a redirect. The code_verifier must therefore be available on the server when the callback arrives. `express-session` stores it server-side (in memory, keyed by the session cookie). Storing it in `localStorage` or `sessionStorage` would be impossible: the backend can't read browser storage.
-
-**The redirect chain in full:**
-
-```
-1. User clicks "Sign in with X" on hollr.to
-2. Frontend JS: window.location.href = 'https://hollr-api.fly.dev/api/auth/x'
-3. Backend generates PKCE, stores in session, redirects to Twitter
-4. Twitter authenticates user, redirects to:
-   https://hollr-api.fly.dev/api/auth/x/callback?code=...&state=...
-5. Backend verifies state, exchanges code, creates session, then redirects:
-   https://hollr.to/auth/verify?x_session=SESSION_TOKEN[&needsEmail=1]
-6. Frontend reads x_session from URL params, stores in sessionStorage
-```
-
-**Why `needsEmail=1`:** Twitter's OAuth 2.0 API does not return the user's email address in the `/2/users/me` response — email access requires a separate elevated permission that Twitter rarely grants to new apps. But hollr needs an email for two purposes: sending message notification emails, and PIN recovery. When an X user authenticates and has no email on record, the callback adds `needsEmail=1` to the redirect. The frontend detects this param and shows an email-collection modal before proceeding to the dashboard.
+Why `express-session` and not the browser: the callback hits the backend URL, not the browser. `sessionStorage` and `localStorage` are inaccessible at `/api/auth/x/callback`. The session cookie bridges the gap.
 
 ---
 
 ## Deep-dive: Encryption
 
-### AES-256-CBC — Text Secrets
+### AES-256-CBC — text secrets
 
-Sensitive strings stored in the database (like the user's Resend API key and sender address) are encrypted at rest using AES-256-CBC with a key derived via PBKDF2.
-
-**Why CBC for text:** CBC (Cipher Block Chaining) produces a fixed-overhead output — deterministic length expansion relative to input. This makes it suitable for short strings where authenticated encryption's overhead (GCM's authTag) would be disproportionate. The trade-off is that CBC alone doesn't detect tampering; we accept this because these values are stored in our own database, not transmitted to untrusted parties.
-
-**PBKDF2 — key stretching:** The encryption key is not `MASTER_SECRET` directly. `PBKDF2(MASTER_SECRET, salt, 100000, 32, 'sha256')` derives a 32-byte key. PBKDF2 is intentionally slow — 100,000 iterations means an attacker who steals the database still needs ~100,000 SHA-256 operations per guess of the master secret, not one. This is the OWASP 2023 minimum recommendation for PBKDF2-SHA256. A fresh random salt is generated per encryption call, preventing frequency analysis: two identical plaintext values produce different ciphertext.
-
-**Wire format:** The encrypted value stored in the DB is a colon-delimited hex string:
+Used for Resend API keys stored in the database. AES in CBC mode with PBKDF2 key derivation.
 
 ```
-saltHex:ivHex:ciphertextHex
-
-Example:
-a3f1...64 bytes...:b2c9...32 bytes...:d4e7...variable...
+encrypt(plaintext):
+  salt     = crypto.randomBytes(16)        // fresh per value
+  key      = PBKDF2(ENCRYPTION_SECRET, salt, 100_000, 32, 'sha256')
+  iv       = crypto.randomBytes(16)        // fresh per value
+  cipher   = AES-256-CBC(key, iv)
+  output   = "saltHex:ivHex:ciphertextHex"
 ```
 
-Why hex? SQLite `TEXT` columns store arbitrary UTF-8. Hex encoding is always valid UTF-8, unambiguous, and reversible with `Buffer.from(hex, 'hex')`. Binary storage in a TEXT column would require BLOB columns and blob-aware drivers. Colon as delimiter is safe because hex strings never contain colons.
+**Why a salt per value?** PBKDF2 with a random salt means two identical plaintexts produce different ciphertexts. An attacker with the database dump cannot find duplicate keys by comparing ciphertext.
 
-**Rotating the master secret:** If `MASTER_SECRET` changes (e.g., a suspected compromise), all stored values encrypted with the old key become undecryptable. The rotation procedure is: (1) export all encrypted values, (2) decrypt with old key, (3) re-encrypt with new key, (4) update the secret in Fly.io. This is a manual process by design — automatic rotation would require storing both keys simultaneously, which is a larger surface.
+**Why 100,000 iterations?** OWASP 2023 minimum for PBKDF2-SHA256. On a modern CPU this takes ~10ms to compute — acceptable for a one-time operation, prohibitively slow for dictionary attacks.
 
----
+**Wire format `"salt:iv:cipher"` as hex strings:** Safe to store in a TEXT column. No binary encoding issues. The three segments carry all information needed to decrypt.
 
-### AES-256-GCM — File and Voice Encryption
+**Rotation:** If `ENCRYPTION_SECRET` needs to change, decrypt every value with the old secret and re-encrypt with the new one, then swap the env var. There is no shortcut.
 
-Files and voice recordings use GCM (Galois/Counter Mode) rather than CBC.
+### AES-256-GCM — file and voice encryption
 
-**Why GCM for files:** GCM provides *authenticated encryption* — it simultaneously ensures confidentiality (ciphertext reveals nothing about plaintext) and integrity (any modification to the ciphertext is detected). The authentication tag (authTag, 128 bits) is a MAC computed over the ciphertext during encryption. On decryption, if the authTag doesn't match, decryption fails — you get an error, not silently corrupt data. This matters for files: a CBC-encrypted file could be silently corrupted by an attacker flipping bits, and you'd only notice when the application tried to parse the file.
+GCM (Galois/Counter Mode) provides authenticated encryption: confidentiality plus integrity in one pass. If any byte of the ciphertext is modified, decryption fails with an authentication error.
 
-**Why a fresh key + IV per file:** Each file gets its own randomly generated 32-byte key and 12-byte IV. If an attacker somehow compromises one file's key (e.g., via the URL hash if someone shares the link with someone who shouldn't have it), they learn nothing about any other file. Key reuse in GCM is catastrophic — reusing the same key+IV pair leaks the keystream. Random per-file keys eliminate this risk entirely.
-
-**Wire format on disk:** Files are stored as `[16-byte authTag][ciphertext...]`. The authTag comes first. Node's `crypto.createCipheriv('aes-256-gcm', key, iv)` writes ciphertext and then exposes the tag via `cipher.getAuthTag()` after finalization. Writing tag-first means the reader knows exactly where the tag ends (byte 0–15) and the ciphertext begins (byte 16+). No length prefix or delimiter needed.
-
-**The SubtleCrypto interop problem:** The Web Crypto API (`SubtleCrypto.decrypt`) expects the data buffer to be `[ciphertext][authTag]` — tag at the end, not the beginning. Node stores them separately (and we write tag-first). When the browser fetches the raw `.enc` file, it must re-order before decrypting:
-
-```javascript
-// Raw bytes from server: [authTag (16)][ciphertext (...)]
-const rawBytes = new Uint8Array(arrayBuffer);
-const authTag   = rawBytes.slice(0, 16);
-const ciphertext = rawBytes.slice(16);
-
-// SubtleCrypto wants: [ciphertext][authTag]
-const combined = new Uint8Array(ciphertext.length + authTag.length);
-combined.set(ciphertext, 0);
-combined.set(authTag, ciphertext.length);
-
-const plaintext = await crypto.subtle.decrypt(
-  { name: 'AES-GCM', iv, tagLength: 128 },
-  cryptoKey,
-  combined
-);
+```
+encryptBuffer(buffer):
+  key      = crypto.randomBytes(32)   // 256-bit, unique per file
+  iv       = crypto.randomBytes(12)   // 96-bit nonce (GCM recommendation)
+  cipher   = AES-256-GCM(key, iv)
+  authTag  = cipher.getAuthTag()      // 16 bytes (128-bit)
+  on disk  = [authTag (16 bytes)][ciphertext]
+  returns  → { keyHex, ivHex }        // embedded in notification email
 ```
 
-This is not a bug — it's an impedance mismatch between two correct implementations of the same spec that made different choices about how to expose the same data.
+**Why GCM?** CBC gives you confidentiality but not integrity — an attacker could flip bits. GCM's auth tag detects any tampering. Also: GCM is natively supported by the Web Crypto API (`SubtleCrypto`), enabling fully client-side decryption.
 
-**Why key + IV go in the URL hash:** The decrypt URL is `hollr.to/decrypt#fileId=abc&key=deadbeef&iv=cafe...`. The hash fragment (everything after `#`) is defined in RFC 3986 §3.5 as client-side only — browsers do not include the fragment in HTTP requests. When the browser fetches `hollr.to/decrypt#...`, the server receives `GET /decrypt` with no fragment. The server never sees the key or IV. This is not a workaround — it's the correct, specified behavior of URL fragments, and is the same mechanism used by end-to-end encrypted services like Mega and Bitwarden Send.
+**Why tag-first on disk?** SubtleCrypto's `decrypt` expects `[ciphertext][authTag]` concatenated. Node's `crypto` API separates them. Storing the tag first (16 bytes, known length) means the decrypt viewer can slice `bytes.slice(0, 16)` and `bytes.slice(16)` deterministically, then re-concatenate in the order SubtleCrypto expects.
 
----
+**Why key in URL hash?** `https://hollr.to/decrypt#url=...&key=...&iv=...` — the hash fragment (`#...`) is defined in RFC 3986 §3.5 as client-side only. Browsers do not include it in HTTP requests. The decrypt key never reaches any server during playback.
+
+**Per-file key:** Every upload gets its own fresh 256-bit key. Compromising one file's key (if someone forwards the decrypt email) reveals nothing about any other file.
 
 ### bcrypt — PINs
 
-PINs (4–8 digits) are hashed with bcrypt at cost factor 12.
-
-**Why bcrypt, not PBKDF2:** bcrypt is purpose-built for hashing passwords and PINs. Its cost factor directly controls the time per hash — cost 12 takes approximately 250ms on modern hardware. This means a brute-force attack on bcrypt-cost-12 is ~250ms per attempt, compared to a raw hash which could be billions of attempts per second. PBKDF2 can achieve similar results with enough iterations, but bcrypt's API makes it harder to accidentally use weak parameters: the cost factor is stored *inside the hash output*, so the algorithm is self-describing.
-
-**Cost factor 12:** At 250ms, hashing is imperceptible to a human clicking a button. A 4-digit PIN has 10,000 combinations. At 250ms per attempt, exhaustive offline search takes 2,500 seconds (~42 minutes). With network latency and the auth rate limiter (10 requests per 15 minutes), online brute-force is effectively blocked. bcrypt's cost factor can be increased over time as hardware improves without changing the stored hash format.
-
-**PINs are not for account access:** This is a deliberate design choice. The PIN gates the settings screen only — not login, not message reading. If a user forgets their PIN, they can reset it via the forgot-pin flow (which sends a magic link). The PIN cannot be recovered — only reset. This means a compromised PIN doesn't expose the account itself, just the settings.
-
----
-
-### PGP — OpenPGP.js Client-Side Encryption
-
-**What asymmetric encryption means in this context:** The recipient (hollr user) generates a PGP keypair in their browser. The public key is uploaded to the server and stored in `users.pgp_public_key`. The private key *never leaves the browser* — it's stored in `localStorage` on the user's device. When a sender submits a message, the browser fetches the recipient's public key from the API and encrypts the message with it using OpenPGP.js. The server receives only ciphertext — it has no capability to decrypt it, even under compulsion.
-
-**Why client-side:** Server-side encryption with the server holding the key is encryption-theater — it protects against an attacker who steals your database, but not against one who compels you to decrypt. Client-side encryption means the server is cryptographically incapable of reading messages, not merely policy-prohibited from doing so. This is a meaningful security property for a service that handles private communications.
-
-**Why `esm.sh`:** OpenPGP.js is a large library (~300KB gzipped). Importing it via a CDN like esm.sh means: (1) it's only loaded when a PGP key is set, via a dynamic `import()` that resolves lazily, and (2) there's no build step required. `esm.sh` transforms npm packages to native ES modules, so `import('https://esm.sh/openpgp@5')` works directly in the browser without webpack or rollup. The cost is a dependency on an external CDN — mitigated by pinning the version (`@5`) and the fact that the app degrades gracefully if OpenPGP.js fails to load (it falls back to unencrypted message delivery).
-
-**Armored format:** PGP ciphertext is binary. The "armored" format is base64-encoded binary wrapped in ASCII headers:
+PINs are 4–8 digit numbers used to gate the settings modal. They are not used for account access, so they don't need to be recoverable — only resettable via magic link.
 
 ```
------BEGIN PGP MESSAGE-----
-
-wcFMA4...base64...
-=AbCd
------END PGP MESSAGE-----
+bcrypt(pin, cost=12)
 ```
 
-This makes PGP output safe to store in a TEXT column, paste into a UI, and transmit in JSON. The armor headers tell any PGP tool what to expect inside. hollr stores armored ciphertext as-is and renders it in a `<pre>` element for users who want to decrypt offline with GPG or Kleopatra.
+Cost 12 means ~250ms to hash on modern hardware. Fast enough to be invisible to the user, slow enough to make brute-forcing 10,000 PIN combinations (the full 4-digit space) take ~40 minutes per attempt — and that's against the hash, which requires the database.
 
-**The OpenPGP.js API in practice:**
+PINs that are still the default `1234` are flagged with `pin_is_default = 1`. The settings endpoint returns `{ error: 'must_change_pin' }` if this flag is set, forcing the user to the PIN tab before any other changes can be saved.
+
+### PGP — OpenPGP.js client-side encryption
+
+PGP is asymmetric: the sender uses the recipient's public key to encrypt, only the private key (which never leaves the recipient's device) can decrypt.
 
 ```javascript
+// In the sender's browser, when the handle owner has a PGP key set:
 const openpgp = await import('https://esm.sh/openpgp@5');
 const publicKey = await openpgp.readKey({ armoredKey: profilePgpKey });
-const message = await openpgp.createMessage({ text: messageBody });
 const encrypted = await openpgp.encrypt({
-  message,
-  encryptionKeys: publicKey
+  message: await openpgp.createMessage({ text: messageBody }),
+  encryptionKeys: publicKey,
 });
-// encrypted is an armored string — send this to the API
+// encrypted is an armoured PGP block — hollr's server never saw the plaintext
 ```
+
+**Why client-side?** If the server encrypted, it would have to see the plaintext first. The entire point is that even hollr cannot read PGP-encrypted messages.
+
+**Why esm.sh?** OpenPGP.js is a ~300KB library. Loading it lazily via `import('https://esm.sh/openpgp@5')` means it only downloads when the profile has a PGP key set. No build step, no bundler. esm.sh transforms npm packages to native ESM.
+
+**Decrypt hint in email:** PGP-encrypted messages arrive as an armoured block with a GPG usage hint: `gpg --decrypt message.asc`. hollr never attempts server-side decryption.
 
 ---
 
-## Deep-dive: Database Design
+## Deep-dive: Database design
 
 ### Why SQLite
 
-The choice between SQLite and a client-server database like PostgreSQL or MySQL comes down to operational complexity vs. scale. For a service with fewer than 10,000 users, SQLite is unambiguously correct. There is no separate database process to manage, no connection pool to tune, no replication to configure, no credentials beyond the file path. The entire database is a single file that you can back up with `cp`, inspect with any SQLite browser, and restore by replacing the file.
+The standard argument against SQLite for web apps is "what if you need horizontal scaling?" The counter-argument: hollr does not need horizontal scaling. It's a single-machine deployment on Fly.io. SQLite on a persistent volume is:
 
-Fly.io persistent volumes provide the durability that makes SQLite viable in production. The database file lives at `/data/db.db`, on a volume that persists across app restarts and deploys. Fly.io takes volume snapshots automatically. For a service at this scale, this is sufficient.
+- **Zero operational overhead** — no connection pool, no separate process, no network roundtrip.
+- **Trivially backed up** — one file. `cp hollr.db hollr.db.bak` is your backup strategy.
+- **Faster than PostgreSQL for reads** — in-process, no serialization, no network.
+- **WAL mode** — `PRAGMA journal_mode = WAL` enables concurrent reads alongside writes. The health check and web requests can run simultaneously without blocking each other.
+- **better-sqlite3 is synchronous** — every query completes before the next line runs. No callbacks. No async/await. No accidental N+1 queries from forgetting to await a promise.
 
-**WAL mode** (Write-Ahead Logging) is enabled on every startup with `PRAGMA journal_mode=WAL`. In the default rollback journal mode, readers block writers and writers block readers — connections queue up waiting for each other. WAL mode uses a separate write-ahead log file: readers read from the main database file while a writer appends to the WAL concurrently. Readers never block writers and writers never block readers. Crash safety is maintained — if the process dies mid-write, the WAL is discarded on next open and the database is in its pre-write state (no partial writes).
+The synchronous API is actually the right choice for Node.js + SQLite: the query is in-process and typically completes in microseconds, so blocking the event loop for that duration is preferable to the overhead of async scheduling.
 
-**Why `better-sqlite3` (synchronous API):** The `sqlite3` npm package is asynchronous — every query returns a Promise. `better-sqlite3` is synchronous — queries return results directly. This sounds like it would block the Node.js event loop, but in practice it doesn't meaningfully: SQLite queries are in-process calls that return in microseconds to low milliseconds. The async overhead of Promise wrapping and microtask scheduling adds more latency than a typical SQLite query takes. The synchronous API produces code that's dramatically easier to read, reason about, and debug. There are no callback pyramids, no forgotten `await` keywords, no race conditions from concurrent query results.
+### The better-sqlite3 trap
 
-**`COLLATE NOCASE` on handle:** The `users` table has `handle TEXT UNIQUE COLLATE NOCASE`. This means SQLite treats "Alice", "ALICE", and "alice" as the same value for uniqueness purposes. Without this, `Alice` and `alice` would be distinct handles — two different users could claim them, and `hollr.to/alice` and `hollr.to/Alice` would route to different profiles. COLLATE NOCASE enforces uniqueness without forcing us to lowercase the stored value. The handle is stored as the user typed it (preserving case for display) but compared case-insensitively.
+The most common mistake with better-sqlite3 is treating it like an async ORM:
 
----
+```javascript
+// WRONG — db.select() returns the query builder, not a promise
+const [user] = db.prepare('SELECT * FROM users WHERE id = ?');
+await user; // returns the prepared statement
 
-### Migration Strategy
+// CORRECT
+const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+// .get()  → one row or undefined
+// .all()  → array (may be empty)
+// .run()  → { changes, lastInsertRowid }
+```
 
-SQLite supports `IF NOT EXISTS` for table creation but not for `ADD COLUMN` in ALTER TABLE. Running `ALTER TABLE users ADD COLUMN x_id TEXT` on a database where `x_id` already exists returns an error. The migration approach is a try/catch loop:
+### Migration strategy
+
+SQLite does not support `ALTER TABLE ... IF NOT EXISTS`. The runtime migration loop handles this:
 
 ```javascript
 const migrations = [
-  'ALTER TABLE users ADD COLUMN x_id TEXT',
-  'ALTER TABLE users ADD COLUMN x_username TEXT',
-  'ALTER TABLE users ADD COLUMN pgp_public_key TEXT',
+  { table: 'users', col: 'x_id', def: 'TEXT' },
   // ... more columns
 ];
-
-for (const sql of migrations) {
-  try {
-    db.prepare(sql).run();
-  } catch (e) {
-    // Column already exists — ignore and continue
-  }
+for (const { table, col, def } of migrations) {
+  try { db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${def}`); }
+  catch { /* column already exists — safe to ignore */ }
 }
 ```
 
-This is idempotent — safe to run on every application startup regardless of which version of the schema is already present. Each migration either succeeds (column added) or fails silently (column already exists). This approach works because ALTER TABLE ADD COLUMN is the only DDL operation we run after initial table creation. Dropping columns, renaming columns, or changing column types would require a more sophisticated migration system.
+This runs on every startup. It's idempotent: if the column exists, the `ALTER TABLE` throws and the catch swallows it. No migration files. No migration state. No `up` and `down`. Every deploy is safe.
 
-**The ordering trap:** In v3.0.0, the startup code created the `idx_users_x_id` index before the `ALTER TABLE users ADD COLUMN x_id` migration had run. SQLite returned `no such column: x_id` and the server crashed on startup. The fix was to run all ALTER TABLE migrations before creating any indexes that depend on those columns. This seems obvious in retrospect, but it's easy to overlook when the CREATE INDEX statement is in a separate section of the initialization code.
+**The index ordering trap:** If you create an index on a column that doesn't exist yet, SQLite throws immediately — it doesn't defer the index creation. Any index on a migration-added column must be created *after* the migration loop.
 
----
+### Pending handles
 
-### Pending Handles
+New users get a temporary `__pending_xxxxxxxx` handle immediately on account creation. This lets the session/user row exist in the database before onboarding completes. Every endpoint that exposes `handle` checks `handle.startsWith('__pending')` and returns `null` to the frontend.
 
-New users who haven't completed onboarding need a real database row — the session references `user_id`, and that foreign key must exist. But we can't require handle selection before creating the row (the user might abandon onboarding). The solution: on first login, assign a handle of the form `__pending_xxxxxxxx` where `xxxxxxxx` is 8 random hex characters.
+### COLLATE NOCASE on handle
 
-```javascript
-const pendingHandle = '__pending_' + crypto.randomBytes(4).toString('hex');
+```sql
+handle TEXT NOT NULL UNIQUE COLLATE NOCASE
 ```
 
-The `__` prefix is a reserved namespace that no user-facing handle can start with (handles must match `/^[a-zA-Z0-9_-]{2,30}$/` and cannot start with `__`). Everywhere the frontend might display or use the handle, there's a guard:
-
-```javascript
-const displayHandle = handle.startsWith('__pending') ? null : handle;
-```
-
-This null propagates to the frontend, which shows "Choose your handle" rather than the raw `__pending_...` string.
+This enforces case-insensitive uniqueness at the database level. `PaulFxyz` and `paulfxyz` are treated as the same handle. Without `COLLATE NOCASE`, two users could claim what appear to be identical handles differing only in case.
 
 ---
 
 ## Deep-dive: The HTTP API
 
-### Middleware Stack
-
-Express middleware executes in the order it's registered. The order matters — getting it wrong causes subtle failures. Here's the stack and why each item is where it is:
+### Middleware stack (order matters)
 
 ```javascript
-app.use(helmet())               // 1. Security headers — before anything else
-app.use(cors(corsOptions))      // 2. CORS — must handle OPTIONS preflight before routes
-app.use(express.json())         // 3. Parse JSON body — routes need req.body
-app.use(session(sessionConfig)) // 4. Session — needed by OAuth routes only
-// Rate limiters applied per-route-group (see below)
-app.use('/api/auth', authLimiter, authRouter)
-app.use('/api/user', requireAuth, userRouter)
-app.use('/api/send', sendLimiter, sendRouter)
-app.use('/api/files', filesRouter)
+app.set('trust proxy', 1);        // 1. Trust Fly.io's reverse proxy for real IPs
+                                   //    Without this, express-rate-limit throws
+                                   //    ValidationError on every request
+
+app.use(helmet({ ... }));         // 2. Security headers (X-Frame-Options, etc.)
+app.use(cors({ ... }));           // 3. CORS — must handle OPTIONS preflight
+                                   //    before any route handler fires
+
+app.use(express.json({ ... }));   // 4. Parse JSON body before routes need it
+app.use(session({ ... }));        // 5. express-session for X OAuth PKCE state
+
+// Rate limiters — applied per route group, not globally
+const authLimiter = rateLimit({ windowMs: 15*60*1000, max: 10 });
+const sendLimiter = rateLimit({ windowMs: 60*1000, max: 5 });
 ```
 
-**Why helmet first:** `helmet()` sets security-relevant response headers (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, etc.) on every response. If it came after routes, route handlers that call `res.send()` early would bypass it. First position guarantees every response gets the headers.
+**Why `trust proxy: 1`?** Fly.io routes all traffic through a load balancer that adds `X-Forwarded-For`. Express defaults to `trust proxy = false`, which causes `express-rate-limit` to throw `ValidationError` on every request, crashing the app. Setting it to `1` tells Express to trust one level of proxy — the Fly.io load balancer.
 
-**Why cors before routes:** CORS preflight requests (`OPTIONS` method) never reach route handlers — they're handled entirely by the CORS middleware. If cors middleware came after route registration, OPTIONS requests to `/api/send` would get `405 Method Not Allowed` from Express before the CORS headers were added, and the browser would block the actual request.
-
-**Why session is in the stack at all:** `express-session` is only needed for the X OAuth PKCE flow — the code_verifier must survive the redirect to Twitter and the return callback. All other authentication uses Bearer tokens in the Authorization header. The session cookie is an implementation detail of the OAuth flow, not a primary auth mechanism.
-
----
-
-### `requireAuth` Middleware
-
-Every protected route uses `requireAuth`:
+### `requireAuth` middleware
 
 ```javascript
 function requireAuth(req, res, next) {
-  const auth = req.headers.authorization || '';
-  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
-  if (!token) return res.status(401).json({ error: 'No token' });
-
-  const row = db.prepare(`
-    SELECT u.*, s.expires_at AS session_expires
-    FROM sessions s
-    JOIN users u ON u.id = s.user_id
+  const token = req.headers.authorization?.slice(7); // "Bearer " = 7 chars
+  const sess  = db.prepare(`
+    SELECT s.token, s.user_id, s.expires_at,
+           u.email, u.handle, u.resend_key, u.pin_hash, u.from_email,
+           u.pgp_public_key, u.x_id, u.x_username, u.pin_is_default, u.display_name
+    FROM sessions s JOIN users u ON u.id = s.user_id
     WHERE s.token = ? AND s.expires_at > unixepoch()
   `).get(token);
-
-  if (!row) return res.status(401).json({ error: 'Invalid or expired session' });
-  req.user = row;
+  if (!sess) return res.status(401).json({ error: 'Invalid or expired session' });
+  req.user = sess; // all user data available on req.user
   next();
 }
 ```
 
-The single JOIN query gets both user and session data in one trip to SQLite. No N+1: we don't first fetch the session then separately fetch the user. `unixepoch()` is a SQLite built-in that returns the current Unix timestamp — comparing it inline in SQL avoids any clock drift between JavaScript's `Date.now()` and SQLite's notion of "now" (they're both the system clock, but using SQLite's built-in is cleaner and one fewer point of failure).
+One JOIN query fetches session + user together. `unixepoch()` in the WHERE clause handles TTL in the database — no JavaScript date math. The session token is a Bearer token in the `Authorization` header, not a cookie, making it safe for cross-origin requests from the static frontend.
 
----
-
-### CORS Configuration
-
-The CORS origin is a function, not a string or regex:
+### CORS
 
 ```javascript
-function corsOriginFn(origin, callback) {
-  const allowed = [
-    'https://hollr.to',
-    'https://www.hollr.to',
-    ...(process.env.NODE_ENV !== 'production'
-      ? ['http://localhost:3000', 'http://localhost:5500']
-      : [])
-  ];
-  if (!origin || allowed.includes(origin)) {
-    callback(null, true);
-  } else {
-    callback(new Error('Not allowed by CORS'));
-  }
-}
+const allowedOrigins = [
+  'https://hollr.to', 'https://www.hollr.to',
+  ...(process.env.NODE_ENV !== 'production'
+      ? ['http://localhost:3000', 'http://localhost:5173']
+      : []),
+];
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    cb(new Error(`CORS: ${origin} not allowed`));
+  },
+  credentials: true,
+}));
 ```
 
-The function form allows dynamic decisions. `!origin` allows server-to-server requests (curl, Postman) that don't send an Origin header. Dev origins are included only in non-production — a single env check ensures they never appear in production without a code change.
+The `origin` function (not a string/array) enables dynamic origin checking. `credentials: true` is required so the browser sends the `Authorization` header on cross-origin requests.
 
-`credentials: true` is required because the X OAuth flow uses an `express-session` cookie. Cross-origin cookie sending requires both `Access-Control-Allow-Credentials: true` (set by cors with `credentials:true`) and `credentials: 'include'` in the fetch call. Without both, the browser drops the cookie on cross-origin requests and the PKCE session state is lost.
+### Rate limiting
+
+- **Auth routes** (magic link, forgot-pin, verify): 10 requests per 15 minutes per IP. Prevents magic-link spam and brute-force attempts.
+- **Send/upload routes**: 5 requests per minute per IP. Prevents canvas abuse from automated senders.
+- Limits are per-IP (from `X-Forwarded-For`, trusted because of `trust proxy: 1`) because these endpoints are unauthenticated or pre-authentication.
 
 ---
 
-### Rate Limiting
+## Deep-dive: Frontend architecture
 
-```javascript
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,                  // 10 requests per window per IP
-  standardHeaders: true,
-  legacyHeaders: false
-});
+### Why no framework
 
-const sendLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 5               // 5 messages per minute per IP
-});
+The frontend is plain HTML, CSS, and vanilla JavaScript. No React, no Vue, no Next.js, no build step. The reasons:
+
+1. **Deploy simplicity.** FTP `mirror` uploads the changed files. There's no `npm run build`, no artifact, no CI pipeline needed.
+2. **Zero dependency churn.** A React app from 2023 needs dependency updates every month. An HTML file from 2023 still works perfectly.
+3. **Auditability.** The entire codebase is readable in a browser's View Source. There's no minified bundle obscuring the logic.
+4. **Performance.** The landing page is a single HTTP request (CSS and JS inlined). The canvas page loads its fonts from Google, but everything else is one file.
+
+The trade-offs are real: more verbose JS, no component reuse, manual DOM manipulation. For a product at this scale, those trade-offs are worth it.
+
+### Single-file deploy strategy
+
+The landing page (`index.html`) has its CSS and JS inlined via a Python script:
+
+```python
+with open('style.css') as f: css = f.read()
+with open('main.js')   as f: js  = f.read()
+html = html.replace('<link rel="stylesheet" href="style.css" />', f'<style>{css}</style>')
+html = html.replace('<script src="main.js"></script>', f'<script>{js}</script>')
+# favicon embedded as base64 data URI
 ```
 
-**Auth limiter (10/15min):** Prevents magic-link spam (you can't flood a user's inbox), prevents brute-force on the verify endpoint, and limits X OAuth initiation. 10 requests in 15 minutes is generous enough for legitimate use (a user who clicks the magic-link button multiple times by mistake) but restrictive enough to defeat automation.
+Result: one HTTP request to load the entire page (minus Google Fonts). The source files (`landing-src/`) are kept in the repo for editing.
 
-**Send limiter (5/min):** Prevents canvas abuse — someone shouldn't be able to fire 1,000 messages per minute at a recipient. Five per minute per IP is more than any human can type, less than any script would want to limit-respect.
-
-**Why per-IP, not per-user:** The send endpoint is unauthenticated — senders don't have accounts. Per-user rate limiting only works when you have a user identity. For unauthenticated endpoints, the IP address is the only consistent signal available.
-
----
-
-## Deep-dive: Frontend Architecture
-
-### Why No Framework
-
-The hollr frontend is vanilla HTML, CSS, and JavaScript — no React, no Vue, no Svelte, no build step. This is a conscious trade-off, not an oversight.
-
-The benefits of a framework — component reuse, reactive state, compiled output — scale with application complexity. hollr's frontend consists of about a dozen pages, each largely independent. There are no shared stateful components that update reactively. The busiest page (the canvas) has a timer, a text area, a send button, and optional file/voice UI. This doesn't need a virtual DOM.
-
-The costs of a framework in this context are real: a build step means `node_modules`, a bundler configuration, build cache invalidation, and a deploy process that must run a build before pushing files. Every npm vulnerability scanner alert becomes your problem. With vanilla JS, deploy is `lftp mirror --reverse` and you're done.
-
-The trade-off is verbosity. Vanilla JS event handlers and DOM manipulation are more lines than JSX. That's acceptable for a project where the developer can hold the entire frontend in their head.
-
----
-
-### Single-File Deploy Strategy
-
-The landing page (`index.html`) is a single file that embeds its CSS and JavaScript. A Python script inlines `style.css` and `main.js` into `<style>` and `<script>` tags before deploy. The favicon is embedded as a base64 data URI in the `<link rel="icon">` tag.
-
-The result: one HTTP request loads the entire landing page UI (excluding Google Fonts, which are loaded from Google's CDN). No separate JS bundle request, no CSS file request, no favicon request that might fail on some servers. The page renders immediately with zero render-blocking sub-resources.
-
-For non-landing pages (canvas, auth, settings, decrypt), files remain separate — they're loaded infrequently enough that request count doesn't matter.
-
----
-
-### i18n System
-
-Internationalization uses a `STRINGS` object in `i18n.js`:
+### i18n system
 
 ```javascript
 const STRINGS = {
-  en: {
-    send_button: 'Send message',
-    placeholder:  'Write something...',
-    // ...
-  },
-  fr: {
-    send_button: 'Envoyer le message',
-    placeholder:  'Écrivez quelque chose...',
-    // ...
-  },
-  // ... 10 languages total
+  en: { 'nav.how': 'How it works', 'hero.title': '...', ... },
+  fr: { 'nav.how': 'Comment ça marche', ... },
+  // 8 more languages
 };
-```
 
-HTML elements that need translation carry a `data-i18n` attribute:
-
-```html
-<button data-i18n="send_button">Send message</button>
-```
-
-The `applyTranslations(lang)` function walks the DOM:
-
-```javascript
-function applyTranslations(lang) {
-  const dict = STRINGS[lang] || STRINGS['en'];
+function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
-    if (dict[key]) el.textContent = dict[key];
+    el.innerHTML = STRINGS[currentLang][key] ?? STRINGS.en[key] ?? '';
   });
 }
 ```
 
-Language detection: `navigator.language.slice(0, 2)` extracts the ISO 639-1 code. If the code isn't in STRINGS, fall back to `'en'`. The selected language is saved to `localStorage['hollr-lang']` so it persists across sessions.
+Language auto-detection: `navigator.language.slice(0, 2)`. Persisted in `localStorage('hollr_lang')`. The language switcher in the welcome modal is a single flag pill button — clicking opens a language picker overlay with a 2-column flag + name grid.
 
-Why no library (i18next, etc.)? The STRINGS object and a 10-line function handle everything the app needs. Adding a library would bring its own API surface, bundle weight, and version-drift concern.
+### `sessionStorage` vs `localStorage`
 
----
+Session tokens go in `sessionStorage`, not `localStorage`:
 
-### sessionStorage vs localStorage
+- `sessionStorage` is tab-scoped — each tab has its own session. Cleared when the tab closes.
+- `localStorage` persists across tabs and browser restarts — appropriate for preferences (theme, language), not auth tokens.
+- The canvas is designed to be embeddable in iframes. `sessionStorage` works correctly per-frame; `localStorage` is shared across the page and its iframes.
 
-The Bearer token (session token) is stored in `sessionStorage['hollr-token']`, not `localStorage`.
+Early versions stored the desired handle (from the landing modal) in `sessionStorage`. This broke when the magic link opened in a new tab (empty `sessionStorage`). Fixed by storing `pending_handle` server-side in `magic_links`.
 
-**sessionStorage** is scoped to the browser tab. It survives page reloads within the tab but is cleared when the tab is closed. Each tab gets its own independent storage — an iframe cannot read the sessionStorage of its parent page and vice versa.
-
-**localStorage** is persistent and shared across all tabs in the same origin. Storing an auth token in localStorage means it persists indefinitely and is readable by any tab open to hollr.to — including potential future tabs opened after the user intended to "close" their session.
-
-For auth tokens, sessionStorage's tab-scoped lifetime is the correct behavior: session ends when the tab closes. The iframe isolation property also matters for the canvas: if hollr.to supports canvas embeds (an iframe showing the send form), that iframe cannot read the parent page's sessionStorage. Each context is isolated, which prevents a malicious parent page from extracting the recipient's session token from an embedded canvas.
-
----
-
-### Apache mod_rewrite (.htaccess)
-
-SiteGround serves the frontend from Apache. The `.htaccess` file configures URL rewriting so that non-file paths serve `index.html` (for client-side routing) while specific paths take priority:
+### Apache mod_rewrite
 
 ```apache
 RewriteEngine On
-
-# Pass-through for actual files and directories
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^auth/verify/?$  auth/verify.html [L]
+RewriteRule ^decrypt/?$      decrypt/index.html [L]
+RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
-
-# Reserved routes — must come BEFORE the :handle wildcard
-RewriteRule ^auth/verify$   /auth/verify.html [L]
-RewriteRule ^auth/magic$    /auth/magic.html [L]
-RewriteRule ^decrypt$       /decrypt.html [L]
-RewriteRule ^dashboard$     /dashboard.html [L]
-RewriteRule ^settings$      /settings.html [L]
-RewriteRule ^onboarding$    /onboarding.html [L]
-
-# Handle pages — the :handle wildcard
-RewriteRule ^([a-zA-Z0-9_-]+)$ /canvas.html [L]
+RewriteCond %{REQUEST_URI} !^/auth/
+RewriteCond %{REQUEST_URI} !^/decrypt
+RewriteRule ^([a-zA-Z0-9_-]+)/?$  handle/index.html [L]
 ```
 
-The ordering is critical. `auth/verify` must be matched before the handle wildcard, or a user navigating to `hollr.to/auth/verify` would be treated as a handle named "auth" and routed to the canvas. The same applies to `decrypt`. Static file check must come first (before all rewrites), or actual JS/CSS/image files would be rewritten to HTML pages.
+**Order is critical.** `/auth/verify` and `/decrypt` must be matched before the `/:handle` wildcard. Static files (`-f` check) are served directly. The `/:handle` pattern catches anything else that looks like a handle. Without this exact ordering, visiting `/auth/verify` would serve the canvas page for a handle named "auth".
 
----
-
-### Dark/Light Mode — No Flash
-
-The theme-switching logic follows a well-established pattern to avoid the "flash of wrong theme" problem:
+### Dark/light mode — no flash
 
 ```html
-<head>
-  <!-- ... meta tags ... -->
-  <script>
-    // Inline — runs synchronously before <body> is parsed
-    (function() {
-      var t = localStorage.getItem('hollr-theme');
-      if (!t) {
-        t = window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark' : 'light';
-      }
-      document.documentElement.setAttribute('data-theme', t);
-    })();
-  </script>
-  <link rel="stylesheet" href="style.css">
-</head>
+<!-- This script runs synchronously before <body> renders -->
+<script>
+  (function() {
+    let t; try { t = localStorage.getItem('hollr-theme'); } catch {}
+    const dark = t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  })();
+</script>
 ```
 
-The inline `<script>` runs synchronously before any CSS is applied or any body elements are parsed. It reads `localStorage['hollr-theme']` (the user's explicit choice) or falls back to the OS preference via `matchMedia`. By the time the browser paints the first frame, `data-theme` is already set on `<html>` and the CSS custom properties have their correct values.
+This inline script runs before the browser paints anything, so there's no flash of the wrong theme. CSS custom properties (`--bg`, `--text`, etc.) are defined in `:root` (light) and `[data-theme="dark"]` (dark).
 
-CSS custom properties do the theming:
+### Web Crypto API — in-browser decrypt viewer
 
-```css
-:root {
-  --bg: #f9f6f1;
-  --text: #1a1814;
-  --accent: #c96a2a;
-}
-
-[data-theme="dark"] {
-  --bg: #1a1814;
-  --text: #f9f6f1;
-  --accent: #e88a4a;
-}
-```
-
-Every color reference in the stylesheet uses `var(--bg)`, `var(--text)`, etc. Switching themes is a single attribute change on `<html>` — the browser re-evaluates all custom property references automatically.
-
----
-
-### Web Crypto API — In-Browser Decrypt
-
-The `/decrypt` page uses `SubtleCrypto` to decrypt file attachments entirely client-side:
+The `/decrypt` page uses `SubtleCrypto` to decrypt files entirely in the browser:
 
 ```javascript
-async function decryptFile(fileId, keyHex, ivHex) {
-  // Fetch raw encrypted bytes from API
-  const res  = await fetch(`${API_BASE}/api/files/raw/${fileId}`);
-  const buf  = await res.arrayBuffer();
-  const raw  = new Uint8Array(buf);
+// URL: /decrypt#url=...&key=64hexChars&iv=24hexChars&name=file.pdf&type=application/pdf
+const { url, key: keyHex, iv: ivHex, name, type } = parseHash();
 
-  // Server format: [authTag (16 bytes)][ciphertext]
-  const authTag    = raw.slice(0, 16);
-  const ciphertext = raw.slice(16);
+// Fetch raw encrypted bytes (no credentials — just the encrypted blob)
+const encrypted = await fetch(url).then(r => r.arrayBuffer());
 
-  // SubtleCrypto wants: [ciphertext][authTag]
-  const combined = new Uint8Array(ciphertext.length + 16);
-  combined.set(ciphertext, 0);
-  combined.set(authTag, ciphertext.length);
+// Reconstruct key and IV
+const rawKey = hexToBytes(keyHex);
+const iv     = hexToBytes(ivHex);
+const cryptoKey = await crypto.subtle.importKey('raw', rawKey, { name: 'AES-GCM' }, false, ['decrypt']);
 
-  // Import the key
-  const keyBytes  = hexToBytes(keyHex);
-  const ivBytes   = hexToBytes(ivHex);
-  const cryptoKey = await crypto.subtle.importKey(
-    'raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt']
-  );
+// Rearrange wire format: [authTag][cipher] → [cipher][authTag] for SubtleCrypto
+const authTag    = encrypted.slice(0, 16);
+const ciphertext = encrypted.slice(16);
+const combined   = new Uint8Array([...new Uint8Array(ciphertext), ...new Uint8Array(authTag)]);
 
-  // Decrypt (GCM verifies authTag automatically — throws on tamper)
-  const plaintext = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv: ivBytes, tagLength: 128 },
-    cryptoKey,
-    combined
-  );
+// Decrypt
+const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv, tagLength: 128 }, cryptoKey, combined);
 
-  return new Uint8Array(plaintext);
-}
+// Detect type and render or offer download
+const blob = new Blob([decrypted], { type });
 ```
 
-After decryption, MIME type detection reads the first few bytes (magic bytes) to determine file type, then either renders the content (`<img>`, `<audio>`, `<video>`) or triggers a download via `URL.createObjectURL(new Blob([plaintext]))`.
-
----
-
-### OpenPGP.js Lazy Loading
-
-OpenPGP.js is approximately 300KB gzipped. It is only needed when the recipient has set a PGP public key. Loading it unconditionally on every canvas page load would add 300KB to a page that most senders will never use PGP with.
-
-The solution: dynamic `import()`:
-
-```javascript
-async function doSend() {
-  let body = messageArea.value;
-
-  if (profilePgpKey) {
-    // Only now load OpenPGP.js — ~300KB, deferred until needed
-    const openpgp   = await import('https://esm.sh/openpgp@5');
-    const publicKey = await openpgp.readKey({ armoredKey: profilePgpKey });
-    const message   = await openpgp.createMessage({ text: body });
-    body            = await openpgp.encrypt({ message, encryptionKeys: publicKey });
-  }
-
-  await fetch(`${API_BASE}/api/send`, {
-    method: 'POST',
-    body: JSON.stringify({ body, /* ... */ })
-  });
-}
-```
-
-The `import()` call resolves only when `doSend()` is called with a PGP key present. `esm.sh` transforms the `openpgp` npm package to native ESM on-the-fly, so no bundler or build step is needed. The browser caches the module after the first load.
+The key never leaves the URL fragment. Browsers do not send `#fragments` in HTTP requests (RFC 3986 §3.5). The decrypt key is therefore never logged by any server, including hollr's.
 
 ---
 
@@ -863,475 +645,459 @@ The `import()` call resolves only when `doSend()` is called with a PGP key prese
 
 ### Fly.io
 
-Fly.io deploys Docker images to Firecracker microVMs — lightweight VMs (not containers) with millisecond startup times, running on Fly.io's global hardware. Traffic is routed via Anycast — the same IP address resolves to the nearest Fly.io edge, which proxies to the nearest VM running your app.
+Fly.io runs Docker containers as Firecracker microVMs. Key decisions:
 
-**Persistent volumes:** The SQLite database and `.enc` file attachments live on a Fly.io persistent volume mounted at `/data`. Volumes persist across app restarts and deploys — they're block devices attached to the physical host and remounted each time the VM starts. The free tier provides 3 GB per volume.
+- **Region: cdg (Paris).** Lowest latency for the expected European user base.
+- **Persistent volume: 3 GB `hollr_data`.** SQLite file and uploads live on `/data`. The volume survives deploys, restarts, and even app destruction (if the volume isn't explicitly deleted).
+- **`--remote-only` flag.** Builds the Docker image on Fly's remote builders. Avoids arm64/amd64 cross-compilation issues on Apple Silicon Macs.
+- **Health check.** Fly polls `GET /health` every 30s. If it fails, the machine is replaced. Response: `{ ok: true, version: "4.6.0" }`.
+- **Zero-downtime deploys.** Rolling strategy: new machine starts, health check passes, old machine stops. Database migrations run on startup — they're fast (ALTER TABLE) so there's no meaningful window where the old and new schemas conflict.
 
-**Why cdg (Paris):** The `fly.toml` specifies `primary_region = 'cdg'` (Charles de Gaulle). This is the Fly.io region with lowest latency for a predominantly European user base. Fly.io will start additional VMs in other regions if needed for scale, but the primary region is where the volume lives — SQLite can't be distributed across regions without more complex replication.
+**The CNAME trap:** When you rename a Fly.io app, the old `*.fly.dev` hostname disappears immediately. Any DNS CNAME pointing to the old name breaks silently — requests return DNS resolution failures, which surface in the browser as "Network error." Always update CNAMEs before or simultaneously with an app rename.
 
-**`--remote-only` flag:** `flyctl deploy --remote-only` builds the Docker image on Fly.io's remote builders rather than locally. The developer's machine may be running on Apple Silicon (arm64), while Fly.io VMs run amd64. Building locally would produce an arm64 image that fails to run on Fly.io's VMs. `--remote-only` guarantees the build runs on amd64 hardware. It's slower but always produces the correct architecture.
-
-**Health checks:** `fly.toml` configures a health check that hits `GET /health` every 30 seconds. The `/health` route returns:
-
-```json
-{
-  "status": "ok",
-  "version": "4.3.0",
-  "uptime": 3842
-}
-```
-
-If `/health` returns non-2xx or times out, Fly.io marks the machine unhealthy and replaces it. This is the mechanism that enables zero-downtime deploys: the new machine must pass its health check before traffic is shifted away from the old one.
-
-**The CNAME trap:** Fly.io app names are globally unique. If you rename an app (or delete and recreate it), the old `*.fly.dev` hostname disappears instantly. Any DNS CNAME record pointing to the old hostname returns `NXDOMAIN`. The previous project iteration was called `howlr-api` — `api.hollr.to` had a CNAME to `howlr-api.fly.dev`. When the app was recreated as `hollr-api`, the CNAME broke silently — `hollr-api.fly.dev` returned 200, but `api.hollr.to` returned DNS errors because the old CNAME target no longer existed. The fix was to update the CNAME to `hollr-api.fly.dev`. Lesson: whenever you change an app name or recreate an app on Fly.io, immediately audit all CNAME records pointing to that app.
-
----
-
-### SiteGround FTP Deployment
-
-The frontend deploys via `lftp`, a command-line FTP client:
+### SiteGround FTP deployment
 
 ```bash
-lftp -e "
-  set ftp:ssl-allow no;
-  set net:timeout 30;
-  open -u USERNAME,PASSWORD ftp.siteground.com;
-  mirror --reverse --delete ./dist/ /public_html/;
-  bye
-"
+lftp -u "ftp@hollr.to,PASSWORD" es61.siteground.eu << 'EOF'
+  set ftp:ssl-allow no        # disable TLS negotiation (SiteGround plain FTP)
+  set net:timeout 30          # prevent hanging on connection issues
+  cd hollr.to/public_html
+  mirror --reverse --delete --verbose /tmp/stage/ ./
+  quit
+EOF
 ```
 
-**`mirror --reverse --delete`:** `--reverse` means local-to-remote (not the default remote-to-local). `--delete` removes remote files that don't exist in the local source. Together, these make the remote an exact mirror of the local `dist/` directory. Files deleted locally are deleted remotely; new files appear remotely.
+`mirror --reverse --delete` is a one-way sync from local to remote. Files not in the local source are deleted on the server. This ensures stale files don't accumulate.
 
-**`set ftp:ssl-allow no`:** SiteGround's FTP server sometimes fails TLS negotiation in ways that cause lftp to hang indefinitely rather than error and fail cleanly. Disabling TLS negotiation on plain FTP avoids this. For SFTP/FTPS (where TLS is the whole point), this wouldn't be appropriate — but for plain FTP where TLS is opportunistic, it's the pragmatic choice.
-
-**`set net:timeout 30`:** Without a timeout, lftp will wait indefinitely for a connection or transfer that's stalled. 30 seconds is generous enough for a slow connection, short enough to fail fast when the server is unreachable.
-
-**Why FTP over SSH/rsync:** SiteGround shared hosting does not provide SSH access by default. Rsync requires SSH. FTP is the only file transfer protocol available on shared hosting tiers without upgrading to a VPS plan. lftp with `mirror` is the closest approximation of rsync's behavior available over FTP.
-
----
+`set ftp:ssl-allow no` — SiteGround's shared hosting tier uses plain FTP (not FTPS or SFTP on the standard plan). Without this, lftp spends 30 seconds trying TLS negotiation before timing out.
 
 ### Resend
 
-Resend is the transactional email provider. hollr calls the Resend REST API directly from `mailer.js` using Node's built-in `https.request()`.
+Resend is used for two purposes with two different keys:
 
-**Why Resend over SendGrid or Mailgun:** Resend has a simpler REST API, a more developer-friendly dashboard, and a generous free tier (100 emails/day, 3,000/month at time of writing). SendGrid and Mailgun have more features that hollr doesn't need, and more complex API authentication. Resend's single-key authentication model (`Authorization: Bearer re_...`) maps naturally to a single environment variable.
+1. **Platform key (`PLATFORM_RESEND_KEY`):** Sends all magic links and notification emails when the user hasn't set up their own key. Sender: `hollr <yo@hollr.to>`. The `hollr.to` domain is verified in Resend.
 
-**Domain verification:** Resend requires you to prove you control the sending domain. You add DNS records:
-- TXT record: `_domainkey.resend.hollr.to` → DKIM public key (provided by Resend)
-- CNAME record: `resend._domainkey.hollr.to` → Resend's DKIM verifier
+2. **User key (optional):** Users can add their own Resend key in Settings. When set, notification emails go through their account with their verified domain as the sender. The key is stored encrypted (AES-256-CBC) in the database.
 
-Without these records, emails from `*@hollr.to` via Resend will fail domain authentication and likely land in spam. Resend's dashboard shows verification status in real time after DNS propagation.
-
-**The `from` must be verified:** Sending from an unverified domain returns HTTP 422 from the Resend API. The error is not always obvious — it looks like a validation error, not a permissions error. If `POST /api/send` starts returning 422 errors, check that the Resend sender domain is verified in the Resend dashboard.
-
-**Why not the `@resend/node` SDK:** The SDK adds a dependency and its transitive tree. The entire Resend integration is a single POST request:
-
-```javascript
-const payload = JSON.stringify({
-  from: resendFrom,
-  to: [notificationEmail],
-  subject: 'New hollr message',
-  html: emailBody
-});
-
-https.request({
-  hostname: 'api.resend.com',
-  path: '/emails',
-  method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${resendApiKey}`,
-    'Content-Type': 'application/json',
-    'Content-Length': Buffer.byteLength(payload)
-  }
-}, handleResponse).end(payload);
-```
-
-This is 20 lines. The SDK would be 3 lines but would bring `axios` or `node-fetch` along with it. The `https` module is in Node's standard library — no version drift, no vulnerability alerts, no `npm audit` noise.
+**The `reply_to: null` lesson:** Resend returns a 422 if `reply_to` is explicitly set to `null`. The fix is to only add the `reply_to` key to the payload when the sender's contact field passes an email regex. Absent is different from null in JSON APIs.
 
 ---
 
-## Deep-dive: Security Decisions
+## Deep-dive: Security decisions
+
+### No passwords, ever
+
+hollr has no password field anywhere in the codebase. Authentication is:
+- Magic links (15-min, single-use, require email access)
+- X OAuth 2.0 PKCE (requires X account access)
+
+This eliminates an entire attack surface: no credential stuffing, no password spray, no leaked hash tables, no forgot-password flows (only PIN reset, which is much lower stakes).
 
 ### CSRF
 
-hollr does not use CSRF tokens for the API, for three reasons:
+- Magic links are the auth mechanism — no traditional form POST needs CSRF tokens.
+- X OAuth uses the `state` parameter for CSRF protection (standard OAuth 2.0).
+- Bearer tokens in `Authorization` headers are not sent by browsers automatically (unlike cookies). No CSRF risk for authenticated API endpoints.
 
-1. **Magic links are the primary auth mechanism.** Traditional CSRF attacks exploit the fact that browsers automatically attach cookies to cross-origin requests. Magic links produce a session token that is stored in `sessionStorage` and sent as a Bearer token in the `Authorization` header — not as a cookie. Browsers never automatically attach `Authorization` headers to cross-origin requests. There is no CSRF vector.
+### Content security (XSS prevention)
 
-2. **X OAuth uses the `state` parameter.** The OAuth `state` parameter is the standard CSRF protection mechanism for OAuth flows (RFC 6749 §10.12). The server generates a random state, stores it in the express-session, and verifies it in the callback. A CSRF attacker cannot forge a valid state value because they don't have access to the victim's session.
-
-3. **The API is CORS-protected.** CORS restricts which origins can make credentialed requests to the API. A malicious page on `evil.com` cannot make an authenticated request to `hollr-api.fly.dev` because the CORS policy rejects `evil.com` as an origin. Combined with Bearer token auth (not cookie auth), the CSRF attack surface is effectively nil.
-
----
-
-### Password-Free Design
-
-No passwords are stored anywhere in the hollr database. This eliminates the most common source of credential compromise: the password hash database leak. There is no password to guess, no credential to stuff from other breached databases, no "forgot password" flow that creates a secondary attack surface.
-
-Magic links expire in 15 minutes and are single-use. A stolen magic link is worthless after it's been clicked. Even if an attacker intercepted the link in transit (e.g., via a compromised email account), the attack window is 15 minutes and closes the moment the legitimate user clicks the link.
-
-PINs are the closest thing to a password in the system, but they gate the settings screen only — not account access. An attacker who learns a user's PIN cannot log in or read messages. They can only change settings (notification email, PGP key, Resend credentials). PINs are 4–8 digits, bcrypt-hashed, and protected by the rate limiter on the auth endpoints. Resetting a forgotten PIN requires a magic link, tying PIN recovery to email inbox access.
-
----
-
-### Content Security (XSS Prevention)
-
-All user-generated content that appears in HTML email templates is escaped through an `esc()` function:
+All user-generated content embedded in HTML email templates is escaped:
 
 ```javascript
-function esc(str) {
-  return String(str || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-}
+const esc = str => String(str)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;');
 ```
 
-This prevents a sender from embedding `<script>` tags or `<img onerror>` payloads in message bodies that would execute in the recipient's email client. Email clients vary widely in their HTML sanitization — some render arbitrary HTML. Escaping is the defense-in-depth measure that works regardless of the email client's behavior.
-
----
+PGP-armoured ciphertext is rendered in `<pre>` with the same escaping. The canvas itself does not render user content as HTML.
 
 ### Helmet.js
 
-`helmet()` sets security response headers with sane defaults:
+Sets security headers on every response: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `X-XSS-Protection`. CSP is disabled (`contentSecurityPolicy: false`) because the canvas loads OpenPGP.js from `esm.sh` — a strict CSP would block this external import. This is a deliberate trade-off.
 
-- `X-Content-Type-Options: nosniff` — prevents MIME sniffing
-- `X-Frame-Options: SAMEORIGIN` — prevents clickjacking (the app's own iframes are allowed)
-- `Referrer-Policy: no-referrer` — outbound links don't leak the current URL
-- `X-DNS-Prefetch-Control: off` — prevents browsers from prefetching DNS for external links
+### Email enumeration prevention
 
-**CSP is disabled:** `contentSecurityPolicy: false` is passed to helmet. A strict Content-Security-Policy would block loading OpenPGP.js from `esm.sh` (`script-src 'self'` would reject it), block inline scripts on the static frontend (used for the no-flash theme loader), and block inline styles. Supporting CSP would require either: (a) adding a build step to generate nonces, (b) self-hosting OpenPGP.js (adding a deploy step), or (c) using `unsafe-inline` and `unsafe-eval` which defeats most of CSP's value. The trade-off was acknowledged: CSP is disabled in favor of maintaining the no-build-step architecture.
+`POST /api/auth/forgot-pin` always returns `{ ok: true }` regardless of whether the email exists. An attacker cannot use the endpoint to determine which emails are registered.
 
 ---
 
-### Email Enumeration Prevention
+## API reference
 
-`POST /api/auth/forgot-pin` returns `{ ok: true }` unconditionally:
+All routes are on `https://hollr-api.fly.dev`. Authenticated routes require `Authorization: Bearer <session_token>`.
 
-```javascript
-router.post('/forgot-pin', authLimiter, async (req, res) => {
-  const { email } = req.body;
-  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+### Auth
 
-  // Always return ok — never reveal whether email exists
-  if (user && user.notification_email) {
-    await sendPinResetEmail(user);  // fire and forget
-  }
+| Method | Path | Auth | Body | Returns |
+|---|---|---|---|---|
+| `POST` | `/api/auth/magic-link` | — | `{ email, handle? }` | `{ ok }` |
+| `GET` | `/api/auth/verify/:token` | — | — | `{ ok, session_token, is_new_user, pending_handle?, user? }` |
+| `POST` | `/api/auth/forgot-pin` | — | `{ email }` | `{ ok }` (always) |
+| `GET` | `/api/auth/x` | — | — | Redirect to X OAuth |
+| `GET` | `/api/auth/x/callback` | — | — | Redirect to frontend |
+| `POST` | `/api/auth/logout` | ✅ | — | `{ ok }` |
 
-  return res.json({ ok: true });
-});
-```
+### User
 
-If the response differed based on whether the email exists, an attacker could POST arbitrary email addresses and use the response to build a list of registered users. This is the email enumeration attack. Returning the same response for both cases closes the channel. The email is sent (or not sent) asynchronously in a fire-and-forget call — the HTTP response doesn't wait for it, which also prevents timing-based enumeration (a slightly longer response time when the email exists would be measurable).
+| Method | Path | Auth | Body | Returns |
+|---|---|---|---|---|
+| `GET` | `/api/me` | ✅ | — | `{ display_name, email, handle, has_api_key, pin_is_default, has_email, from_email, has_pgp, x_username }` |
+| `POST` | `/api/handle/check` | — | `{ handle }` | `{ available, reason? }` |
+| `POST` | `/api/handle/claim` | ✅ | `{ handle, pin, resend_key?, from_email?, pgp_public_key?, email?, display_name? }` | `{ ok, handle, pin_is_default }` |
 
----
+### Settings
 
-## Versioning Guideline
+| Method | Path | Auth | Body | Returns |
+|---|---|---|---|---|
+| `GET` | `/api/settings` | ✅ | — | `{ display_name, email, from_email, has_resend_key, pgp_public_key, pin_is_default }` |
+| `POST` | `/api/settings` | ✅ | `{ pin, resend_key?, from_email?, pgp_public_key?, notification_email?, display_name? }` | `{ ok }` or `{ error: 'must_change_pin' }` |
+| `POST` | `/api/settings/change-pin` | ✅ | `{ current_pin, new_pin }` | `{ ok }` |
+| `POST` | `/api/settings/email` | ✅ | `{ pin, email }` | `{ ok }` |
 
-> **⚠️ PERMANENT PROJECT RULE — apply on every commit that changes behaviour**
+### Canvas (public)
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                   HOLLR VERSIONING PROTOCOL                         │
-│                                                                     │
-│  On every commit that changes observable behaviour:                 │
-│                                                                     │
-│  1. Bump version in package.json (semver: major.minor.patch)        │
-│  2. Update version string in server.js                              │
-│       - /health endpoint response                                   │
-│       - startup log line                                            │
-│       - file header comment                                         │
-│  3. Update version headers in db.js, crypto.js, mailer.js          │
-│  4. Add [x.y.z] — YYYY-MM-DD entry to CHANGELOG.md                 │
-│       Use Keep a Changelog sections: Added/Changed/Fixed/Security   │
-│  5. Update README badge (version shield URL)                        │
-│  6. Commit message format:                                          │
-│       feat: description (v4.4.0)                                    │
-│       fix:  description (v4.3.1)                                    │
-│  7. Create GitHub release tag vX.Y.Z                                │
-│                                                                     │
-│  Semver rules:                                                       │
-│    PATCH: bug fix, copy change, internal refactor                   │
-│    MINOR: new feature, new endpoint, backwards-compatible change    │
-│    MAJOR: breaking change, auth model change, schema restructure    │
-└─────────────────────────────────────────────────────────────────────┘
-```
+| Method | Path | Auth | Body | Returns |
+|---|---|---|---|---|
+| `GET` | `/api/profile/:handle` | — | — | `{ handle, display_name, pgp_public_key, active }` |
+| `POST` | `/api/send/:handle` | — | `{ contact, message, is_pgp?, file_attachments?, audio_url?, audio_key?, audio_iv? }` | `{ ok }` |
+| `POST` | `/api/upload/:handle` | — | multipart `file` | `{ url, file_key, file_iv, name }` |
+| `GET` | `/api/decrypt/:handle/:filename` | — | — | Raw encrypted bytes |
+| `GET` | `/health` | — | — | `{ ok, version }` |
 
 ---
 
-## Issues, Bottlenecks & Lessons Learned
+## Environment variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `ENCRYPTION_SECRET` | ✅ | 64-char hex. Master secret for AES key derivation. `openssl rand -hex 32`. Never change without re-encrypting all stored values. |
+| `SESSION_SECRET` | ✅ | Any random string. Signs express-session cookies. `openssl rand -hex 32`. |
+| `PLATFORM_RESEND_KEY` | ✅ | Resend API key for magic links + platform message notifications. |
+| `PLATFORM_FROM_EMAIL` | ✅ | Platform sender address. Must be on a verified Resend domain. E.g. `hollr <yo@hollr.to>`. |
+| `FRONTEND_URL` | ✅ | Frontend origin. E.g. `https://hollr.to`. Used in magic-link URLs and X OAuth redirect. |
+| `BASE_URL` | ✅ | Backend origin. E.g. `https://hollr-api.fly.dev`. Used in X OAuth callback URL. |
+| `ALLOWED_ORIGINS` | ✅ | Comma-separated CORS origins. E.g. `https://hollr.to,https://www.hollr.to`. |
+| `X_CLIENT_ID` | — | X OAuth 2.0 client ID. Without this, X login returns 503 gracefully. |
+| `X_CLIENT_SECRET` | — | X OAuth 2.0 client secret. |
+| `PORT` | — | HTTP port. Default `3000`. |
+| `NODE_ENV` | — | `production` enables secure cookies and disables dev CORS origins. |
+| `DATA_DIR` | — | Path for SQLite DB + uploads. Default `./data`. Use `/data` on Fly.io. |
+
+---
+
+## Versioning guideline
+
+> **This is a permanent rule — applied to every commit that changes behaviour.**
+
+hollr uses [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH`
+
+| | When |
+|---|---|
+| **PATCH** (x.x.1) | Bug fixes, copy corrections, dependency updates |
+| **MINOR** (x.1.0) | New features, non-breaking API additions |
+| **MAJOR** (2.0.0) | Breaking changes, schema incompatibilities, full rewrites |
+
+**On every version bump:**
+1. Update `"version"` in `backend/package.json`
+2. Update version string in `server.js` (`/health` endpoint + startup log)
+3. Update version headers in `db.js`, `crypto.js`, `mailer.js`
+4. Add `[x.y.z] — YYYY-MM-DD` entry to `CHANGELOG.md`
+5. Update the version badge in `README.md`
+6. Commit: `feat/fix: description (vX.Y.Z)`
+7. Create GitHub release tag `vX.Y.Z`
+
+---
+
+## Roadmap
+
+These features are on the plan. None are live yet.
+
+**REST API** — Full HTTP API to read hollrs, manage your handle, integrate with external tools. `GET /v1/hollrs`, `GET /v1/hollrs/:id`, handle management endpoints.
+
+**Webhooks** — POST each incoming hollr to a URL of your choosing, the moment it arrives. No polling. Works with Zapier, Make, n8n, your own server, Notion API, anything.
+
+**MCP Server** — Model Context Protocol integration so Claude, Cursor, and other AI tools can read your hollrs as a data source. Your inbox becomes a tool your AI can query.
+
+**Verification Apps** — Before a sender can reach you, they complete a micro-task you define: donate to a charity, follow your account, download your app, solve a puzzle, pay a small fee. You set the gate, hollr handles the verification. Designed to make every incoming message meaningful — real signal, zero spam.
+
+---
+
+## Issues, bottlenecks & lessons learned
+
+A complete record of everything that went wrong and why. Read this before you build something similar.
+
+---
 
 ### 🔴 `api.hollr.to` CNAME pointed to a destroyed app
 
-**Symptom:** After recreating the Fly.io app with the correct name (`hollr-api` instead of `howlr-api`), the API at `hollr-api.fly.dev` returned 200, but `api.hollr.to` returned DNS resolution errors. Frontend requests failed with "network error" — no HTTP response at all.
+**Symptom:** Every API call from the frontend returned "Network error". Magic links failed to send. The health check still passed when called directly on `hollr-api.fly.dev`.
 
-**Root cause:** The CNAME record for `api.hollr.to` still pointed to `howlr-api.fly.dev` (the typo'd, now-deleted app name). Fly.io app hostnames are created when the app is created and destroyed when the app is deleted. `howlr-api.fly.dev` returned `NXDOMAIN`. The CNAME target doesn't exist, so the entire DNS chain fails.
+**Root cause:** The CNAME `api.hollr.to → howlr-api.fly.dev` was configured during initial setup, when the app was named `howlr-api` (original typo). After renaming the app to `hollr-api`, the old `howlr-api.fly.dev` hostname ceased to exist. DNS continued resolving `api.hollr.to` to a dead address.
 
-**Fix:** Updated the CNAME to `hollr-api.fly.dev`. DNS propagation took ~5 minutes. API immediately became reachable.
+**Fix:** Updated all frontend API references to `hollr-api.fly.dev` directly. The correct CNAME target (obtained from `flyctl certs setup`) includes a unique prefix: `xxxxxxx.hollr-api.fly.dev`.
 
-**Lesson:** Whenever you rename or recreate a Fly.io app, audit every DNS record in every zone that has a CNAME pointing to a `*.fly.dev` hostname. Make this a checklist item on your deploy process. Tools like `dig CNAME api.hollr.to` can verify the target before you discover it's broken in production.
+**Lesson:** When you rename a Fly.io app, the old `*.fly.dev` hostname disappears immediately. Update DNS before or simultaneously. Never assume a CNAME is stable across app renames.
 
 ---
 
-### 🔴 `howlr` directory name — workspace contamination
+### 🔴 `howlr` directory — 18 versions of the wrong name
 
-**Symptom:** After renaming the project from `howlr` to `hollr`, the local workspace still had a directory named `howlr/`. Git operations in the parent directory sometimes picked up files from the wrong directory. Grep searches for project files returned results from both directories. The wrong version of a file was deployed once.
+**Symptom:** The workspace directory was named `howlr/` throughout the entire development session — a typo from the very first commit that was never caught.
 
-**Root cause:** The original project was scaffolded as `howlr/` (a typo of "holler"). When the project was renamed, a new `hollr/` directory was created and files were copied over, but the old `howlr/` directory was not deleted. Both directories co-existed silently.
+**Root cause:** The original project was named "howlr" (mishearing of "hollr"). The code and GitHub were correctly renamed to "hollr" early in development, but the local filesystem path `howlr/` was never corrected. It persisted in tool call logs, error messages, and mental model for dozens of sessions.
 
-**Fix:** In v4.3.0, the `howlr/` directory was fully audited, confirmed to contain no unique content, and deleted. The workspace now contains only `hollr/`. All path references in scripts and deploy commands were updated.
+**Fix:** `mv /workspace/howlr /workspace/hollr`. Grep-verified zero remaining occurrences in code files.
 
-**Lesson:** When renaming a project, do it atomically: rename the directory, update all references, commit, and confirm nothing references the old path. Don't copy-and-create — a leftover directory will cause confusion for months.
+**Lesson:** Typos in directory names compound. Fix them at the OS level immediately when discovered, not later.
+
+---
+
+### 🔴 `trust proxy` missing — every request returned 502
+
+**Symptom:** `POST /api/auth/magic-link` returned a 502 immediately after v4.5.1 deployed. Backend logs showed `ValidationError: The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false`.
+
+**Root cause:** Fly.io's load balancer adds `X-Forwarded-For` headers. `express-rate-limit` reads this header to identify clients. With `trust proxy = false` (Express default), the library detects an untrusted `X-Forwarded-For` and throws a `ValidationError` that crashed the request handler entirely.
+
+**Fix:** `app.set('trust proxy', 1)` before any middleware. One line.
+
+**Lesson:** Any Express app behind a reverse proxy (Fly.io, Nginx, Cloudflare) must set `trust proxy`. The default is wrong for production deployments. Add it before your first deploy, not as a hotfix.
 
 ---
 
 ### 🔴 SQLite startup crash — index before column
 
-**Symptom:** After adding X OAuth support (v4.0.0), the server crashed on startup with `SqliteError: no such column: x_id`. The stack trace pointed to the `CREATE INDEX` statement, not the `ALTER TABLE` statement.
+**Symptom:** Backend failed to start with `SqliteError: table magic_links has no column named pending_handle`. This happened immediately after deploying v4.5.1.
 
-**Root cause:** The startup initialization code was structured as:
+**Root cause:** The `CREATE INDEX IF NOT EXISTS idx_users_x_id ON users(x_id)` statement was inside the initial `db.exec()` block, which ran before the runtime migration loop added the `x_id` column. `CREATE INDEX IF NOT EXISTS` only skips duplicate index names — it still fails if the column doesn't exist.
 
-```javascript
-// Create tables (fine — they already existed)
-db.prepare('CREATE TABLE IF NOT EXISTS users (...)').run();
+**Fix:** Moved the index creation to after the migration loop, in its own try/catch. Additionally, for `pending_handle`, also ran `ALTER TABLE magic_links ADD COLUMN pending_handle TEXT` directly via `flyctl ssh console` so the running DB was fixed without waiting for a deploy.
 
-// Create indexes (CRASH — x_id doesn't exist yet)
-db.prepare('CREATE INDEX IF NOT EXISTS idx_users_x_id ON users(x_id)').run();
+**Lesson:** Any index on a migration-added column must be created after the migration runs. The `IF NOT EXISTS` clause does not protect against missing columns.
 
-// Run migrations (too late — index creation already failed)
-for (const sql of migrations) { /* ALTER TABLE ... ADD COLUMN x_id */ }
-```
+---
 
-The migration that adds the `x_id` column was scheduled after the index creation. On a fresh deploy against an existing database (one created before `x_id` was added), the column didn't exist when the index creation was attempted.
+### 🔴 `pending_handle` lost across browser tabs
 
-**Fix:** Reordered initialization: run all ALTER TABLE migrations first, then create indexes. On a fresh database, `CREATE TABLE` includes `x_id` in the initial schema. On an existing database, the migration adds `x_id` before the index needs it.
+**Symptom:** Users entered their handle in the landing modal, received a magic link, clicked it in their email client — and found the onboarding form with an empty handle field.
 
-**Lesson:** Always run all schema migrations before running any DDL that depends on migrated columns. Treat migration order as a hard constraint, not a convention.
+**Root cause:** The handle was stored in `sessionStorage`. `sessionStorage` is scoped to a single browser tab. Clicking an email link opens a new tab with completely empty `sessionStorage`. The handle was gone before the user ever saw the onboarding form.
+
+**Fix:** The handle is now sent to `POST /api/auth/magic-link` as `handle` in the request body. The backend stores it as `magic_links.pending_handle`. The verify endpoint returns it in the response. The browser reads it from the API — no browser storage involved.
+
+**Lesson:** `sessionStorage` is tab-scoped. Do not use it to pass data that must survive an external link click (email, shared link, notification). Use the server.
 
 ---
 
 ### 🔴 `reply_to: null` causes Resend 422
 
-**Symptom:** Email sending started failing with HTTP 422 from Resend. The error body said "Invalid reply_to address". This started happening after adding optional Resend configuration — when a user had no reply-to address set, the code sent `reply_to: null` in the JSON payload.
+**Symptom:** Message forwarding failed silently. Resend returned 422 Unprocessable Entity with no useful error message surfaced to the user.
 
-**Root cause:** Resend's API treats `reply_to: null` as an invalid address, not as "omit this field." The JSON serialization of `{ reply_to: null }` sends the key with a null value, which Resend validates as an address and rejects.
+**Root cause:** When a sender's contact field was a name rather than an email address, the Resend payload included `reply_to: null`. Resend's API treats `null` and omitted differently. `null` is an invalid value; omitting the key entirely is fine.
 
-**Fix:** Conditionally include `reply_to` in the payload:
+**Fix:** Only add `reply_to` to the payload when the contact field passes a basic email regex. Never set a key to `null` when omitting is the correct behaviour.
 
-```javascript
-const payload = {
-  from: resendFrom,
-  to: [notificationEmail],
-  subject: subject,
-  html: html,
-  ...(replyTo ? { reply_to: replyTo } : {})
-};
-```
-
-The spread of an empty object is a no-op, so the key is omitted entirely when there's no reply-to.
-
-**Lesson:** When constructing API payloads with optional fields, omit the key entirely rather than passing null. Many APIs distinguish between "key absent" and "key present with null value" in their validation logic. Use conditional spread (`...(condition ? { key: val } : {})`) to conditionally include fields.
+**Lesson:** In REST APIs, `null` and absent are not equivalent. Read the API docs carefully for nullable vs omittable fields. When in doubt, omit.
 
 ---
 
-### 🔴 AES-GCM authTag placement mismatch
+### 🔴 AES-GCM authTag wire format mismatch
 
-**Symptom:** The in-browser decrypt viewer threw `DOMException: The operation failed for an operation-specific reason` on every decryption attempt. Node-side encryption appeared to work correctly (the `.enc` files had the right size), but the browser consistently failed to decrypt.
+**Symptom:** The in-browser decrypt viewer failed silently. `SubtleCrypto.decrypt` returned a `DOMException: The operation failed for an operation-specific reason`.
 
-**Root cause:** Node's `crypto` module provides the GCM authentication tag separately via `cipher.getAuthTag()` after finalization. The file was written as `[authTag][ciphertext]`. SubtleCrypto's `decrypt()` expects the buffer to be `[ciphertext][authTag]` — tag at the end, not the beginning. Passing the data in the wrong order caused GCM authentication to fail, which manifests as a DOMException.
+**Root cause:** Node's `crypto` API produces the GCM auth tag separately via `cipher.getAuthTag()`. SubtleCrypto's `decrypt` expects the tag *appended* to the ciphertext as a single buffer: `[ciphertext][authTag]`. We were storing `[authTag][ciphertext]` on disk, and the browser was incorrectly slicing the data.
 
-**Fix:** The browser decrypt code reads the raw bytes, splits them at byte 16 (authTag length), and re-combines them in SubtleCrypto's expected order before decryption. See the [In-Browser Decrypt Flow](#in-browser-decrypt-flow) section for the full code.
+**Fix:** Defined a clear wire format: `[16-byte authTag][ciphertext]` on disk. The decrypt viewer slices `bytes.slice(0, 16)` (tag) and `bytes.slice(16)` (cipher), then re-concatenates as `[ciphertext][tag]` before passing to SubtleCrypto.
 
-**Lesson:** AES-GCM has two correct wire formats depending on the implementor: tag-first (common in low-level APIs like OpenSSL/Node) and tag-last (Web Crypto API). When crossing the Node ↔ Browser boundary, always explicitly re-order. Document the expected format in code comments.
+**Lesson:** When two cryptographic systems interoperate, document the wire format explicitly with byte offsets. Mismatches between "tag appended" and "tag prepended" produce silent failures in both directions.
 
 ---
 
-### 🟡 `better-sqlite3` async confusion
+### 🔴 Resend API key leaked to git
 
-**Symptom:** Routes that used `better-sqlite3` produced strange results: `await db.prepare(sql)` returned the Statement object immediately (correct — it's synchronous), but other code written as `const [row] = db.select(...)` threw `TypeError: db.select is not a function`.
+**Symptom:** A GitGuardian alert arrived by email minutes after a push. A Resend API key appeared in a commit's diff.
 
-**Root cause:** `better-sqlite3` is a synchronous API. There is no `db.select()` method. The correct methods are `stmt.all()` (returns array), `stmt.get()` (returns first row or undefined), and `stmt.run()` (returns `{ changes, lastInsertRowid }`). Code written by developers accustomed to async libraries (like `pg` or the async `sqlite3` package) tends to reach for `await` and non-existent method names.
+**Root cause:** The key was hardcoded in a configuration file during initial development and committed before the env-var pattern was established.
 
-**Fix:** Code review pass to normalize all database calls to the correct `better-sqlite3` API:
+**Fix:**
+1. `git filter-repo --path backend/.env --invert-paths` — rewrites all commits to remove the file.
+2. Force-push to GitHub (`git push --force`).
+3. Immediately rotate the key in the Resend dashboard (leaked keys must be considered compromised even if the window was short).
+4. Moved all secrets to Fly.io secrets (`flyctl secrets set ...`).
 
-```javascript
-// Wrong
-const rows = await db.select('SELECT * FROM users WHERE email = ?', email);
+**Lesson:** Secrets in git history are compromised even after deletion — the history is permanent unless rewritten. Use `git filter-repo` (not `git filter-branch`). Rotate immediately. Set up pre-commit hooks or a tool like `gitleaks` to catch secrets before they're committed.
 
-// Correct
-const rows = db.prepare('SELECT * FROM users WHERE email = ?').all(email);
-const row  = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-```
+---
 
-**Lesson:** `better-sqlite3` is synchronous by design. Never `await` it. If you're adding code from another project or from AI suggestions, double-check that the API calls match `better-sqlite3`'s synchronous interface, not the async `sqlite3` package.
+### 🟡 better-sqlite3 async confusion
+
+**Symptom:** Queries returned `undefined` or the prepared statement object itself instead of rows.
+
+**Root cause:** better-sqlite3 is synchronous. There is no async interface. Code patterns like `await db.prepare(...)` silently return the statement. `const [row] = db.prepare(...).where(...)` tries to destructure a query builder object.
+
+**Fix:** All queries terminated with `.get()` (one row), `.all()` (array), or `.run()` (for writes). No `await` anywhere near SQLite calls.
+
+**Lesson:** Read the driver documentation before writing queries. better-sqlite3 is intentionally synchronous — this is a feature. Treating it like an async ORM produces subtle, silent bugs.
 
 ---
 
 ### 🟡 PGP tab invisible — tab switcher bug
 
-**Symptom:** In the settings modal, the PGP key input field was never visible. Clicking the "PGP" tab label did nothing — the tab appeared to be selected (styling changed) but no content appeared.
+**Symptom:** Clicking the "PGP" tab in the settings modal appeared to activate the button visually but showed no content below.
 
-**Root cause:** The tab switcher JavaScript toggled visibility for `tab-key` and `tab-pin` panels. The `tab-pgp` panel was added in a later iteration but the switcher was not updated to include it. The `data-tab="pgp"` attribute on the PGP tab button had no corresponding case in the switch statement.
+**Root cause:** The tab-switching JavaScript toggled `tab-resend` and `tab-pin` but never `tab-pgp`. Three mutually exclusive panels, two of which were handled.
 
-**Fix:** Added the `tab-pgp` panel to the tab switcher:
+**Fix:** Replaced three individual `display` assignments with a single `switchTab(name)` function that iterates all tab panels and shows only the active one:
 
 ```javascript
-function showTab(name) {
-  ['key', 'pin', 'pgp', 'resend'].forEach(t => {
-    document.getElementById(`tab-${t}`).style.display =
-      t === name ? 'block' : 'none';
+function switchTab(name) {
+  ['tab-resend', 'tab-pgp', 'tab-pin'].forEach(id => {
+    document.getElementById(id).style.display = id === `tab-${name}` ? '' : 'none';
   });
 }
 ```
 
-**Lesson:** When adding a new tab (or any enumerated UI element) to an existing switcher, update the switcher's list of known elements at the same time. A lint rule or a data-driven tab system (where the switcher reads tab names from the DOM) would prevent this class of bug entirely.
+**Lesson:** When you have N mutually exclusive panels, use a function that resets all N and activates one. Never N−1 individual assignments — the missing one will always be the one that matters.
 
 ---
 
-### 🟡 PKCE `code_verifier` in browser — OAuth callback failure
+### 🟡 X OAuth PKCE state in the browser
 
-**Symptom:** The X OAuth callback returned 401 from Twitter's token exchange endpoint. The `code_verifier` sent in the token exchange request didn't match what Twitter expected. Intermittently, some users could authenticate successfully while others couldn't.
+**Symptom:** X OAuth callback failed with `state_mismatch` in production.
 
-**Root cause:** An early implementation stored the `code_verifier` in `sessionStorage` on the frontend. The callback (`/api/auth/x/callback`) is a backend route — the backend cannot read the browser's `sessionStorage`. The backend was retrieving the verifier from somewhere else (a query param or a request body field that wasn't being sent), getting `undefined`, and sending an invalid verifier to Twitter.
+**Root cause:** The initial implementation stored `code_verifier` and `state` in `sessionStorage` on the frontend. But the callback URL (`/api/auth/x/callback`) is on the backend — `sessionStorage` is inaccessible there.
 
-**Fix:** Store both `code_verifier` and `state` in `express-session` (server-side session storage, keyed by the session cookie):
-
+**Fix:** Store both values in `express-session` (server-side):
 ```javascript
-// In GET /api/auth/x:
-req.session.pkce = { code_verifier, state };
-
-// In GET /api/auth/x/callback:
-const { code_verifier, state } = req.session.pkce || {};
+req.session.xState        = state;
+req.session.xCodeVerifier = codeVerifier;
 ```
+The session cookie bridges the gap between the initial request and the callback.
 
-**Lesson:** The OAuth callback route runs on the backend. Any data that must survive the redirect-to-Twitter-and-back round trip must be stored where the backend can access it: in the server-side session. Never store OAuth flow state client-side.
-
----
-
-### 🟡 Resend API key leaked to git
-
-**Symptom:** GitGuardian sent an email alert within minutes of pushing to GitHub: "Secret detected in commit abc123: Resend API key." The key (`re_...`) was visible in the commit history even after deleting the `.env` file.
-
-**Root cause:** The `.env` file containing live API keys was committed to the repository. Git stores the full history — even if you delete a file and commit the deletion, the original content is still in the history and visible to anyone with access to the repository.
-
-**Fix:**
-1. Immediately rotated the Resend API key (new key generated in the Resend dashboard, old key invalidated)
-2. Used `git-filter-repo` to rewrite history, removing the `.env` file from all commits:
-   ```bash
-   git filter-repo --path .env --invert-paths
-   git push --force
-   ```
-3. Added `.env` to `.gitignore`
-4. Updated `INSTALL.md` to use `.env.example` with placeholder values
-
-**Lesson:** Add `.env` to `.gitignore` before writing any secrets to it. Use `.env.example` with dummy values as documentation. Once a secret is in git history, treat it as compromised and rotate it immediately — history rewrites don't guarantee the secret hasn't been copied or scanned.
+**Lesson:** PKCE state must live server-side for server-side OAuth callbacks. The callback URL receives the authorization code at the backend, not the browser. Any browser storage is inaccessible.
 
 ---
 
 ### 🟡 `flyctl not found` on first deploy
 
-**Symptom:** After installing flyctl with the official install script, running `flyctl deploy` produced `command not found: flyctl`. The install script completed without errors.
+**Symptom:** Running `flyctl deploy` returned `command not found`.
 
-**Root cause:** The flyctl install script downloads the binary to `~/.fly/bin/flyctl` and prints instructions to add this directory to `PATH`. The current shell session's `PATH` doesn't include `~/.fly/bin` until the shell is restarted or the profile is sourced.
+**Root cause:** The Fly.io CLI installer adds `~/.fly/bin` to PATH by modifying the shell RC file, but the current shell session doesn't reload it.
 
-**Fix:** Either restart the terminal session, or run `source ~/.bashrc` (or `~/.zshrc`), or call the binary with its full path: `~/.fly/bin/flyctl deploy`.
+**Fix:** Use the full path: `/home/user/.fly/bin/flyctl`. Or source the RC file: `source ~/.bashrc`.
 
-**Lesson:** After installing a CLI tool that modifies `PATH`, always restart your shell session or source your profile before expecting the tool to be available. If a CI/CD script installs flyctl and immediately calls it, it must either source the profile or use the absolute path.
+**Lesson:** CLI tools that modify PATH require a new shell session to take effect. Always verify installation with the full path before debugging further.
 
 ---
 
-### 🟢 `sessionStorage` vs `localStorage` — iframe isolation
+### 🟢 `sessionStorage` vs `localStorage` for auth tokens
 
-**Symptom:** (Prospective — caught during architecture review, not a production incident.) The canvas page is designed to be embeddable as an iframe. If the auth token were stored in `localStorage`, an iframe on `hollr.to` would share storage with the parent `hollr.to` page, potentially exposing the host's session token to the canvas's JavaScript context.
+**Decision:** Session tokens stored in `sessionStorage`.
 
-**Root cause:** `localStorage` is shared across all windows and iframes at the same origin. If both the parent page and the iframe are on `hollr.to`, they share `localStorage`. An embedded canvas (iframe) could read `localStorage['hollr-token']` and impersonate the logged-in user.
+**Reasoning:** `sessionStorage` is tab-scoped. Each browser tab gets its own auth context. This is correct for an embeddable canvas — if a page embeds the canvas in an `<iframe>`, the iframe's sessionStorage is isolated from the parent page's localStorage. Tokens don't leak across tabs.
 
-**Fix:** Auth tokens are stored in `sessionStorage`. `sessionStorage` is scoped to the browsing context (tab/iframe). Each iframe has its own isolated `sessionStorage` — it cannot read the parent's `sessionStorage` and vice versa.
-
-**Lesson:** For auth tokens, `sessionStorage` is almost always the better choice over `localStorage`. Tab-scoped lifetime is the correct security model for session credentials. The only time `localStorage` is appropriate for auth is if you explicitly want persistent sessions across browser restarts (and you've accepted the security implications).
+**Trade-off:** The user is logged out when they close the tab. For a messaging canvas (not a persistent app), this is acceptable.
 
 ---
 
 ### 🟢 multer `memoryStorage` — encrypt before write
 
-**Symptom:** (Prospective — caught during design.) Using multer's default disk storage would write uploaded files to the `/tmp` directory as plaintext before encryption. An attacker with read access to `/tmp` (or a directory traversal bug elsewhere in the app) could read plaintext file contents before they're encrypted.
+**Decision:** Use `multer.memoryStorage()` instead of `multer.diskStorage()`.
 
-**Root cause:** multer's disk storage creates a temporary file on disk during the upload pipeline, before any application code runs. The file is in plaintext. Encryption happens after multer is done — by which point the plaintext file already exists on disk.
+**Reasoning:** `diskStorage` would write the file to disk in plaintext before our code gets a chance to encrypt it. `memoryStorage` gives us the raw Buffer in memory, which we encrypt (AES-256-GCM) before writing the `.enc` file.
 
-**Fix:** Use `multer.memoryStorage()`. The uploaded bytes are held in `req.file.buffer` (in-process memory) and never written to disk as plaintext. The encrypt function receives the buffer, encrypts it, and writes only the `.enc` output to the persistent volume.
-
-**Lesson:** In an encrypt-before-write pipeline, the encryption step must happen before any disk write — not after. Always use memory storage for file uploads that will be encrypted. The memory cost is bounded by `multer`'s `limits.fileSize` configuration.
+**Trade-off:** Large files (up to 50MB) are held in memory during upload. For the expected usage pattern, this is acceptable.
 
 ---
 
-### 🟢 URL hash params for decrypt keys
+### 🟢 URL hash params for decrypt key delivery
 
-**Symptom:** (Design decision — included here as a positive lesson.) The question was: where to store the per-file encryption key so that the server can't see it but the browser can use it for decryption?
+**Decision:** Encrypt key and IV go in the URL hash (`#key=...&iv=...`), not as query parameters.
 
-**Root cause (of the design challenge):** If the key is stored server-side, the server can decrypt files. If the key is in the URL path or query string, it's sent to the server in the HTTP request and appears in access logs. The key must reach the browser without the server seeing it.
+**Reasoning:** RFC 3986 §3.5 defines the hash fragment as client-side only. Browsers do not include it in HTTP requests. The key is therefore never sent to hollr's server (or any server, including CDN logs) when the decrypt viewer fetches the encrypted blob.
 
-**Fix:** Store the key in the URL fragment (`#key=...`). RFC 3986 §3.5 specifies that the fragment is processed by the browser only — it is not sent to the server in HTTP requests. This is guaranteed by the spec and implemented correctly in every browser. The key never appears in server access logs.
-
-**Lesson:** The URL fragment is not just for anchor navigation — it's a client-side-only data channel built into the URI spec. Services like Mega, Bitwarden Send, and Firefox Send use exactly this mechanism for end-to-end encryption in the browser without a build step or backend involvement.
+**Implication:** The key exists only in the notification email and the browser's address bar. If you lose the email, you lose the key.
 
 ---
 
-### 🟢 `COALESCE(email, ?)` — preserve existing email on upsert
+## Self-hosting
 
-**Symptom:** After an X OAuth login for a user who had previously set their email address, the email was being cleared. The upsert that updated the user record on login was overwriting the email with `NULL`.
+See [INSTALL.md](INSTALL.md) for the complete guide. Quick version:
 
-**Root cause:** The upsert query on X OAuth callback was:
+```bash
+git clone https://github.com/paulfxyz/hollr.git
+cd hollr/backend
+cp .env.example .env   # fill in secrets
 
-```sql
-INSERT INTO users (x_id, x_username, handle, email)
-VALUES (?, ?, ?, NULL)
-ON CONFLICT(x_id) DO UPDATE SET
-  x_username = excluded.x_username,
-  email = excluded.email  -- This sets email to NULL
+npm install
+node server.js         # http://localhost:3000
 ```
 
-The Twitter API doesn't return email. The upsert passed `NULL` for email and the conflict update applied it, overwriting the stored email.
+Deploy to Fly.io:
 
-**Fix:** Use `COALESCE` to preserve the existing value when the new value is NULL:
-
-```sql
-ON CONFLICT(x_id) DO UPDATE SET
-  x_username = excluded.x_username,
-  email = COALESCE(excluded.email, users.email)
+```bash
+flyctl apps create your-app-name
+flyctl volumes create hollr_data --region cdg --size 3
+flyctl secrets set \
+  ENCRYPTION_SECRET=$(openssl rand -hex 32) \
+  SESSION_SECRET=$(openssl rand -hex 32) \
+  PLATFORM_RESEND_KEY=re_xxxx \
+  PLATFORM_FROM_EMAIL="hollr <yo@yourdomain.com>" \
+  FRONTEND_URL=https://yourdomain.com \
+  BASE_URL=https://your-app-name.fly.dev \
+  ALLOWED_ORIGINS=https://yourdomain.com
+flyctl deploy --remote-only
 ```
-
-`COALESCE` returns the first non-null argument. If `excluded.email` is NULL, it falls back to `users.email` (the existing value). If `excluded.email` has a value, it takes precedence.
-
-**Lesson:** Upsert queries that might receive NULL for a field that already has a value should use `COALESCE` to preserve the existing data. Write the null-handling logic into the SQL, not into the application layer where it's easier to forget.
 
 ---
 
 ## Contributing
 
-Contributions are welcome. This is an open-source project under the MIT license — fork it, adapt it for your own use case, and submit pull requests for bugs or improvements.
+PRs welcome. Please open an issue first for significant changes. Follow the [versioning guideline](#versioning-guideline) on every commit that changes behaviour.
 
-**Pull request guidelines:**
-- Follow the versioning protocol above (bump version, update CHANGELOG)
-- Keep the no-build-step constraint for the frontend (no bundlers, no transpilers)
-- Match the existing code style (no Prettier/ESLint config — just be consistent)
-- Include a description of the change and why it was made
-- Test against a local SQLite database before submitting
-
-**Reporting issues:** Open a GitHub issue with the symptom, the environment (OS, Node version, browser), and steps to reproduce. Include the server log output if relevant.
+```bash
+git checkout -b feat/your-feature
+# make changes
+git commit -m "feat: describe your change (vX.Y.Z)"
+git push origin feat/your-feature
+# open a PR
+```
 
 ---
 
 ## License
 
-MIT License
+MIT — see [LICENSE](LICENSE). Fork it, self-host it, extend it, sell it. No restrictions.
 
-Copyright (c) 2026 Paul Fleury
+---
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+## A note on vibe coding
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+This project is 100% vibe-coded.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+I'm Paul Fleury — a hacker turned entrepreneur. I don't have a computer science degree. I don't claim to be a software engineer. What I do claim is a few decades of curiosity, a hacker's instinct for breaking and building things, and an entrepreneur's obsession with shipping.
+
+hollr was built entirely by piloting AI — specifically [Perplexity Computer](https://www.perplexity.ai/computer) — over the course of a few days. I described what I wanted, reviewed what came back, caught mistakes, redirected, iterated. The architecture decisions, the security choices, the debugging of production crashes, the CHANGELOG entries — all of it emerged from a conversation between a non-engineer with good instincts and an AI with broad technical knowledge.
+
+The result is a full-stack SaaS platform with:
+- X OAuth 2.0 PKCE
+- AES-256-GCM file encryption with in-browser decryption
+- PGP end-to-end encryption via OpenPGP.js
+- SQLite with WAL mode on a persistent Fly.io volume
+- Magic-link authentication that survives new-tab opens
+- A 3-step onboarding wizard
+- 10 languages
+
+Is the code perfect? No. Are there things a senior engineer would do differently? Absolutely. Is it running in production, handling real requests, and doing what it's supposed to do? Yes.
+
+That's the point.
+
+This README — with its detailed explanations of PKCE, authTag wire formats, and SQLite migration strategies — exists not because I wrote it from memory, but because I asked good questions and understood the answers well enough to direct what came next. The distinction between "knowing how to build something" and "knowing enough to guide something being built" is collapsing fast.
+
+hollr is less a claim about my engineering skills and more a demonstration of where vibe coding stands in early 2026: capable of producing systems with real security properties, real architectural coherence, and real documentation — when piloted by someone who knows what they want and can tell good from bad.
+
+Take the code, learn from it, improve it. That's what MIT is for.
+
+— Paul
+
+> *"The best way to predict the future is to build it." — Alan Kay*
+> *"The best way to build it is to holler at your AI until it works." — Paul Fleury, probably*
