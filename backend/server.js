@@ -1,5 +1,5 @@
 /**
- * server.js — hollr.to API Backend (v4.3.0)
+ * server.js — hollr.to API Backend (v5.0.0)
  *
  * Routes overview
  * ───────────────
@@ -111,7 +111,9 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '2mb' }));
 
-// Express session — needed for OAuth state persistence
+// Express session — needed for OAuth state persistence during the X OAuth flow.
+// SESSION_SECRET must be set in env on Fly.io; without it a random fallback is used
+// per-process and all in-flight OAuth sessions are lost on every restart.
 app.use(session({
   secret:            process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
   resave:            false,
@@ -173,7 +175,7 @@ function createSession(userId) {
 
 // ── Health ───────────────────────────────────────────────────────────────────
 
-app.get('/health', (_req, res) => res.json({ ok: true, version: '4.5.1' }));
+app.get('/health', (_req, res) => res.json({ ok: true, version: '5.0.0' }));
 
 // ── Email magic link auth ────────────────────────────────────────────────────
 
@@ -619,12 +621,6 @@ app.post('/api/settings', requireAuth, (req, res) => {
     params.push(pgp_public_key || null);
   }
   if (display_name !== undefined) {
-    // Trim and cap at 60 chars — this is a display name, not a username
-    const trimmedName = display_name ? String(display_name).trim().slice(0, 60) : null;
-    updates.push('display_name = ?');
-    params.push(trimmedName || null);
-  }
-  if (display_name !== undefined) {
     // Trim and cap at 60 chars — display name, not a username
     const trimmedName = display_name ? String(display_name).trim().slice(0, 60) : null;
     updates.push('display_name = ?');
@@ -854,5 +850,5 @@ app.use((err, _req, res, _next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
-  console.log(`📢 hollr API v4.5.1 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  console.log(`📢 hollr API v5.0.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
 });

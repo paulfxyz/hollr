@@ -1,5 +1,5 @@
 /**
- * db.js — SQLite database setup for hollr.to (v4.4.0)
+ * db.js — SQLite database setup for hollr.to (v5.0.0)
  * ──────────────────────────────────────────────────────
  *
  * OVERVIEW
@@ -172,6 +172,11 @@ const migrations = [
   { table: 'magic_links', col: 'is_pin_reset',   def: 'INTEGER NOT NULL DEFAULT 0' },
   // v4.4.0 — display name
   { table: 'users',       col: 'display_name',  def: 'TEXT' },
+
+  // v4.5.1 — pending_handle on magic_links (survives new-tab magic link opens)
+  // This column already exists in CREATE TABLE above, but databases that were
+  // created before v4.5.1 won't have it. The ALTER TABLE below adds it safely.
+  { table: 'magic_links', col: 'pending_handle', def: 'TEXT' },
 ];
 
 for (const { table, col, def } of migrations) {

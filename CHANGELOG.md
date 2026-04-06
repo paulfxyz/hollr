@@ -17,6 +17,37 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [5.0.0] — 2026-04-06
+
+### Critical bugfix + full milestone release
+
+#### Fixed — Critical (canvas permanently stuck)
+
+- **JavaScript syntax error in `handle/index.html`** — The English `page_sub` i18n
+  string had a broken concatenation left by a prior edit: `'...when ready.'re ready to write.'`
+  — two string literals merged without closing quote or separator. This caused
+  `SyntaxError: Unexpected identifier 're'` which killed the entire IIFE on page load.
+  No event listeners were ever attached, so the intro overlay could never be dismissed.
+  `hollr.to/paulfxyz` and every other handle page was permanently stuck.
+  Fixed to `'...when you\'re ready to write.'`
+
+#### Also included (from v4.9.0 session, now all live)
+
+- `POST /api/settings` duplicate `display_name` SQL block removed
+- `magic_links.pending_handle` column added to db.js migration array
+- `modal__email-form` CSS: `display:none` default so HTML `hidden` is respected
+- Conflict notice hidden until handle field has 2+ characters
+- Handle pre-fill race condition fixed in `verify.html` (listener registered before dispatch)
+- PIN dots expanded 4 → 8 to cover full 4–8 digit PIN range
+- `verify.html` hint copy: removed false "defaults to yo@hollr.to" claim
+
+#### Version headers
+
+All files now report v5.0.0: `server.js`, `db.js`, `crypto.js`, `mailer.js`,
+`package.json`, `handle/index.html`, `auth/verify.html`, README badge.
+
+---
+
 ## [4.8.0] — 2026-04-06
 
 ### 🎨 Sign-up modal UX overhaul
