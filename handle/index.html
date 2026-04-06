@@ -1940,8 +1940,11 @@
     document.documentElement.lang = currentLang;
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.dataset.i18n;
+      // page_title and welcome_eyebrow use the owner's display name once loaded.
+      // Skip re-rendering them from T strings (which say "Message to…") so the
+      // name doesn't get wiped on every state change or language switch.
+      if ((key === 'page_title' || key === 'welcome_eyebrow') && window._hollrDisplayName) return;
       const val = t(key);
-      // For elements that may contain HTML tags (like <strong>)
       if (val.includes('<')) { el.innerHTML = val; }
       else { el.textContent = val; }
     });
@@ -2476,6 +2479,43 @@
   const openLangModal = () => { buildLangList(); $('lang-overlay').classList.add('open'); };
   const closeLangModal = () => $('lang-overlay').classList.remove('open');
 
+  // buildLangPickerGrid — populates the welcome-modal language picker overlay
+  // This was missing (called everywhere but never defined).
+  const buildLangPickerGrid = () => {
+    const grid = $('lang-picker-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    Object.entries(LANGS).forEach(([code, info]) => {
+      const btn = document.createElement('button');
+      btn.className = 'lp-btn' + (code === currentLang ? ' active' : '');
+      btn.innerHTML = `<span class="lp-flag">${info.flag}</span><div><div class="lp-name">${info.name}</div><div class="lp-native">${info.native}</div></div>`;
+      btn.addEventListener('click', () => {
+        currentLang = code;
+        try { localStorage.setItem('hollr_lang', code); } catch {}
+        applyTranslations();
+        buildLangList();
+        buildLangPickerGrid();
+        ['lang-flag','welcome-lang-flag'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = info.flag;
+        });
+        $('lang-picker-overlay')?.classList.remove('open');
+        // Re-apply the display name after language change
+        if (window._hollrDisplayName) {
+          const dn = window._hollrDisplayName;
+          document.querySelectorAll('[data-i18n="page_title"]').forEach(el => {
+            el.innerHTML = `Message to <strong>${dn}</strong>`;
+          });
+          document.querySelectorAll('[data-i18n="welcome_eyebrow"]').forEach(el => {
+            el.textContent = `Message to ${dn}`;
+          });
+        }
+        toast(info.name);
+      });
+      grid.appendChild(btn);
+    });
+  };
+
   $('lang-btn').addEventListener('click', openLangModal);
 
   // Welcome modal single-flag language button → opens lang-picker-overlay
@@ -2513,7 +2553,7 @@
   });
 
   /* ════════════════════════════════════════════════════════════════════════
-   * SETTINGS MODAL — v5.0.0
+   * SETTINGS MODAL — v5.1.0
    *   panel-pin    → PIN gate
    *   panel-manage → tabs: Resend | PGP | Change PIN
    *                  + notification email section above tabs
@@ -2990,19 +3030,11 @@
         }
       }
 
-      // Patch all i18n owner strings in STRINGS to use the handle
-      const ownerDisplay = '@' + profile.handle;
-      for (const lang in STRINGS) {
-        const s = STRINGS[lang];
-        for (const key in s) {
-          if (typeof s[key] === 'string') {
-            s[key] = s[key]
-              .replace(/…/g, ownerDisplay)
-              .replace(/paulfleury\.com/g, `hollr.to/${profile.handle}`)
-              .replace(/go_to_paul_url/g, `https://hollr.to/${profile.handle}`);
-          }
-        }
-      }
+      // NOTE: T (the translation object) is the source of truth.
+      // We no longer patch T strings with the owner name — instead we update
+      // the DOM directly below using the real display_name from the profile.
+      // This avoids the "Message to…" reset that happened whenever
+      // applyTranslations() re-rendered page_title from T.
 
       // Update document title and settings badge
       document.title = `hollr.to/${profile.handle}`;

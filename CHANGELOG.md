@@ -17,6 +17,37 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [5.1.0] — 2026-04-06
+
+### Three root-cause bugs fixed in handle canvas
+
+#### Fixed — `handle/index.html`
+
+- **`STRINGS is not defined`** — `loadHollrProfile()` iterated over `STRINGS` which was
+  never declared. The translation object is `T`. This crash prevented the display name
+  from ever being injected into the canvas, leaving every handle page stuck on
+  "Message to…" regardless of what the owner set in settings.
+  Fix: removed the dead `STRINGS` loop. Display name is now applied via direct DOM
+  updates in `loadHollrProfile()` (already present and correct below that loop).
+
+- **`buildLangPickerGrid is not defined`** — The welcome-modal language flag button called
+  `buildLangPickerGrid()` on every click, but the function was never implemented.
+  This meant the language picker overlay in the welcome modal was completely broken —
+  clicking the flag button threw a ReferenceError and the overlay never populated.
+  Fix: implemented `buildLangPickerGrid()` alongside `buildLangList()`, using `LANGS`
+  and `T`. After a language pick it calls `applyTranslations()` and re-applies the
+  display name so "Message to [name]" stays correct after a language switch.
+
+- **Display name reset on every state change** — `applyTranslations()` re-rendered ALL
+  `[data-i18n]` elements from `T` strings on every timer tick state change. Since
+  `T.*.page_title` is `'Message to…'`, the owner's display name was immediately
+  overwritten after `loadHollrProfile()` injected it. Same bug wiped the name on
+  language switch.
+  Fix: `applyTranslations()` skips `page_title` and `welcome_eyebrow` when
+  `window._hollrDisplayName` is set, preserving the injected name permanently.
+
+---
+
 ## [5.0.0] — 2026-04-06
 
 ### Critical bugfix + full milestone release
