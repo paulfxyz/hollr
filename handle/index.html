@@ -20,6 +20,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title id='page-title'>hollr.to</title>
+  <!-- Base meta — overwritten dynamically by loadHollrProfile once the handle resolves -->
+  <meta name="description" content="Send a private, timed, encrypted message on hollr." />
+  <meta property="og:title" content="hollr — send a timed, encrypted message" />
+  <meta property="og:description" content="Send a private, timed, encrypted message on hollr." />
+  <meta property="og:type" content="profile" />
+  <meta property="og:site_name" content="hollr" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@hollr_to" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
@@ -1967,8 +1975,7 @@
       el.placeholder = t(el.dataset.i18nPlaceholder);
     });
     // Dynamic elements
-    document.title = t('topbar_title').replace(/^.+? /, ''); // strip emoji for tab
-    document.title = 'Send a message to …'; // keep stable tab title
+    // document.title is set once by loadHollrProfile and must NOT be overwritten here.
     // Textarea placeholder depends on state
     if (!running) {
       textEl.placeholder = t('textarea_disabled');
@@ -3093,7 +3100,41 @@
       // applyTranslations() re-rendered page_title from T.
 
       // Update document title and settings badge
-      document.title = `hollr.to/${profile.handle}`;
+      // ── Browser tab title ────────────────────────────────────────────
+      const titleName = profile.display_name || profile.handle;
+      document.title = `Message to ${titleName} — hollr.to/${profile.handle}`;
+      const titleEl = document.getElementById('page-title');
+      if (titleEl) titleEl.textContent = document.title;
+
+      // ── Dynamic SEO / Open Graph meta tags ───────────────────────────
+      // These are injected at runtime since every handle shares one HTML file.
+      const metaDesc    = `Send a private, timed, encrypted message to ${titleName} on hollr.`;
+      const ogTitle     = `Message to ${titleName} — hollr.to/${profile.handle}`;
+      const ogUrl       = `https://hollr.to/${profile.handle}`;
+      const ogImageUrl  = `https://hollr-api.fly.dev/api/og/${profile.handle}`;
+
+      const setMeta = (sel, attr, val) => {
+        let el = document.querySelector(sel);
+        if (!el) {
+          el = document.createElement('meta');
+          // Set the identifying attribute
+          const [attrName, attrVal] = sel.match(/\[(.+?)="(.+?)"\]/).slice(1);
+          el.setAttribute(attrName, attrVal);
+          document.head.appendChild(el);
+        }
+        el.setAttribute(attr, val);
+      };
+
+      setMeta('meta[name="description"]',         'content', metaDesc);
+      setMeta('meta[property="og:title"]',        'content', ogTitle);
+      setMeta('meta[property="og:description"]',  'content', metaDesc);
+      setMeta('meta[property="og:url"]',          'content', ogUrl);
+      setMeta('meta[property="og:type"]',         'content', 'profile');
+      setMeta('meta[property="og:site_name"]',    'content', 'hollr');
+      setMeta('meta[name="twitter:card"]',        'content', 'summary');
+      setMeta('meta[name="twitter:title"]',       'content', ogTitle);
+      setMeta('meta[name="twitter:description"]', 'content', metaDesc);
+      setMeta('meta[name="twitter:site"]',        'content', '@hollr_to');
       const hdgBadge = document.getElementById('settings-handle-sub');
       if (hdgBadge) hdgBadge.textContent = `hollr.to/${profile.handle}`;
 
