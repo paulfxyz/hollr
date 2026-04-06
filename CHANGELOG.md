@@ -17,6 +17,32 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [5.1.1] — 2026-04-06
+
+### Canvas fixes + landing roadmap polish
+
+#### Fixed — `handle/index.html`
+
+- **Send button in Russian on all locales** — `send_to_paul` was hardcoded to
+  `'Отправить сообщение'` (Russian) in every language block (en, fr, de, it, es, nl,
+  zh, hi, ja). Each language now has its own correct translation. The value is also
+  overwritten dynamically by `loadHollrProfile()` to `"Send to [display name]"` once
+  the profile loads — but the fallback was always wrong.
+- **Language picker card transparent** — `#lang-picker-card` used
+  `background: var(--surface, var(--bg-card))` but neither `--surface` nor `--bg-card`
+  are defined in the handle page CSS variables. Card was fully transparent (showed
+  canvas text bleeding through). Fixed to `var(--bg-1)` which is the correct card
+  surface token.
+
+#### Changed — `landing/index.html`
+
+- **Verification Apps badge** — now uses the amber `--new` highlight style with
+  ✨ "Featured idea" label, making it visually distinct from the other plain "Planned"
+  badges in the roadmap grid.
+- **Self-hosted Storage ETA** — updated from "2027" to "Q3 2026".
+
+---
+
 ## [5.1.0] — 2026-04-06
 
 ### Three root-cause bugs fixed in handle canvas

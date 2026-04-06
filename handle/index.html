@@ -389,7 +389,7 @@
     }
     #lang-picker-overlay.open { opacity: 1; pointer-events: all; }
     #lang-picker-card {
-      background: var(--surface, var(--bg-card));
+      background: var(--bg-1);
       border: 1px solid var(--border);
       border-radius: 18px; padding: 24px;
       width: 320px; max-width: calc(100vw - 32px);
@@ -1339,7 +1339,7 @@
       active_writing_time:'active writing time',
       controls:'Controls', start:'Start', pause:'Pause', reset:'Reset',
       attachments:'Attachments', attach_file:'Attach file', or_drag:'or drag',
-      record_voice:'Record voice', send_label:'Send', send_to_paul:'Отправить сообщение',
+      record_voice:'Record voice', send_label:'Send', send_to_paul:'Send message',
       sidebar_footer:'Timer only runs while Start is active. Voice and files are uploaded securely.',
       welcome_eyebrow:'Message to…',
       welcome_title:'Say something worth writing.',
@@ -1406,7 +1406,7 @@
       active_writing_time:'temps d\'écriture actif',
       controls:'Contrôles', start:'Démarrer', pause:'Pause', reset:'Réinitialiser',
       attachments:'Pièces jointes', attach_file:'Joindre un fichier', or_drag:'ou glisser',
-      record_voice:'Enregistrer la voix', send_label:'Envoyer', send_to_paul:'Отправить сообщение',
+      record_voice:'Enregistrer la voix', send_label:'Envoyer', send_to_paul:'Envoyer le message',
       sidebar_footer:'Le minuteur ne tourne que pendant l\'écriture. Fichiers transmis en toute sécurité.',
       welcome_eyebrow:'Message to…',
       welcome_title:'Dites quelque chose qui vaut la peine d\'être écrit.',
@@ -1467,7 +1467,7 @@
       active_writing_time:'aktive Schreibzeit',
       controls:'Steuerung', start:'Starten', pause:'Pause', reset:'Zurücksetzen',
       attachments:'Anhänge', attach_file:'Datei anhängen', or_drag:'oder ziehen',
-      record_voice:'Stimme aufnehmen', send_label:'Senden', send_to_paul:'Отправить сообщение',
+      record_voice:'Stimme aufnehmen', send_label:'Senden', send_to_paul:'Nachricht senden',
       sidebar_footer:'Der Timer läuft nur beim Schreiben. Dateien werden sicher übertragen.',
       welcome_eyebrow:'Message to…',
       welcome_title:'Sagen Sie etwas, das es wert ist, geschrieben zu werden.',
@@ -1528,7 +1528,7 @@
       active_writing_time:'tempo di scrittura attivo',
       controls:'Controlli', start:'Avvia', pause:'Pausa', reset:'Reimposta',
       attachments:'Allegati', attach_file:'Allega file', or_drag:'o trascina',
-      record_voice:'Registra voce', send_label:'Invia', send_to_paul:'Отправить сообщение',
+      record_voice:'Registra voce', send_label:'Invia', send_to_paul:'Invia messaggio',
       sidebar_footer:'Il timer gira solo durante la scrittura. I file vengono caricati in modo sicuro.',
       welcome_eyebrow:'Message to…',
       welcome_title:'Di\' qualcosa che valga la pena scrivere.',
@@ -1589,7 +1589,7 @@
       active_writing_time:'tiempo de escritura activo',
       controls:'Controles', start:'Iniciar', pause:'Pausar', reset:'Reiniciar',
       attachments:'Adjuntos', attach_file:'Adjuntar archivo', or_drag:'o arrastrar',
-      record_voice:'Grabar voz', send_label:'Enviar', send_to_paul:'Отправить сообщение',
+      record_voice:'Grabar voz', send_label:'Enviar', send_to_paul:'Enviar mensaje',
       sidebar_footer:'El temporizador solo funciona mientras Iniciar está activo.',
       welcome_eyebrow:'Message to…',
       welcome_title:'Di algo que valga la pena escribir.',
@@ -1650,7 +1650,7 @@
       active_writing_time:'actieve schrijftijd',
       controls:'Bediening', start:'Starten', pause:'Pauzeren', reset:'Resetten',
       attachments:'Bijlagen', attach_file:'Bestand bijvoegen', or_drag:'of slepen',
-      record_voice:'Stem opnemen', send_label:'Verzenden', send_to_paul:'Отправить сообщение',
+      record_voice:'Stem opnemen', send_label:'Verzenden', send_to_paul:'Bericht versturen',
       sidebar_footer:'Timer loopt alleen terwijl Starten actief is.',
       welcome_eyebrow:'Message to…',
       welcome_title:'Zeg iets dat het waard is om te schrijven.',
@@ -1711,7 +1711,7 @@
       active_writing_time:'活跃写作时间',
       controls:'控制', start:'开始', pause:'暂停', reset:'重置',
       attachments:'附件', attach_file:'附加文件', or_drag:'或拖拽',
-      record_voice:'录制语音', send_label:'发送', send_to_paul:'Отправить сообщение',
+      record_voice:'录制语音', send_label:'发送', send_to_paul:'发送消息',
       sidebar_footer:'计时器仅在开始状态下运行。文件已安全上传。',
       welcome_eyebrow:'Message to…',
       welcome_title:'写一些值得写的话。',
@@ -1766,7 +1766,7 @@
       active_writing_time:'सक्रिय लेखन समय',
       controls:'नियंत्रण', start:'प्रारंभ', pause:'रोकें', reset:'रीसेट',
       attachments:'अनुलग्नक', attach_file:'फ़ाइल संलग्न करें', or_drag:'या खींचें',
-      record_voice:'आवाज़ रिकॉर्ड करें', send_label:'भेजें', send_to_paul:'Отправить сообщение',
+      record_voice:'आवाज़ रिकॉर्ड करें', send_label:'भेजें', send_to_paul:'संदेश भेजें',
       sidebar_footer:'टाइमर केवल प्रारंभ सक्रिय होने पर चलता है।',
       welcome_eyebrow:'Message to…',
       welcome_title:'कुछ ऐसा लिखें जो लिखने योग्य हो।',
@@ -1821,7 +1821,7 @@
       active_writing_time:'アクティブな執筆時間',
       controls:'コントロール', start:'開始', pause:'一時停止', reset:'リセット',
       attachments:'添付ファイル', attach_file:'ファイルを添付', or_drag:'またはドラッグ',
-      record_voice:'音声を録音', send_label:'送信', send_to_paul:'Отправить сообщение',
+      record_voice:'音声を録音', send_label:'送信', send_to_paul:'メッセージを送る',
       sidebar_footer:'タイマーは開始中のみ動作します。ファイルは安全に転送されます。',
       welcome_eyebrow:'Message to…',
       welcome_title:'書く価値のあることを伝えよう。',
@@ -2553,7 +2553,7 @@
   });
 
   /* ════════════════════════════════════════════════════════════════════════
-   * SETTINGS MODAL — v5.1.0
+   * SETTINGS MODAL — v5.1.1
    *   panel-pin    → PIN gate
    *   panel-manage → tabs: Resend | PGP | Change PIN
    *                  + notification email section above tabs
