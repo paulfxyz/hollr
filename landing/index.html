@@ -1839,6 +1839,161 @@ a { color: inherit; }
   width: 100%;
 }
 
+/* ── Modal email section ─────────────────────────────────────── */
+
+/* "or" divider */
+.modal__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+  color: var(--text-3);
+  font-size: var(--text-xs);
+}
+.modal__divider::before,
+.modal__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* "Register with email instead" toggle button */
+.modal__email-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: transparent;
+  color: var(--text-2);
+  font-family: var(--sans);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--t), background var(--t), color var(--t);
+  letter-spacing: -0.01em;
+}
+.modal__email-trigger:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-subtle);
+  color: var(--text);
+}
+.modal__email-trigger svg {
+  transition: transform 0.2s var(--ease);
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+.modal__email-trigger.is-open svg {
+  transform: rotate(180deg);
+}
+
+/* Email form — revealed on toggle */
+.modal__email-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+  animation: fadeSlideIn 0.2s var(--ease) both;
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Handle row: hollr.to/ + input joined as one unit */
+.modal__handle-row {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--surface);
+  transition: border-color var(--t);
+}
+.modal__handle-row:focus-within {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 15%, transparent);
+}
+.modal__handle-prefix {
+  display: flex;
+  align-items: center;
+  padding: 0.65rem 0.75rem 0.65rem 1rem;
+  background: var(--surface-subtle);
+  font-size: var(--text-sm);
+  color: var(--text-3);
+  font-weight: 500;
+  white-space: nowrap;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* Shared input style */
+.modal__input {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  font-family: var(--sans);
+  font-size: var(--text-sm);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  outline: none;
+  transition: border-color var(--t), box-shadow var(--t);
+  -webkit-appearance: none;
+}
+.modal__input:focus {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 15%, transparent);
+}
+.modal__input::placeholder { color: var(--text-3); }
+
+/* Handle input inside the joined row — no individual border */
+.modal__input--handle {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding-left: 0.6rem;
+  flex: 1;
+  min-width: 0;
+}
+.modal__input--handle:focus { box-shadow: none; }
+
+/* Conflict notice */
+.modal__conflict-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface-subtle);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+}
+.modal__conflict-notice svg {
+  color: var(--text-3);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.modal__conflict-notice p {
+  font-size: 11px;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+.modal__conflict-notice p strong {
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+/* Error message */
+.modal__email-error {
+  font-size: var(--text-xs);
+  color: #c0392b;
+  margin-top: calc(var(--sp-1) * -1);
+}
+
 @keyframes scaleIn {
   from { transform: scale(0); opacity: 0; }
   to   { transform: scale(1); opacity: 1; }
@@ -2833,7 +2988,7 @@ a { color: inherit; }
 
         <!-- Live features strip -->
         <div class="roadmap-live-strip js-reveal">
-          <p class="roadmap-live-strip__label">&#x2705; Live now &mdash; v4.6.0</p>
+          <p class="roadmap-live-strip__label">&#x2705; Live now &mdash; v4.8.0</p>
           <div class="roadmap-live-chips">
             <span class="roadmap-chip">X OAuth + Magic links</span>
             <span class="roadmap-chip">PGP end-to-end encryption</span>

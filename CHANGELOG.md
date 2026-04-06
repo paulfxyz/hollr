@@ -17,6 +17,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [4.8.0] — 2026-04-06
+
+### 🎨 Sign-up modal UX overhaul
+
+### Fixed
+
+- **Modal email section CSS was entirely missing** — the HTML structure for the email registration path inside the sign-up modal had been written with full class names (`modal__divider`, `modal__email-trigger`, `modal__email-form`, `modal__handle-row`, `modal__handle-prefix`, `modal__input`, `modal__conflict-notice`) but zero CSS definitions existed for any of them. The entire section was unstyled and broken.
+- Added ~150 lines of polished CSS covering:
+  - `modal__divider` — full-width OR divider with faded horizontal rules
+  - `modal__email-trigger` — amber-accented pill button with chevron that rotates 180° when open (`is-open` class) using CSS `transform` on the `svg` child
+  - `modal__email-form` — slides in with `fadeSlideIn` keyframe animation (translateY -6px → 0, opacity 0 → 1, 0.2 s)
+  - `modal__handle-row` — joined prefix+input unit with amber focus ring on `:focus-within`
+  - `modal__handle-prefix` — `hollr.to/` prefix label, visually attached to the input
+  - `modal__input` — full-width styled inputs with amber focus ring and correct placeholder colour
+  - `modal__input--handle` — variant that removes left border-radius to join the prefix
+  - `modal__conflict-notice` — info box (amber left-border) for handle-taken messaging
+- Dark mode variants included for all new components.
+- Roadmap "Live now" chip updated from v4.6.0 → v4.8.0.
+
+---
+
 ## [4.7.0] — 2026-04-06
 
 ### 🏗️ Landing cleanup + roadmap + legal modal
