@@ -904,7 +904,6 @@ hollr uses [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH`
 | **REST API** | Building | Q3 2026 |
 | **Webhooks** | Planned | Q3 2026 |
 | **MCP Server** | Planned | Q4 2026 |
-| **AI Digest & Smart Filtering** | Planned | Q4 2026 |
 | **Verification Apps** ✨ | New idea | 2027 |
 | **Self-hosted Storage** | Planned | Q3 2026 |
 
@@ -914,7 +913,6 @@ hollr uses [Semantic Versioning](https://semver.org/): `MAJOR.MINOR.PATCH`
 
 **MCP Server** — Model Context Protocol integration so Claude, Cursor, and other AI tools can read your hollrs as a data source. Your inbox becomes a tool your AI can query.
 
-**AI Digest & Smart Filtering** — Instead of instant notifications for every hollr, choose a daily or weekly AI digest. The AI reads your messages (with your permission), filters noise, and surfaces the ones worth your attention. Smart batching for high-volume handles.
 
 **Verification Apps** ✨ — Before a sender can reach you, they complete a micro-task you define: donate to a charity, follow your account, download your app, solve a puzzle, pay a small fee. You set the gate, hollr handles the verification. Designed to make every incoming message meaningful — real signal, zero spam.
 
