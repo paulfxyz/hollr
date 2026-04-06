@@ -3110,6 +3110,27 @@ a { color: inherit; }
               <span class="coming-example">🧩 Complete a challenge</span>
             </div>
           </div>
+          <!-- Self-hosted Storage -->
+          <div class="coming-card js-reveal">
+            <div class="coming-card__badge-row">
+              <span class="coming-card__badge coming-card__badge--planned">Planned</span>
+              <span class="coming-card__eta">2027</span>
+            </div>
+            <div class="coming-card__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <path d="M8 21h8M12 17v4"/>
+              </svg>
+            </div>
+            <h3 class="coming-card__title">Self-hosted Storage</h3>
+            <p class="coming-card__desc">Right now, encrypted data lives on hollr servers. Soon you&#x2019;ll be able to point hollr at your own storage &#x2014; FTP, S3, or a custom endpoint. Every byte stays on infrastructure you control. Zero trust required.</p>
+            <div class="coming-card__examples">
+              <span class="coming-example">&#x1F5C4;&#xFE0F; Your own FTP server</span>
+              <span class="coming-example">&#x2601;&#xFE0F; S3-compatible bucket</span>
+              <span class="coming-example">&#x1F517; Custom webhook endpoint</span>
+            </div>
+          </div>
+
 
         </div>
 
@@ -3426,7 +3447,7 @@ const LANGS = {
     senders_sub: 'When someone visits your hollr link, they get a distraction-free writing experience — not a contact form.',
     sp1_title: 'The writing space', sp1_body: 'A warm, literary card with numbered steps. No clutter, no distractions — just an invitation to write something meaningful.',
     sp2_title: 'The timer', sp2_body: 'The clock only runs while your sender is actively typing. Every second displayed is a second spent composing their message to you.',
-    sp3_title: 'Send & receive', sp3_body: 'The message is encrypted and delivered instantly to your inbox via your own Resend API key. Zero data stored on hollr servers.',
+    sp3_title: 'Send & receive', sp3_body: 'The message is encrypted and delivered to your inbox — via hollr’s shared relay or your own Resend key. Encrypted data is stored on hollr servers; nothing sits in plaintext, ever.',
     canvas_eyebrow: 'The canvas', canvas_title: 'A distraction-free\nmessage experience.',
     canvas_body: 'Your senders get a clean, fullscreen writing space. A quiet timer runs while they type — every second is a second spent actually composing, not staring at a blank screen.',
     canvas_b1: 'Timed writing canvas — no idle pressure', canvas_b2: 'Voice note recording, in-browser',
@@ -3491,7 +3512,7 @@ const LANGS = {
     senders_sub: 'Quand quelqu\u2019un visite votre lien hollr, il obtient un espace d\u2019écriture — pas un formulaire de contact.',
     sp1_title: 'L\u2019espace d\u2019écriture', sp1_body: 'Une carte littéraire chaleureuse avec des étapes numérotées. Aucune distraction.',
     sp2_title: 'Le minuteur', sp2_body: 'L\u2019horloge ne tourne que lorsque votre expéditeur écrit activement.',
-    sp3_title: 'Envoyer et recevoir', sp3_body: 'Le message est chiffré et livré instantanément dans votre boîte via votre clé Resend.',
+    sp3_title: 'Envoyer et recevoir', sp3_body: 'Le message est chiffré et livré dans votre boîte — via le relais hollr ou votre propre clé Resend. Les données sont stockées chiffrées sur nos serveurs, jamais en clair.',
     canvas_eyebrow: 'Le canvas', canvas_title: 'Une expérience de message\nsans distraction.',
     canvas_body: 'Vos expéditeurs bénéficient d\u2019un espace d\u2019écriture plein écran et épuré. Un minuteur discret tourne pendant qu\u2019ils écrivent.',
     canvas_b1: 'Canvas chronométré', canvas_b2: 'Enregistrement vocal, dans le navigateur',
@@ -3556,7 +3577,7 @@ const LANGS = {
     senders_sub: 'Wenn jemand deinen hollr-Link besucht, bekommt er einen ablenkungsfreien Schreibbereich.',
     sp1_title: 'Der Schreibbereich', sp1_body: 'Eine warme Karte mit nummerierten Schritten. Keine Ablenkung.',
     sp2_title: 'Der Timer', sp2_body: 'Die Uhr läuft nur, während dein Absender aktiv tippt.',
-    sp3_title: 'Senden & Empfangen', sp3_body: 'Die Nachricht wird verschlüsselt und sofort in deinem Postfach zugestellt.',
+    sp3_title: 'Senden & Empfangen', sp3_body: 'Die Nachricht wird verschlüsselt und in deinem Postfach zugestellt — über hollrs Relay oder deinen eigenen Resend-Key. Daten werden verschlüsselt gespeichert — nie im Klartext.',
     canvas_eyebrow: 'Die Fläche', canvas_title: 'Eine ablenkungsfreie\nNachrichtenerfahrung.',
     canvas_body: 'Deine Absender erhalten einen sauberen, bildschirmfüllenden Schreibbereich. Ein leiser Timer läuft.',
     canvas_b1: 'Zeitgesteuertes Schreiben', canvas_b2: 'Sprachnotizen im Browser',
@@ -3621,7 +3642,7 @@ const LANGS = {
     senders_sub: 'Quando qualcuno visita il tuo link hollr, ottiene uno spazio di scrittura — non un modulo di contatto.',
     sp1_title: 'Lo spazio di scrittura', sp1_body: 'Una carta letteraria con passaggi numerati. Nessuna distrazione.',
     sp2_title: 'Il timer', sp2_body: 'L\u2019orologio gira solo mentre il mittente scrive attivamente.',
-    sp3_title: 'Invia e ricevi', sp3_body: 'Il messaggio è cifrato e consegnato nella tua casella tramite Resend.',
+    sp3_title: 'Invia e ricevi', sp3_body: 'Il messaggio è cifrato e consegnato nella tua casella — tramite il relay hollr o la tua chiave Resend. I dati sono archiviati cifrati sui server hollr, mai in chiaro.',
     canvas_eyebrow: 'Il canvas', canvas_title: 'Un\u2019esperienza messaggi\nsenza distrazioni.',
     canvas_body: 'I tuoi mittenti ottengono uno spazio di scrittura pulito e a schermo intero. Un timer silenzioso scorre.',
     canvas_b1: 'Canvas a tempo', canvas_b2: 'Registrazione vocale nel browser',
@@ -3686,7 +3707,7 @@ const LANGS = {
     senders_sub: 'Cuando alguien visita tu enlace hollr, obtiene un espacio de escritura — no un formulario de contacto.',
     sp1_title: 'El espacio de escritura', sp1_body: 'Una tarjeta cálida con pasos numerados. Sin desorden ni distracciones.',
     sp2_title: 'El temporizador', sp2_body: 'El reloj solo corre mientras tu remitente escribe activamente.',
-    sp3_title: 'Enviar y recibir', sp3_body: 'El mensaje se cifra y entrega instantáneamente en tu bandeja vía Resend.',
+    sp3_title: 'Enviar y recibir', sp3_body: 'El mensaje se cifra y entrega en tu bandeja — vía el relay de hollr o tu propia clave Resend. Los datos se almacenan cifrados en los servidores de hollr, nunca en texto plano.',
     canvas_eyebrow: 'El lienzo', canvas_title: 'Una experiencia de mensaje\nsin distracciones.',
     canvas_body: 'Tus remitentes obtienen un espacio de escritura limpio a pantalla completa. Un temporizador silencioso corre.',
     canvas_b1: 'Lienzo cronometrado', canvas_b2: 'Grabación de voz en el navegador',
@@ -3751,7 +3772,7 @@ const LANGS = {
     senders_sub: 'Wanneer iemand je hollr-link bezoekt, krijgt hij een schrijfervaring — geen contactformulier.',
     sp1_title: 'De schrijfruimte', sp1_body: 'Een warme kaart met genummerde stappen. Geen afleiding.',
     sp2_title: 'De timer', sp2_body: 'De klok loopt alleen terwijl je verzender actief typt.',
-    sp3_title: 'Verstuur en ontvang', sp3_body: 'Het bericht wordt versleuteld en direct in je inbox bezorgd via Resend.',
+    sp3_title: 'Verstuur en ontvang', sp3_body: 'Het bericht wordt versleuteld bezorgd in je inbox — via de hollr-relay of je eigen Resend-sleutel. Gegevens worden versleuteld opgeslagen op hollr-servers, nooit als leesbare tekst.',
     canvas_eyebrow: 'Het doek', canvas_title: 'Een afleidingsvrije\nberichtervaring.',
     canvas_body: 'Je verzenders krijgen een rustige, schermvullende schrijfruimte. Een stille timer loopt.',
     canvas_b1: 'Getimede schrijfruimte', canvas_b2: 'Spraakopname in de browser',
@@ -3816,7 +3837,7 @@ const LANGS = {
     senders_sub: '当有人访问您的 hollr 链接时，他们获得写作体验 — 而不是联系表单。',
     sp1_title: '写作空间', sp1_body: '一张温暖的文学卡片，带有编号步骤。没有杂乱。',
     sp2_title: '计时器', sp2_body: '时钟只在您的发件人积极打字时运行。',
-    sp3_title: '发送和接收', sp3_body: '消息被加密并通过您的 Resend API 密钥即时发送到您的邮箱。',
+    sp3_title: '发送和接收', sp3_body: '消息被加密后发送到您的邮箱 — 通过 hollr 中继或您自己的 Resend 密钥。数据加密存储在 hollr 服务器上，永远不以明文形式存在。',
     canvas_eyebrow: '画布', canvas_title: '一个无干扰的\n消息体验。',
     canvas_body: '您的发件人将获得一个干净的全屏写作空间。计时器静静运行。',
     canvas_b1: '计时写作画布', canvas_b2: '浏览器内录音',
@@ -3881,7 +3902,7 @@ const LANGS = {
     senders_sub: 'जब कोई आपका hollr लिंक खोलता है, उन्हें लेखन अनुभव मिलता है।',
     sp1_title: 'लेखन स्थान', sp1_body: 'क्रमांकित चरणों वाला गर्म कार्ड। कोई अव्यवस्था नहीं।',
     sp2_title: 'टाइमर', sp2_body: 'घड़ी तभी चलती है जब भेजनेवाला सक्रिय रूप से टाइप करता है।',
-    sp3_title: 'भेजें और प्राप्त करें', sp3_body: 'संदेश एन्क्रिप्ट होकर आपके इनबॉक्स में Resend के माध्यम से तुरंत पहुँचता है।',
+    sp3_title: 'भेजें और प्राप्त करें', sp3_body: 'संदेश एन्क्रिप्ट होकर आपके इनबॉक्स में पहुँचता है — hollr रिले या आपकी Resend कुंजी से। डेटा एन्क्रिप्टेड रूप में संग्रहीत है — कभी भी सादा पाठ में नहीं।',
     canvas_eyebrow: 'कैन्वास', canvas_title: 'एक व्यवधान-मुक्त\nसंदेश अनुभव।',
     canvas_body: 'आपके प्रेषकों को एक साफ़ फुलस्क्रीन लेखन क्षेत्र मिलता है।',
     canvas_b1: 'टाइमड कैन्वास', canvas_b2: 'ब्राउज़र में वॉयस रिकॉर्डिंग',
@@ -3946,7 +3967,7 @@ const LANGS = {
     senders_sub: '誰かがあなたのhollrリンクを訪れると、コンタクトフォームではなく執筆体験を得ます。',
     sp1_title: '執筆スペース', sp1_body: '番号付きステップのある温かいカード。余計なものなし。',
     sp2_title: 'タイマー', sp2_body: '時計は送信者がアクティブにタイプしている時だけ動きます。',
-    sp3_title: '送信と受信', sp3_body: 'メッセージは暗号化され、Resend経由であなたのインボックスに即座に届きます。',
+    sp3_title: '送信と受信', sp3_body: 'メッセージは暗号化され、hollrリレーまたは独自のResendキー経由で受信笱に届きます。データはhollrサーバーに暗号化して保存 — 平文は一切存在しません。',
     canvas_eyebrow: 'キャンバス', canvas_title: '邪魔のない\nメッセージ体験。',
     canvas_body: '送信者はクリーンなフルスクリーン記述エリアを得ます。静かなタイマーが動きます。',
     canvas_b1: '時間測定式キャンバス', canvas_b2: 'ブラウザ内音声録音',
@@ -4011,7 +4032,7 @@ const LANGS = {
     senders_sub: 'Когда кто-то открывает вашу ссылку hollr, он получает пространство для письма — не форму контакта.',
     sp1_title: 'Пространство для письма', sp1_body: 'Тёплая карточка с нумерованными шагами. Без отвлечений.',
     sp2_title: 'Таймер', sp2_body: 'Часы идут только пока отправитель активно печатает.',
-    sp3_title: 'Отправить и получить', sp3_body: 'Сообщение шифруется и мгновенно доставляется в ваш ящик через Resend.',
+    sp3_title: 'Отправить и получить', sp3_body: 'Сообщение шифруется и доставляется в ваш ящик — через релей hollr или ваш Resend-ключ. Данные хранятся зашифрованными — никогда в открытом виде.',
     canvas_eyebrow: 'Холст', canvas_title: 'Мессенджер без\nотвлечений.',
     canvas_body: 'Отправители получают чистое пространство для письма. Таймер тихо идёт.',
     canvas_b1: 'Холст с таймером', canvas_b2: 'Голосовые записки в браузере',
