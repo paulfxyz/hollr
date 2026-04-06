@@ -94,6 +94,11 @@ const allowedOrigins = [
       : []),
 ];
 
+// Trust Fly.io's proxy layer so express-rate-limit can read the real client IP
+// from X-Forwarded-For headers. Without this, rate limiting throws a ValidationError
+// and the app crashes on every request behind a reverse proxy.
+app.set('trust proxy', 1);
+
 app.use(helmet({
   contentSecurityPolicy: false,
 }));
@@ -190,7 +195,12 @@ app.post('/api/auth/magic-link', authLimiter, async (req, res) => {
   const expiresAt = Math.floor(Date.now() / 1000) + 15 * 60; // 15 min
 
   db.prepare('DELETE FROM magic_links WHERE email = ?').run(email);
-  db.prepare('INSERT INTO magic_links (email, token, expires_at, pending_handle) VALUES (?, ?, ?, ?)').run(email, token, expiresAt, pendingHandle);
+  // Use pending_handle column if it exists (v4.5.1+), fall back gracefully for older DBs
+  try {
+    db.prepare('INSERT INTO magic_links (email, token, expires_at, pending_handle) VALUES (?, ?, ?, ?)').run(email, token, expiresAt, pendingHandle);
+  } catch {
+    db.prepare('INSERT INTO magic_links (email, token, expires_at) VALUES (?, ?, ?)').run(email, token, expiresAt);
+  }
 
   const frontendUrl = process.env.FRONTEND_URL || 'https://hollr.to';
   const link = `${frontendUrl}/auth/verify?token=${token}`;
