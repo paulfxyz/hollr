@@ -509,7 +509,7 @@
     }
     .mfield input::placeholder { color: var(--fg-2); }
     .mfield input:focus { border-bottom-color: var(--fg); }
-    /* .msend-label removed v5.2.3 */
+    /* .msend-label removed v5.2.4 */
     .mbtn-email {
       display: flex; align-items: center; gap: 12px;
       width: 100%; border: none; border-radius: 10px;
@@ -521,7 +521,7 @@
     }
     .mbtn-email:hover:not(:disabled) { opacity: .88; }
     .mbtn-email:disabled { opacity: .5; cursor: not-allowed; }
-    /* mbtn-copy (Open email client) removed v5.2.3 — not useful */
+    /* mbtn-copy (Open email client) removed v5.2.4 — not useful */
     .mbtn-hint { margin-left: auto; font-size: 12px; color: var(--fg-2); }
     .mbtn-email .mbtn-hint { color: rgba(255,255,255,.4); }
     [data-theme="dark"] .mbtn-email .mbtn-hint { color: rgba(0,0,0,.4); }
@@ -1922,7 +1922,7 @@
   /* ════════════════════════════════════════════════════════════════════════
    * I18N ENGINE
    * ════════════════════════════════════════════════════════════════════════ */
-  let currentLang = localStorage.getItem('hollr_lang') || 'en';
+  let currentLang; try { currentLang = localStorage.getItem('hollr_lang') || 'en'; } catch { currentLang = 'en'; }
 
   const t = (key, vars) => {
     const str = (T[currentLang]?.[key] || T.en[key] || key);
@@ -1972,7 +1972,7 @@
   /* ════════════════════════════════════════════════════════════════════════
    * THEME ENGINE
    * ════════════════════════════════════════════════════════════════════════ */
-  let currentThemePref = localStorage.getItem('hollr_theme') || 'system';
+  let currentThemePref; try { currentThemePref = localStorage.getItem('hollr_theme') || 'system'; } catch { currentThemePref = 'system'; }
 
   const getEffectiveTheme = () => {
     if (currentThemePref === 'system') {
@@ -2236,7 +2236,7 @@
     } catch (err) { showErrorStep(err.message); }
   };
 
-  // sendViaMailto removed — open email client fallback was not useful (v5.2.3)
+  // sendViaMailto removed — open email client fallback was not useful (v5.2.4)
 
   /* ════════════════════════════════════════════════════════════════════════
    * WORD COUNT
@@ -2977,7 +2977,7 @@
   $('send-close').addEventListener('click', () => sendOverlay.classList.remove('open'));
   sendOverlay.addEventListener('click', e => { if (e.target === sendOverlay) sendOverlay.classList.remove('open'); });
   $('mbtn-email').addEventListener('click', doSend);
-  // mbtn-copy removed (v5.2.3)
+  // mbtn-copy removed (v5.2.4)
   $('sent-back').addEventListener('click', () => { sendOverlay.classList.remove('open'); reset(); });
   $('err-back').addEventListener('click', showFormStep);
   $('err-retry').addEventListener('click', doSend);
@@ -3195,7 +3195,7 @@
       const ssTok = sessionStorage.getItem('hollr_session');
       const lsTok = localStorage.getItem('hollr_session');
       // Migration: if we have a sessionStorage token but no localStorage token
-      // (user logged in before v5.2.3), persist it to localStorage now.
+      // (user logged in before v5.2.4), persist it to localStorage now.
       if (ssTok && !lsTok) {
         try { localStorage.setItem('hollr_session', ssTok); } catch {}
       }

@@ -1,5 +1,5 @@
 /**
- * server.js — hollr.to API Backend (v5.2.3)
+ * server.js — hollr.to API Backend (v5.2.4)
  *
  * Routes overview
  * ───────────────
@@ -175,7 +175,7 @@ function createSession(userId) {
 
 // ── Health ───────────────────────────────────────────────────────────────────
 
-app.get('/health', (_req, res) => res.json({ ok: true, version: '5.2.3' }));
+app.get('/health', (_req, res) => res.json({ ok: true, version: '5.2.4' }));
 
 // ── Email magic link auth ────────────────────────────────────────────────────
 
@@ -873,5 +873,5 @@ app.use((err, _req, res, _next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
-  console.log(`📢 hollr API v5.2.3 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  console.log(`📢 hollr API v5.2.4 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
 });
