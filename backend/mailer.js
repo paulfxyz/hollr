@@ -1,5 +1,5 @@
 /**
- * mailer.js — Email delivery via Resend REST API for hollr.to (v5.2.0)
+ * mailer.js — Email delivery via Resend REST API for hollr.to (v5.2.1)
  * ──────────────────────────────────────────────────────────────────────
  *
  * OVERVIEW
@@ -261,19 +261,21 @@ async function forwardMessage(opts) {
         `#url=${encodeURIComponent(f.url)}` +
         `&key=${f.file_key}&iv=${f.file_iv}` +
         `&name=${encodeURIComponent(f.name || 'file')}`;
+      // Use <div> rows instead of <ul><li> to avoid browser-default bullet points
+      // in email clients and plain-text renderers.
       return `
-        <li style="margin-bottom:10px">
+        <div style="margin-bottom:10px">
           <a href="${viewerUrl}" style="color:#c96a2a;text-decoration:none;font-weight:500">
             🔒 ${esc(f.name || 'Encrypted file')} — Decrypt &amp; Download →
           </a>
-        </li>`;
+        </div>`;
     }).join('');
 
     filesHtml = `
       <p style="margin-top:28px;font-weight:600;color:#1a1814;font-size:14px">
         Encrypted attachments:
       </p>
-      <ul style="padding-left:20px;margin-top:8px">${fileItems}</ul>`;
+      <div style="margin-top:8px">${fileItems}</div>`;
 
     filesText = '\n\nAttachments:\n' + fileAttachments.map((f) => {
       const viewerUrl = `${frontendUrl}/decrypt` +
