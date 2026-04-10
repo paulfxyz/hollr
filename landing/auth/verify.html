@@ -446,7 +446,12 @@ let _handleOk     = false;  // true once availability check confirms handle is f
 
 function setSession(tok) {
   _sessionToken = tok;
+  // Write session token to BOTH sessionStorage (tab-scoped, fast) and
+  // localStorage (persistent across tabs and page closes).
+  // The token already has a 30-day server-side expiry — it's safe to persist
+  // client-side in the same way any "remember me" system works.
   try { sessionStorage.setItem('hollr_session', tok); } catch {}
+  try { localStorage.setItem('hollr_session', tok); } catch {}
 }
 
 /* ── URL params ────────────────────────────────────────────────────────── */
