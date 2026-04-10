@@ -1,5 +1,5 @@
 /**
- * crypto.js — Encryption helpers for hollr.to (v5.2.1)
+ * crypto.js — Encryption helpers for hollr.to (v5.2.3)
  * ──────────────────────────────────────────────────────
  *
  * OVERVIEW

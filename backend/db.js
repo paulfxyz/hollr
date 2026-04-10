@@ -1,5 +1,5 @@
 /**
- * db.js — SQLite database setup for hollr.to (v5.2.1)
+ * db.js — SQLite database setup for hollr.to (v5.2.3)
  * ──────────────────────────────────────────────────────
  *
  * OVERVIEW

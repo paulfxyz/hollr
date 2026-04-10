@@ -1,6 +1,6 @@
 # 📢 hollr
 
-[![Version](https://img.shields.io/badge/version-5.2.2-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v5.2.2)
+[![Version](https://img.shields.io/badge/version-5.2.3-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v5.2.3)
 [![License: MIT](https://img.shields.io/badge/license-MIT-c96a2a?style=flat-square)](LICENSE)
 [![Node](https://img.shields.io/badge/node-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![SQLite](https://img.shields.io/badge/SQLite-WAL-003b57?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org)

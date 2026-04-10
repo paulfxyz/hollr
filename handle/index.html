@@ -509,7 +509,7 @@
     }
     .mfield input::placeholder { color: var(--fg-2); }
     .mfield input:focus { border-bottom-color: var(--fg); }
-    /* .msend-label removed v5.2.2 */
+    /* .msend-label removed v5.2.3 */
     .mbtn-email {
       display: flex; align-items: center; gap: 12px;
       width: 100%; border: none; border-radius: 10px;
@@ -521,7 +521,7 @@
     }
     .mbtn-email:hover:not(:disabled) { opacity: .88; }
     .mbtn-email:disabled { opacity: .5; cursor: not-allowed; }
-    /* mbtn-copy (Open email client) removed v5.2.2 — not useful */
+    /* mbtn-copy (Open email client) removed v5.2.3 — not useful */
     .mbtn-hint { margin-left: auto; font-size: 12px; color: var(--fg-2); }
     .mbtn-email .mbtn-hint { color: rgba(255,255,255,.4); }
     [data-theme="dark"] .mbtn-email .mbtn-hint { color: rgba(0,0,0,.4); }
@@ -1343,7 +1343,7 @@
       active_writing_time:'active writing time',
       controls:'Controls', start:'Start', pause:'Pause', reset:'Reset',
       attachments:'Attachments', attach_file:'Attach file', or_drag:'or drag',
-      record_voice:'Record voice', send_label:'Send', send_to_paul:'Send message',
+      record_voice:'Record voice', send_label:'Send', send_to_paul:'Message to…',
       sidebar_footer:'Timer only runs while Start is active. Voice and files are uploaded securely.',
       welcome_eyebrow:'Message to…',
       welcome_title:'Say something worth writing.',
@@ -1358,7 +1358,7 @@
       textarea_disabled:'Press Start in the sidebar to begin writing…',
       words:'words', word:'word', characters:'characters', character:'character',
       voice_message:'Voice message', play:'▶ Play', pause_play:'⏸ Pause',
-      send_modal_title:'Envoyer le message',
+      send_modal_title:'Message to…',
       send_modal_sub:'Your message is ready to share.',
       stat_time:'Active time', stat_words:'Words', stat_chars:'Characters',
       your_name:'Your name', name_placeholder:'Jane Doe',
@@ -1409,7 +1409,7 @@
       active_writing_time:'temps d\'écriture actif',
       controls:'Contrôles', start:'Démarrer', pause:'Pause', reset:'Réinitialiser',
       attachments:'Pièces jointes', attach_file:'Joindre un fichier', or_drag:'ou glisser',
-      record_voice:'Enregistrer la voix', send_label:'Envoyer', send_to_paul:'Envoyer le message',
+      record_voice:'Enregistrer la voix', send_label:'Envoyer', send_to_paul:'Message pour…',
       sidebar_footer:'Le minuteur ne tourne que pendant l\'écriture. Fichiers transmis en toute sécurité.',
       welcome_eyebrow:'Message to…',
       welcome_title:'Dites quelque chose qui vaut la peine d\'être écrit.',
@@ -1424,7 +1424,7 @@
       textarea_disabled:'Appuyez sur Démarrer pour commencer à écrire…',
       words:'mots', word:'mot', characters:'caractères', character:'caractère',
       voice_message:'Message vocal', play:'▶ Écouter', pause_play:'⏸ Pause',
-      send_modal_title:'Envoyer le message', send_modal_sub:'Votre message est prêt.',
+      send_modal_title:'Message pour…', send_modal_sub:'Votre message est prêt.',
       stat_time:'Temps actif', stat_words:'Mots', stat_chars:'Caractères',
       your_name:'Votre nom', name_placeholder:'Jean Dupont',
       how_reach:'Comment vous contacter ?', contact_placeholder:'E-mail, Telegram, téléphone…',
@@ -1469,7 +1469,7 @@
       active_writing_time:'aktive Schreibzeit',
       controls:'Steuerung', start:'Starten', pause:'Pause', reset:'Zurücksetzen',
       attachments:'Anhänge', attach_file:'Datei anhängen', or_drag:'oder ziehen',
-      record_voice:'Stimme aufnehmen', send_label:'Senden', send_to_paul:'Nachricht senden',
+      record_voice:'Stimme aufnehmen', send_label:'Senden', send_to_paul:'Nachricht an…',
       sidebar_footer:'Der Timer läuft nur beim Schreiben. Dateien werden sicher übertragen.',
       welcome_eyebrow:'Message to…',
       welcome_title:'Sagen Sie etwas, das es wert ist, geschrieben zu werden.',
@@ -1484,7 +1484,7 @@
       textarea_disabled:'Klicken Sie auf Starten, um zu beginnen…',
       words:'Wörter', word:'Wort', characters:'Zeichen', character:'Zeichen',
       voice_message:'Sprachnachricht', play:'▶ Abspielen', pause_play:'⏸ Pause',
-      send_modal_title:'Nachricht senden', send_modal_sub:'Ihre Nachricht ist bereit.',
+      send_modal_title:'Nachricht an…', send_modal_sub:'Ihre Nachricht ist bereit.',
       stat_time:'Aktive Zeit', stat_words:'Wörter', stat_chars:'Zeichen',
       your_name:'Ihr Name', name_placeholder:'Max Mustermann',
       how_reach:'Wie kann ich Sie erreichen?', contact_placeholder:'E-Mail, Telegram, Telefon…',
@@ -1529,7 +1529,7 @@
       active_writing_time:'tempo di scrittura attivo',
       controls:'Controlli', start:'Avvia', pause:'Pausa', reset:'Reimposta',
       attachments:'Allegati', attach_file:'Allega file', or_drag:'o trascina',
-      record_voice:'Registra voce', send_label:'Invia', send_to_paul:'Invia messaggio',
+      record_voice:'Registra voce', send_label:'Invia', send_to_paul:'Messaggio a…',
       sidebar_footer:'Il timer gira solo durante la scrittura. I file vengono caricati in modo sicuro.',
       welcome_eyebrow:'Message to…',
       welcome_title:'Di\' qualcosa che valga la pena scrivere.',
@@ -1544,7 +1544,7 @@
       textarea_disabled:'Premi Avvia per iniziare a scrivere…',
       words:'parole', word:'parola', characters:'caratteri', character:'carattere',
       voice_message:'Messaggio vocale', play:'▶ Ascolta', pause_play:'⏸ Pausa',
-      send_modal_title:'Invia messaggio', send_modal_sub:'Il tuo messaggio è pronto.',
+      send_modal_title:'Messaggio a…', send_modal_sub:'Il tuo messaggio è pronto.',
       stat_time:'Tempo attivo', stat_words:'Parole', stat_chars:'Caratteri',
       your_name:'Il tuo nome', name_placeholder:'Mario Rossi',
       how_reach:'Come posso contattarti?', contact_placeholder:'Email, Telegram, telefono…',
@@ -1589,7 +1589,7 @@
       active_writing_time:'tiempo de escritura activo',
       controls:'Controles', start:'Iniciar', pause:'Pausar', reset:'Reiniciar',
       attachments:'Adjuntos', attach_file:'Adjuntar archivo', or_drag:'o arrastrar',
-      record_voice:'Grabar voz', send_label:'Enviar', send_to_paul:'Enviar mensaje',
+      record_voice:'Grabar voz', send_label:'Enviar', send_to_paul:'Mensaje a…',
       sidebar_footer:'El temporizador solo funciona mientras Iniciar está activo.',
       welcome_eyebrow:'Message to…',
       welcome_title:'Di algo que valga la pena escribir.',
@@ -1604,7 +1604,7 @@
       textarea_disabled:'Pulsa Iniciar para comenzar a escribir…',
       words:'palabras', word:'palabra', characters:'caracteres', character:'carácter',
       voice_message:'Mensaje de voz', play:'▶ Escuchar', pause_play:'⏸ Pausa',
-      send_modal_title:'Enviar mensaje', send_modal_sub:'Tu mensaje está listo.',
+      send_modal_title:'Mensaje a…', send_modal_sub:'Tu mensaje está listo.',
       stat_time:'Tiempo activo', stat_words:'Palabras', stat_chars:'Caracteres',
       your_name:'Tu nombre', name_placeholder:'Juan García',
       how_reach:'¿Cómo puedo contactarte?', contact_placeholder:'Correo, Telegram, teléfono…',
@@ -1649,7 +1649,7 @@
       active_writing_time:'actieve schrijftijd',
       controls:'Bediening', start:'Starten', pause:'Pauzeren', reset:'Resetten',
       attachments:'Bijlagen', attach_file:'Bestand bijvoegen', or_drag:'of slepen',
-      record_voice:'Stem opnemen', send_label:'Verzenden', send_to_paul:'Bericht versturen',
+      record_voice:'Stem opnemen', send_label:'Verzenden', send_to_paul:'Bericht aan…',
       sidebar_footer:'Timer loopt alleen terwijl Starten actief is.',
       welcome_eyebrow:'Message to…',
       welcome_title:'Zeg iets dat het waard is om te schrijven.',
@@ -1664,7 +1664,7 @@
       textarea_disabled:'Klik op Starten om te beginnen…',
       words:'woorden', word:'woord', characters:'tekens', character:'teken',
       voice_message:'Spraakbericht', play:'▶ Afspelen', pause_play:'⏸ Pauzeren',
-      send_modal_title:'Bericht versturen', send_modal_sub:'Je bericht is klaar.',
+      send_modal_title:'Bericht aan…', send_modal_sub:'Je bericht is klaar.',
       stat_time:'Actieve tijd', stat_words:'Woorden', stat_chars:'Tekens',
       your_name:'Je naam', name_placeholder:'Jan de Vries',
       how_reach:'Hoe kan ik u bereiken?', contact_placeholder:'E-mail, Telegram, telefoon…',
@@ -1709,7 +1709,7 @@
       active_writing_time:'活跃写作时间',
       controls:'控制', start:'开始', pause:'暂停', reset:'重置',
       attachments:'附件', attach_file:'附加文件', or_drag:'或拖拽',
-      record_voice:'录制语音', send_label:'发送', send_to_paul:'发送消息',
+      record_voice:'录制语音', send_label:'发送', send_to_paul:'发送给…',
       sidebar_footer:'计时器仅在开始状态下运行。文件已安全上传。',
       welcome_eyebrow:'Message to…',
       welcome_title:'写一些值得写的话。',
@@ -1720,7 +1720,7 @@
       textarea_placeholder:'写下您的消息…', textarea_disabled:'点击开始以开始写作…',
       words:'字', word:'字', characters:'字符', character:'字符',
       voice_message:'语音消息', play:'▶ 播放', pause_play:'⏸ 暂停',
-      send_modal_title:'发送消息', send_modal_sub:'您的消息已准备好发送。',
+      send_modal_title:'发送给…', send_modal_sub:'您的消息已准备好发送。',
       stat_time:'活跃时间', stat_words:'字数', stat_chars:'字符数',
       your_name:'您的姓名', name_placeholder:'张三',
       how_reach:'如何联系您？', contact_placeholder:'邮箱、Telegram、电话…',
@@ -1763,7 +1763,7 @@
       active_writing_time:'सक्रिय लेखन समय',
       controls:'नियंत्रण', start:'प्रारंभ', pause:'रोकें', reset:'रीसेट',
       attachments:'अनुलग्नक', attach_file:'फ़ाइल संलग्न करें', or_drag:'या खींचें',
-      record_voice:'आवाज़ रिकॉर्ड करें', send_label:'भेजें', send_to_paul:'संदेश भेजें',
+      record_voice:'आवाज़ रिकॉर्ड करें', send_label:'भेजें', send_to_paul:'…को संदेश',
       sidebar_footer:'टाइमर केवल प्रारंभ सक्रिय होने पर चलता है।',
       welcome_eyebrow:'… के लिए संदेश',
       welcome_title:'कुछ ऐसा लिखें जो लिखने योग्य हो।',
@@ -1774,7 +1774,7 @@
       textarea_placeholder:'अपना संदेश लिखें…', textarea_disabled:'लिखना शुरू करने के लिए प्रारंभ दबाएं…',
       words:'शब्द', word:'शब्द', characters:'अक्षर', character:'अक्षर',
       voice_message:'वॉइस संदेश', play:'▶ सुनें', pause_play:'⏸ रोकें',
-      send_modal_title:'संदेश भेजें', send_modal_sub:'आपका संदेश भेजने के लिए तैयार है।',
+      send_modal_title:'…को संदेश', send_modal_sub:'आपका संदेश भेजने के लिए तैयार है।',
       stat_time:'सक्रिय समय', stat_words:'शब्द', stat_chars:'अक्षर',
       your_name:'आपका नाम', name_placeholder:'अमित शर्मा',
       how_reach:'मुझसे कैसे संपर्क करें?', contact_placeholder:'ईमेल, Telegram, फोन…',
@@ -1817,7 +1817,7 @@
       active_writing_time:'アクティブな執筆時間',
       controls:'コントロール', start:'開始', pause:'一時停止', reset:'リセット',
       attachments:'添付ファイル', attach_file:'ファイルを添付', or_drag:'またはドラッグ',
-      record_voice:'音声を録音', send_label:'送信', send_to_paul:'メッセージを送る',
+      record_voice:'音声を録音', send_label:'送信', send_to_paul:'…へメッセージ',
       sidebar_footer:'タイマーは開始中のみ動作します。ファイルは安全に転送されます。',
       welcome_eyebrow:'Message to…',
       welcome_title:'書く価値のあることを伝えよう。',
@@ -1828,7 +1828,7 @@
       textarea_placeholder:'メッセージを書いてください…', textarea_disabled:'開始をクリックして書き始めてください…',
       words:'語', word:'語', characters:'文字', character:'文字',
       voice_message:'音声メッセージ', play:'▶ 再生', pause_play:'⏸ 一時停止',
-      send_modal_title:'メッセージを送る', send_modal_sub:'メッセージの送信準備ができました。',
+      send_modal_title:'…へメッセージ', send_modal_sub:'メッセージの送信準備ができました。',
       stat_time:'アクティブ時間', stat_words:'単語数', stat_chars:'文字数',
       your_name:'お名前', name_placeholder:'山田 太郎',
       how_reach:'ご連絡方法は？', contact_placeholder:'メール、Telegram、電話…',
@@ -1866,12 +1866,12 @@
     ru: {
       topbar_title:'✉️ Отправить сообщение Полю Флёри',
       state_idle:'Ожидание', state_running:'Идёт', state_paused:'Пауза',
-      page_title:'Сообщение Полю Флёри',
+      page_title:'Сообщение для…',
       page_sub:'Хронометрированный холст для письма. Нажмите <strong>Начать</strong>, когда будете готовы.',
       active_writing_time:'активное время написания',
       controls:'Управление', start:'Начать', pause:'Пауза', reset:'Сбросить',
       attachments:'Вложения', attach_file:'Прикрепить файл', or_drag:'или перетащить',
-      record_voice:'Записать голос', send_label:'Отправить', send_to_paul:'Отправить сообщение',
+      record_voice:'Записать голос', send_label:'Отправить', send_to_paul:'Сообщение для…',
       sidebar_footer:'Таймер работает только пока активен режим "Начать".',
       welcome_eyebrow:'Сообщение для…',
       welcome_title:'Скажите что-то, что стоит написать.',
@@ -1882,7 +1882,7 @@
       textarea_placeholder:'Напишите ваше сообщение…', textarea_disabled:'Нажмите Начать, чтобы приступить…',
       words:'слов', word:'слово', characters:'символов', character:'символ',
       voice_message:'Голосовое сообщение', play:'▶ Воспроизвести', pause_play:'⏸ Пауза',
-      send_modal_title:'Отправить сообщение', send_modal_sub:'Ваше сообщение готово.',
+      send_modal_title:'Сообщение для…', send_modal_sub:'Ваше сообщение готово.',
       stat_time:'Активное время', stat_words:'Слова', stat_chars:'Символы',
       your_name:'Ваше имя', name_placeholder:'Иван Иванов',
       how_reach:'Как с вами связаться?', contact_placeholder:'Email, Telegram, телефон…',
@@ -2236,7 +2236,7 @@
     } catch (err) { showErrorStep(err.message); }
   };
 
-  // sendViaMailto removed — open email client fallback was not useful (v5.2.2)
+  // sendViaMailto removed — open email client fallback was not useful (v5.2.3)
 
   /* ════════════════════════════════════════════════════════════════════════
    * WORD COUNT
@@ -2486,14 +2486,23 @@
           if (el) el.textContent = info.flag;
         });
         $('lang-picker-overlay')?.classList.remove('open');
-        // Re-apply the display name after language change
+        // Re-inject owner name into language-aware elements after language switch
         if (window._hollrDisplayName) {
           const dn = window._hollrDisplayName;
+          // page_title — use new language template
           document.querySelectorAll('[data-i18n="page_title"]').forEach(el => {
-            el.innerHTML = `Message to <strong>${dn}</strong>`;
+            const tmpl = T[code]?.page_title || T.en.page_title;
+            el.innerHTML = tmpl.replace(/…/g, `<strong>${dn}</strong>`);
           });
+          // welcome_eyebrow — use new language template
           document.querySelectorAll('[data-i18n="welcome_eyebrow"]').forEach(el => {
-            el.textContent = `Message to ${dn}`;
+            const tmpl = T[code]?.welcome_eyebrow || T.en.welcome_eyebrow;
+            el.textContent = tmpl.replace(/…/g, dn);
+          });
+          // send_to_paul — use new language template
+          document.querySelectorAll('[data-i18n="send_to_paul"]').forEach(el => {
+            const tmpl = T[code]?.send_to_paul || T.en.send_to_paul;
+            el.textContent = tmpl.replace(/…/g, dn);
           });
         }
         toast(info.name);
@@ -2968,7 +2977,7 @@
   $('send-close').addEventListener('click', () => sendOverlay.classList.remove('open'));
   sendOverlay.addEventListener('click', e => { if (e.target === sendOverlay) sendOverlay.classList.remove('open'); });
   $('mbtn-email').addEventListener('click', doSend);
-  // mbtn-copy removed (v5.2.2)
+  // mbtn-copy removed (v5.2.3)
   $('sent-back').addEventListener('click', () => { sendOverlay.classList.remove('open'); reset(); });
   $('err-back').addEventListener('click', showFormStep);
   $('err-retry').addEventListener('click', doSend);
@@ -3115,21 +3124,23 @@
 
       // Direct element updates (page title, send button, modal headings)
       const pageTitleEl = document.querySelector('[data-i18n="page_title"]');
-      if (pageTitleEl) pageTitleEl.innerHTML = `Message to <strong>${escHtml(displayName)}</strong>`;
-
-      const pageSubEl = document.querySelector('[data-i18n="page_sub"]');
-      if (pageSubEl) {
-        // Replace the name token in whatever the current i18n string says
-        pageSubEl.innerHTML = pageSubEl.innerHTML
-          .replace(/…|…(?=\s|<|)/g, escHtml(displayName));
+      if (pageTitleEl) {
+        // Use the current language's page_title template (always "Message to…")
+        // and replace the ellipsis with the owner's display name.
+        const ptTemplate = T[currentLang]?.page_title || T.en.page_title;
+        pageTitleEl.innerHTML = ptTemplate.replace(/…/g, `<strong>${escHtml(displayName)}</strong>`);
       }
 
-      // Send button label and modal title
+      // page_sub is a canvas description — does not contain owner name, no replacement needed.
+
+      // Send button label — replace '…' with owner display name
       document.querySelectorAll('[data-i18n="send_to_paul"]').forEach(el => {
-        el.textContent = `Send to ${displayName}`;
+        const tmpl = T[currentLang]?.send_to_paul || T.en.send_to_paul;
+        el.textContent = tmpl.replace(/…/g, displayName);
       });
       document.querySelectorAll('[data-i18n="send_modal_title"]').forEach(el => {
-        el.textContent = `Send to ${displayName}`;
+        const tmpl = T[currentLang]?.send_modal_title || T.en.send_modal_title;
+        el.textContent = tmpl.replace(/…/g, displayName);
       });
       document.querySelectorAll('[data-i18n="sent_sub"]').forEach(el => {
         el.innerHTML = el.innerHTML
@@ -3143,9 +3154,10 @@
         el.innerHTML = el.innerHTML
           .replace(/…|…(?=\s|<|)/g, escHtml(displayName));
       });
-      // Welcome modal eyebrow
+      // Welcome modal eyebrow — use current language template
       document.querySelectorAll('[data-i18n="welcome_eyebrow"]').forEach(el => {
-        el.textContent = `Message to ${displayName}`;
+        const ewTemplate = T[currentLang]?.welcome_eyebrow || T.en.welcome_eyebrow;
+        el.textContent = ewTemplate.replace(/…/g, displayName);
       });
 
       function escHtml(str) {
@@ -3180,9 +3192,14 @@
     // sessionStorage is tab-scoped — falls back to localStorage so the session
     // persists across page closes and new tabs (token has 30-day server-side expiry).
     try {
-      return sessionStorage.getItem('hollr_session')
-          || localStorage.getItem('hollr_session')
-          || null;
+      const ssTok = sessionStorage.getItem('hollr_session');
+      const lsTok = localStorage.getItem('hollr_session');
+      // Migration: if we have a sessionStorage token but no localStorage token
+      // (user logged in before v5.2.3), persist it to localStorage now.
+      if (ssTok && !lsTok) {
+        try { localStorage.setItem('hollr_session', ssTok); } catch {}
+      }
+      return ssTok || lsTok || null;
     } catch { return null; }
   }
 
