@@ -509,7 +509,7 @@
     }
     .mfield input::placeholder { color: var(--fg-2); }
     .mfield input:focus { border-bottom-color: var(--fg); }
-    /* .msend-label removed v5.2.4 */
+    /* .msend-label removed v5.2.5 */
     .mbtn-email {
       display: flex; align-items: center; gap: 12px;
       width: 100%; border: none; border-radius: 10px;
@@ -521,7 +521,7 @@
     }
     .mbtn-email:hover:not(:disabled) { opacity: .88; }
     .mbtn-email:disabled { opacity: .5; cursor: not-allowed; }
-    /* mbtn-copy (Open email client) removed v5.2.4 — not useful */
+    /* mbtn-copy (Open email client) removed v5.2.5 — not useful */
     .mbtn-hint { margin-left: auto; font-size: 12px; color: var(--fg-2); }
     .mbtn-email .mbtn-hint { color: rgba(255,255,255,.4); }
     [data-theme="dark"] .mbtn-email .mbtn-hint { color: rgba(0,0,0,.4); }
@@ -2236,7 +2236,7 @@
     } catch (err) { showErrorStep(err.message); }
   };
 
-  // sendViaMailto removed — open email client fallback was not useful (v5.2.4)
+  // sendViaMailto removed — open email client fallback was not useful (v5.2.5)
 
   /* ════════════════════════════════════════════════════════════════════════
    * WORD COUNT
@@ -2492,17 +2492,17 @@
           // page_title — use new language template
           document.querySelectorAll('[data-i18n="page_title"]').forEach(el => {
             const tmpl = T[code]?.page_title || T.en.page_title;
-            el.innerHTML = tmpl.replace(/…/g, `<strong>${dn}</strong>`);
+            el.innerHTML = tmpl.replace(/…/g, ` <strong>${dn}</strong>`);
           });
           // welcome_eyebrow — use new language template
           document.querySelectorAll('[data-i18n="welcome_eyebrow"]').forEach(el => {
             const tmpl = T[code]?.welcome_eyebrow || T.en.welcome_eyebrow;
-            el.textContent = tmpl.replace(/…/g, dn);
+            el.textContent = tmpl.replace(/…/g, ' ' + dn);
           });
           // send_to_paul — use new language template
           document.querySelectorAll('[data-i18n="send_to_paul"]').forEach(el => {
             const tmpl = T[code]?.send_to_paul || T.en.send_to_paul;
-            el.textContent = tmpl.replace(/…/g, dn);
+            el.textContent = tmpl.replace(/…/g, ' ' + dn);
           });
         }
         toast(info.name);
@@ -2776,13 +2776,16 @@
         const newName = name || HANDLE;
         window._hollrDisplayName = newName;
         document.querySelectorAll('[data-i18n="page_title"]').forEach(el => {
-          el.innerHTML = `Message to <strong>${newName}</strong>`;
+          const tmpl = T[currentLang]?.page_title || T.en.page_title;
+          el.innerHTML = tmpl.replace(/…/g, ` <strong>${escHtml(newName)}</strong>`);
         });
         document.querySelectorAll('[data-i18n="send_to_paul"], [data-i18n="send_modal_title"]').forEach(el => {
-          el.textContent = `Send to ${newName}`;
+          const tmpl = T[currentLang]?.[el.dataset.i18n] || T.en[el.dataset.i18n];
+          el.textContent = tmpl.replace(/…/g, ' ' + newName);
         });
         document.querySelectorAll('[data-i18n="welcome_eyebrow"]').forEach(el => {
-          el.textContent = `Message to ${newName}`;
+          const tmpl = T[currentLang]?.welcome_eyebrow || T.en.welcome_eyebrow;
+          el.textContent = tmpl.replace(/…/g, ' ' + newName);
         });
         const preview = $('s-name-preview');
         if (preview) preview.textContent = newName;
@@ -2977,7 +2980,7 @@
   $('send-close').addEventListener('click', () => sendOverlay.classList.remove('open'));
   sendOverlay.addEventListener('click', e => { if (e.target === sendOverlay) sendOverlay.classList.remove('open'); });
   $('mbtn-email').addEventListener('click', doSend);
-  // mbtn-copy removed (v5.2.4)
+  // mbtn-copy removed (v5.2.5)
   $('sent-back').addEventListener('click', () => { sendOverlay.classList.remove('open'); reset(); });
   $('err-back').addEventListener('click', showFormStep);
   $('err-retry').addEventListener('click', doSend);
@@ -3128,7 +3131,7 @@
         // Use the current language's page_title template (always "Message to…")
         // and replace the ellipsis with the owner's display name.
         const ptTemplate = T[currentLang]?.page_title || T.en.page_title;
-        pageTitleEl.innerHTML = ptTemplate.replace(/…/g, `<strong>${escHtml(displayName)}</strong>`);
+        pageTitleEl.innerHTML = ptTemplate.replace(/…/g, ` <strong>${escHtml(displayName)}</strong>`);
       }
 
       // page_sub is a canvas description — does not contain owner name, no replacement needed.
@@ -3136,11 +3139,11 @@
       // Send button label — replace '…' with owner display name
       document.querySelectorAll('[data-i18n="send_to_paul"]').forEach(el => {
         const tmpl = T[currentLang]?.send_to_paul || T.en.send_to_paul;
-        el.textContent = tmpl.replace(/…/g, displayName);
+        el.textContent = tmpl.replace(/…/g, ' ' + displayName);
       });
       document.querySelectorAll('[data-i18n="send_modal_title"]').forEach(el => {
         const tmpl = T[currentLang]?.send_modal_title || T.en.send_modal_title;
-        el.textContent = tmpl.replace(/…/g, displayName);
+        el.textContent = tmpl.replace(/…/g, ' ' + displayName);
       });
       document.querySelectorAll('[data-i18n="sent_sub"]').forEach(el => {
         el.innerHTML = el.innerHTML
@@ -3157,7 +3160,7 @@
       // Welcome modal eyebrow — use current language template
       document.querySelectorAll('[data-i18n="welcome_eyebrow"]').forEach(el => {
         const ewTemplate = T[currentLang]?.welcome_eyebrow || T.en.welcome_eyebrow;
-        el.textContent = ewTemplate.replace(/…/g, displayName);
+        el.textContent = ewTemplate.replace(/…/g, ' ' + displayName);
       });
 
       function escHtml(str) {
@@ -3195,7 +3198,7 @@
       const ssTok = sessionStorage.getItem('hollr_session');
       const lsTok = localStorage.getItem('hollr_session');
       // Migration: if we have a sessionStorage token but no localStorage token
-      // (user logged in before v5.2.4), persist it to localStorage now.
+      // (user logged in before v5.2.5), persist it to localStorage now.
       if (ssTok && !lsTok) {
         try { localStorage.setItem('hollr_session', ssTok); } catch {}
       }
