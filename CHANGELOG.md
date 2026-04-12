@@ -902,6 +902,60 @@ Changes:
 - Voice recording: Web MediaRecorder API, blob uploaded as multipart form data.
 - Transactional email via Resend REST API: notification email sent to Paul on each message.
 - Static HTML/CSS/JS frontend hosted on SiteGround.
+## [5.7.0] — 2026-04-12
+
+### PIN authentication architecture overhaul
+
+This is the most significant security fix since v5.2.0. The root cause of
+"PIN works in my session but not incognito / other devices" has been
+permanently resolved.
+
+#### Root cause
+
+Settings were locked by PIN, but the PIN verify call required a **login
+session token** (`Authorization: Bearer <session_token>`). Session tokens
+live in `sessionStorage`/`localStorage`. In incognito mode, a new browser,
+or any context without a prior login, the token was absent — the API returned
+401 before the PIN was even checked. The PIN was correct in the database.
+The architecture was wrong.
+
+#### Fix: Two-token authentication system
+
+**New endpoint — `POST /api/settings/verify`** (no login required)
+- Takes `{ handle, pin }` — public, no Authorization header needed
+- Checks PIN against bcrypt hash for the given handle
+- Returns a short-lived **settings token** (2-hour TTL)
+- Rate-limited: 10 attempts per IP per 15 minutes
+- Unified 403 for both "handle not found" and "wrong PIN" (avoids enumeration)
+
+**Updated `requireAuth` middleware**
+- Now accepts two Bearer token types:
+  1. Session tokens (30-day TTL, issued on login)
+  2. Settings tokens (2-hour TTL, issued by `/api/settings/verify`)
+- All `/api/settings/*` routes work with either token type
+
+**New DB table — `settings_tokens`**
+- Stores PIN-verified tokens separate from login sessions
+- `user_id`, `token`, `expires_at` — cascades on user delete
+- Indexed on token for O(1) lookup
+
+**Frontend changes (`handle/index.html`)**
+- `settingsPinCache` (raw PIN in memory) replaced by `settingsToken`
+- PIN gate calls `/api/settings/verify` — no session token needed
+- Settings token stored in `sessionStorage` (tab-scoped, intentional)
+- `getSessionToken()` prefers settings token > session token
+- All settings API calls removed `pin` from request body
+- `POST /api/settings` still accepts `pin` in body for backwards compatibility
+
+#### Also in this release
+
+- `page_title`, `welcome_eyebrow`, `send_to_paul`, `send_modal_title` templates
+  now fully translated in all 10 languages (from v5.2.6 series)
+- README: new "PIN & Settings authentication" deep-dive section
+- All version headers → v5.7.0
+
+---
+
 ## [5.2.6] — 2026-04-12
 
 ### Full i18n: "Message to" translated in all 10 languages

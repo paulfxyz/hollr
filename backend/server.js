@@ -1,5 +1,5 @@
 /**
- * server.js — hollr.to API Backend (v5.2.6)
+ * server.js — hollr.to API Backend (v5.7.0)
  *
  * Routes overview
  * ───────────────
@@ -16,6 +16,7 @@
  *   POST /api/handle/check             — check handle availability
  *   POST /api/handle/claim             — claim handle during onboarding
  *
+ *   POST /api/settings/verify          — verify PIN, get settings token (no login needed)
  *   POST /api/settings                 — update Resend key, from_email, email, PGP key
  *   POST /api/settings/change-pin      — change PIN (clears default flag)
  *   POST /api/settings/email           — update contact email (requires PIN)
@@ -129,13 +130,25 @@ const sendLimiter = rateLimit({ windowMs: 60 * 1000,      max: 5,   message: { e
 // ── Auth middleware ──────────────────────────────────────────────────────────
 
 /**
- * requireAuth — injects req.user from a valid Bearer session token.
+ * requireAuth — injects req.user from a valid Bearer token.
+ *
+ * Accepts TWO types of tokens:
+ *
+ *   1. SESSION TOKEN   — issued on login (magic link / X OAuth). 30-day TTL.
+ *      Used for all authenticated API routes.
+ *
+ *   2. SETTINGS TOKEN  — issued by POST /api/settings/verify after a PIN check.
+ *      Does NOT require a login session — the PIN is the authentication.
+ *      2-hour TTL, stored in sessionStorage only (intentionally tab-scoped).
+ *      This fixes the "PIN works in my tab but not incognito" bug: handle
+ *      owners can always manage settings from any device using only their PIN.
  */
 function requireAuth(req, res, next) {
   const header = req.headers.authorization || '';
   const token  = header.startsWith('Bearer ') ? header.slice(7) : null;
   if (!token) return res.status(401).json({ error: 'Authentication required' });
 
+  // ── Path 1: session token (login session) ────────────────────────────────
   const sess = db.prepare(`
     SELECT s.token, s.user_id, s.expires_at,
            u.email, u.handle, u.resend_key, u.pin_hash, u.from_email,
@@ -144,10 +157,28 @@ function requireAuth(req, res, next) {
     WHERE s.token = ? AND s.expires_at > unixepoch()
   `).get(token);
 
-  if (!sess) return res.status(401).json({ error: 'Invalid or expired session' });
-  req.user  = sess;
-  req.token = token;
-  next();
+  if (sess) {
+    req.user  = sess;
+    req.token = token;
+    return next();
+  }
+
+  // ── Path 2: settings token (PIN-verified, no login required) ─────────────
+  const stok = db.prepare(`
+    SELECT st.user_id, st.expires_at,
+           u.email, u.handle, u.resend_key, u.pin_hash, u.from_email,
+           u.pgp_public_key, u.x_id, u.x_username, u.pin_is_default, u.display_name
+    FROM settings_tokens st JOIN users u ON u.id = st.user_id
+    WHERE st.token = ? AND st.expires_at > unixepoch()
+  `).get(token);
+
+  if (stok) {
+    req.user  = stok;
+    req.token = token;
+    return next();
+  }
+
+  return res.status(401).json({ error: 'Invalid or expired session' });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -175,7 +206,7 @@ function createSession(userId) {
 
 // ── Health ───────────────────────────────────────────────────────────────────
 
-app.get('/health', (_req, res) => res.json({ ok: true, version: '5.2.6' }));
+app.get('/health', (_req, res) => res.json({ ok: true, version: '5.7.0' }));
 
 // ── Email magic link auth ────────────────────────────────────────────────────
 
@@ -596,6 +627,73 @@ app.get('/api/settings', requireAuth, (req, res) => {
 });
 
 /**
+ * POST /api/settings/verify
+ * Body: { handle, pin }
+ *
+ * Verifies a PIN for a given handle WITHOUT requiring a login session.
+ * This is the key architectural fix for the "PIN works in my session but
+ * not in incognito / other devices" problem.
+ *
+ * On success, issues a short-lived settings token (2-hour TTL) that can
+ * be used as a Bearer token for all /api/settings/* endpoints.
+ *
+ * Security properties:
+ *   • Rate-limited (separate limiter below) to prevent brute-force
+ *   • Token is single-handle-scoped (token → user_id, user_id → handle)
+ *   • Token has a 2-hour TTL and is stored only in sessionStorage (tab-scoped)
+ *   • No information about whether the handle exists is leaked on failure
+ *     (both "handle not found" and "wrong PIN" return the same 403)
+ */
+
+// Strict rate limiter for PIN verify — 10 attempts per 15 minutes per IP
+const pinVerifyLimiter = rateLimit({
+  windowMs:         15 * 60 * 1000,
+  max:              10,
+  standardHeaders:  true,
+  legacyHeaders:    false,
+  message:          { error: 'Too many PIN attempts. Try again in 15 minutes.' },
+});
+
+app.post('/api/settings/verify', pinVerifyLimiter, (req, res) => {
+  const { handle, pin } = req.body;
+
+  if (!handle || !pin) {
+    return res.status(400).json({ error: 'handle and pin are required' });
+  }
+
+  // Look up the user by handle (COLLATE NOCASE — case-insensitive match)
+  const user = db.prepare(
+    "SELECT id, pin_hash, pin_is_default FROM users WHERE handle = ? COLLATE NOCASE AND handle NOT LIKE '__pending_%'"
+  ).get(handle);
+
+  // Unified 403 — same response whether handle is not found or PIN is wrong.
+  // This prevents enumeration: an attacker cannot tell if a handle exists.
+  if (!user || !user.pin_hash || !bcrypt.compareSync(String(pin), user.pin_hash)) {
+    return res.status(403).json({ error: 'Incorrect PIN' });
+  }
+
+  // Issue a settings token: 32 random bytes, 2-hour TTL
+  const token     = crypto.randomBytes(32).toString('hex');
+  const expiresAt = Math.floor(Date.now() / 1000) + 7200; // now + 2 hours
+
+  // Clean up expired tokens for this user before inserting (housekeeping)
+  db.prepare('DELETE FROM settings_tokens WHERE user_id = ? AND expires_at <= unixepoch()').run(user.id);
+
+  db.prepare(
+    'INSERT INTO settings_tokens (user_id, token, expires_at) VALUES (?, ?, ?)'
+  ).run(user.id, token, expiresAt);
+
+  console.log(\`[settings/verify] issued token for handle=\${handle}\`);
+
+  res.json({
+    ok:              true,
+    token,           // Frontend stores this in sessionStorage as 'hollr_settings_token'
+    expires_at:      expiresAt,
+    pin_is_default:  !!user.pin_is_default,
+  });
+});
+
+/**
  * POST /api/settings
  * Body: { pin, resend_key?, from_email?, pgp_public_key?, notification_email? }
  *
@@ -607,12 +705,20 @@ app.post('/api/settings', requireAuth, (req, res) => {
   const { pin, resend_key, from_email, pgp_public_key, notification_email, display_name } = req.body;
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.user_id);
 
-  // PIN is required and must match
-  if (!user.pin_hash || !bcrypt.compareSync(String(pin), user.pin_hash)) {
-    return res.status(403).json({ error: 'Incorrect PIN' });
+  // Authentication is handled by requireAuth (session token or settings token).
+  // The settings token was issued by POST /api/settings/verify after a PIN check,
+  // so we don't need to re-verify the PIN here.
+  //
+  // Legacy compatibility: if a pin is provided in the body (old clients), verify it.
+  // This ensures older frontend versions still work during the rollout.
+  if (pin !== undefined) {
+    if (!user.pin_hash || !bcrypt.compareSync(String(pin), user.pin_hash)) {
+      return res.status(403).json({ error: 'Incorrect PIN' });
+    }
   }
 
-  // If this is still the default PIN, force a change before allowing other edits
+  // If this is still the default PIN, force a change before allowing other edits.
+  // This check applies regardless of how we authenticated.
   if (user.pin_is_default) {
     return res.status(403).json({
       error:  'must_change_pin',
@@ -873,5 +979,5 @@ app.use((err, _req, res, _next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
-  console.log(`📢 hollr API v5.2.6 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  console.log(`📢 hollr API v5.7.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
 });

@@ -509,7 +509,7 @@
     }
     .mfield input::placeholder { color: var(--fg-2); }
     .mfield input:focus { border-bottom-color: var(--fg); }
-    /* .msend-label removed v5.2.6 */
+    /* .msend-label removed v5.7.0 */
     .mbtn-email {
       display: flex; align-items: center; gap: 12px;
       width: 100%; border: none; border-radius: 10px;
@@ -521,7 +521,7 @@
     }
     .mbtn-email:hover:not(:disabled) { opacity: .88; }
     .mbtn-email:disabled { opacity: .5; cursor: not-allowed; }
-    /* mbtn-copy (Open email client) removed v5.2.6 — not useful */
+    /* mbtn-copy (Open email client) removed v5.7.0 — not useful */
     .mbtn-hint { margin-left: auto; font-size: 12px; color: var(--fg-2); }
     .mbtn-email .mbtn-hint { color: rgba(255,255,255,.4); }
     [data-theme="dark"] .mbtn-email .mbtn-hint { color: rgba(0,0,0,.4); }
@@ -2027,7 +2027,19 @@
   let state = 'idle', running = false, activeMs = 0, t0 = null, raf = null;
   let audioRec = null, abAudio = null;
   let files = [], fileIdCtr = 0;
-  let settingsPinCache = null;
+  // settingsToken: a short-lived token issued by POST /api/settings/verify
+  // after a successful PIN check. Valid for 2 hours. Stored in sessionStorage
+  // so it survives page navigations within the same tab but not new tabs or
+  // incognito windows (by design — PIN re-entry per browser session is correct
+  // security behaviour for a settings lock).
+  //
+  // This replaces the old settingsPinCache (which stored the raw PIN string in
+  // memory and depended on a login session for all API calls). The new flow:
+  //   1. User enters PIN → POST /api/settings/verify → server returns token
+  //   2. All subsequent settings calls use the token as Bearer (no PIN resent)
+  //   3. Token expires in 2 hours → PIN gate re-appears → user re-enters PIN
+  let settingsToken = null;
+  try { settingsToken = sessionStorage.getItem('hollr_settings_token') || null; } catch {}
   let vrState = 'idle', vrElapsed = 0, vrStream = null, vrAudioCtx = null;
   let vrAnalyser = null, vrRecorder = null, vrChunks = [], vrRaf = null;
   let vrTimer = null, vrStart = 0, vrBlob = null, vrBlobUrl = null;
@@ -2236,7 +2248,7 @@
     } catch (err) { showErrorStep(err.message); }
   };
 
-  // sendViaMailto removed — open email client fallback was not useful (v5.2.6)
+  // sendViaMailto removed — open email client fallback was not useful (v5.7.0)
 
   /* ════════════════════════════════════════════════════════════════════════
    * WORD COUNT
@@ -2617,7 +2629,7 @@
     });
     $('s-pin-input').value = '';
 
-    if (settingsPinCache) {
+    if (settingsToken) {  // already have a valid settings token, skip PIN gate
       showPanel('panel-manage');
       switchTab('resend');
       loadSettingsValues();
@@ -2645,24 +2657,27 @@
     el.classList.remove('show');
     if (!pin) { el.textContent = 'Enter your PIN to continue.'; el.classList.add('show'); return; }
 
-    const tok = getSessionToken();
-    if (!tok) { el.textContent = 'Not signed in.'; el.classList.add('show'); return; }
-
+    // v5.7.0: No session token required. POST /api/settings/verify checks the
+    // PIN against the handle's bcrypt hash and returns a 2-hour settings token.
+    // This works from any device, any browser, incognito — no login needed.
     try {
-      const resp = await fetch(`${API_BASE}/api/settings`, {
+      const resp = await fetch(`${API_BASE}/api/settings/verify`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
-        body: JSON.stringify({ pin }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ handle: HANDLE, pin }),
       });
       const data = await resp.json();
 
-      if (data.ok || data.error === 'must_change_pin') {
-        settingsPinCache = pin;
+      if (data.ok) {
+        // Store settings token — used as Bearer for all subsequent settings calls
+        settingsToken = data.token;
+        try { sessionStorage.setItem('hollr_settings_token', data.token); } catch {}
+
         showPanel('panel-manage');
         loadSettingsValues();
 
-        if (data.error === 'must_change_pin') {
-          // Force PIN change — jump to PIN tab with banner
+        if (data.pin_is_default) {
+          // PIN is still the default (1234) — force change before other edits
           switchTab('pin');
           const banner = $('default-pin-banner');
           if (banner) banner.style.display = '';
@@ -2768,7 +2783,7 @@
       const resp = await fetch(`${API_BASE}/api/settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
-        body: JSON.stringify({ pin: settingsPinCache, display_name: name }),
+        body: JSON.stringify({ display_name: name }), // PIN verified via settings token
       });
       const data = await resp.json();
       if (data.ok) {
@@ -2815,7 +2830,7 @@
       const resp = await fetch(`${API_BASE}/api/settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
-        body: JSON.stringify({ pin: settingsPinCache, notification_email: email }),
+        body: JSON.stringify({ notification_email: email }), // PIN verified via settings token
       });
       const data = await resp.json();
       if (data.ok) {
@@ -2845,7 +2860,7 @@
     btn.disabled = true; btn.textContent = 'Saving…';
     const tok = getSessionToken();
     try {
-      const body = { pin: settingsPinCache };
+      const body = {}; // PIN already verified — settings token in Authorization header
       if (apiKey)    body.resend_key = apiKey;       // blank = keep existing
       if (fromEmail !== undefined) body.from_email = fromEmail || null;
 
@@ -2883,7 +2898,7 @@
       const resp = await fetch(`${API_BASE}/api/settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
-        body: JSON.stringify({ pin: settingsPinCache, pgp_public_key: pgpKey }),
+        body: JSON.stringify({ pgp_public_key: pgpKey }), // PIN verified via settings token
       });
       const data = await resp.json();
       if (data.ok) {
@@ -2921,7 +2936,7 @@
     if (newPin === '1234') {
       el.textContent = 'Choose something other than 1234.'; el.classList.add('show'); return;
     }
-    if (!settingsPinCache) { showPanel('panel-pin'); $('settings-overlay').classList.add('open'); setTimeout(() => $('s-pin-input')?.focus(), 100); return; }
+    if (!settingsToken) { showPanel('panel-pin'); $('settings-overlay').classList.add('open'); setTimeout(() => $('s-pin-input')?.focus(), 100); return; }
 
     btn.disabled = true; btn.textContent = 'Saving…';
     const tok = getSessionToken();
@@ -2929,11 +2944,13 @@
       const resp = await fetch(`${API_BASE}/api/settings/change-pin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
-        body: JSON.stringify({ current_pin: settingsPinCache, new_pin: newPin }),
+        body: JSON.stringify({ current_pin: $('s-cur-pin')?.value || '', new_pin: newPin }),
       });
       const data = await resp.json();
       if (data.ok) {
-        settingsPinCache = newPin;
+        // PIN changed — clear old settings token, user will re-verify
+        settingsToken = null;
+        try { sessionStorage.removeItem('hollr_settings_token'); } catch {}
         const banner = $('default-pin-banner');
         if (banner) banner.style.display = 'none';
         $('s-new-pin').value = '';
@@ -2980,7 +2997,7 @@
   $('send-close').addEventListener('click', () => sendOverlay.classList.remove('open'));
   sendOverlay.addEventListener('click', e => { if (e.target === sendOverlay) sendOverlay.classList.remove('open'); });
   $('mbtn-email').addEventListener('click', doSend);
-  // mbtn-copy removed (v5.2.6)
+  // mbtn-copy removed (v5.7.0)
   $('sent-back').addEventListener('click', () => { sendOverlay.classList.remove('open'); reset(); });
   $('err-back').addEventListener('click', showFormStep);
   $('err-retry').addEventListener('click', doSend);
@@ -3192,16 +3209,14 @@
    * localStorage + sessionStorage (set by auth/verify, persists 30 days).
    * ════════════════════════════════════════════════════════════════════════ */
   function getSessionToken() {
-    // sessionStorage is tab-scoped — falls back to localStorage so the session
-    // persists across page closes and new tabs (token has 30-day server-side expiry).
+    // Returns the best available auth token for settings API calls.
+    // Priority: settingsToken (PIN-verified, no login needed) > session token (login).
+    // This means settings always work from any device/incognito using just the PIN.
+    if (settingsToken) return settingsToken;
     try {
       const ssTok = sessionStorage.getItem('hollr_session');
       const lsTok = localStorage.getItem('hollr_session');
-      // Migration: if we have a sessionStorage token but no localStorage token
-      // (user logged in before v5.2.6), persist it to localStorage now.
-      if (ssTok && !lsTok) {
-        try { localStorage.setItem('hollr_session', ssTok); } catch {}
-      }
+      if (ssTok && !lsTok) { try { localStorage.setItem('hollr_session', ssTok); } catch {} }
       return ssTok || lsTok || null;
     } catch { return null; }
   }

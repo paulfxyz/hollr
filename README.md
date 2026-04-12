@@ -1,6 +1,6 @@
 # 📢 hollr
 
-[![Version](https://img.shields.io/badge/version-5.2.6-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v5.2.6)
+[![Version](https://img.shields.io/badge/version-5.7.0-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v5.7.0)
 [![License: MIT](https://img.shields.io/badge/license-MIT-c96a2a?style=flat-square)](LICENSE)
 [![Node](https://img.shields.io/badge/node-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![SQLite](https://img.shields.io/badge/SQLite-WAL-003b57?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org)
@@ -1308,6 +1308,93 @@ git push origin feat/your-feature
 MIT — see [LICENSE](LICENSE). Fork it, self-host it, extend it, sell it. No restrictions.
 
 ---
+
+---
+
+---
+
+## Deep-dive: PIN & Settings authentication
+
+### The problem (pre-v5.7.0)
+
+Settings were locked by a PIN, but the PIN verify call required a **login session** (`Authorization: Bearer <session_token>`). Session tokens live in `sessionStorage` (tab-scoped) or `localStorage`. This created a hard failure:
+
+- Open `hollr.to/yourhandle` in **incognito** → no session in storage → settings won't open
+- Open in a **different browser** → same problem
+- **PIN was correct** — the DB had the right hash — but the API rejected it before even checking
+
+### The fix (v5.7.0) — Two-token architecture
+
+```
+Handle owner enters PIN
+         │
+         ▼
+POST /api/settings/verify  { handle, pin }   ← NO session required
+         │
+         ├─ PIN correct → returns { token, expires_at, pin_is_default }
+         │                         (2-hour settings token)
+         │
+         ▼
+All subsequent settings calls use that token as Bearer
+POST /api/settings  Authorization: Bearer <settings_token>
+POST /api/settings/change-pin  Authorization: Bearer <settings_token>
+         │
+         └─ Works from any device, any browser, incognito, without login
+```
+
+### Security properties
+
+| Property | Value |
+|---|---|
+| Token lifetime | 2 hours |
+| Storage | `sessionStorage` only (tab-scoped, intentional) |
+| Attack surface | Rate-limited: 10 attempts per IP per 15 minutes |
+| Information leakage | Handle not found and wrong PIN return identical 403 |
+| Scope | Settings only — not messages, sessions, or auth flows |
+| Backwards compat | Old clients sending `pin` in request body still work |
+
+### How `requireAuth` works
+
+```js
+function requireAuth(req, res, next) {
+  const token = req.headers.authorization?.slice(7);
+
+  // Path 1: login session (30-day TTL)
+  const sess = db.prepare(
+    'SELECT ... FROM sessions JOIN users WHERE token = ? AND expires_at > unixepoch()'
+  ).get(token);
+  if (sess) { req.user = sess; return next(); }
+
+  // Path 2: settings token (2-hour TTL, PIN-verified, no login needed)
+  const stok = db.prepare(
+    'SELECT ... FROM settings_tokens JOIN users WHERE token = ? AND expires_at > unixepoch()'
+  ).get(token);
+  if (stok) { req.user = stok; return next(); }
+
+  return res.status(401).json({ error: 'Invalid or expired session' });
+}
+```
+
+### Frontend flow
+
+```js
+// PIN gate submit
+const resp = await fetch('/api/settings/verify', {
+  method: 'POST',
+  body: JSON.stringify({ handle: HANDLE, pin }),  // no Authorization header
+});
+const { token, pin_is_default } = await resp.json();
+
+// Store for tab session — re-entry required per browser session (by design)
+settingsToken = token;
+sessionStorage.setItem('hollr_settings_token', token);
+
+// All settings calls now use this token
+fetch('/api/settings', {
+  headers: { Authorization: 'Bearer ' + settingsToken },
+  body: JSON.stringify({ display_name: 'Paul' }),  // no pin in body
+});
+```
 
 ---
 

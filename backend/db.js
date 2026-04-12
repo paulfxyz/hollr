@@ -1,5 +1,5 @@
 /**
- * db.js — SQLite database setup for hollr.to (v5.2.6)
+ * db.js — SQLite database setup for hollr.to (v5.7.0)
  * ──────────────────────────────────────────────────────
  *
  * OVERVIEW
@@ -142,13 +142,30 @@ db.exec(`
     created_at      INTEGER NOT NULL DEFAULT (unixepoch())
   );
 
+  -- ── settings_tokens ─────────────────────────────────────────────────────────
+  -- Short-lived tokens issued by POST /api/settings/verify after a successful
+  -- PIN check. These are separate from login sessions — they do NOT require the
+  -- user to be logged in. This lets handle owners manage settings from any
+  -- device, any browser, any incognito window, using only their PIN.
+  --
+  -- Lifetime: 2 hours. Revoked on logout or explicit invalidation.
+  -- Stored: sessionStorage only (intentionally tab-scoped — PIN reconfirmation
+  --         per browser session is a deliberate security choice).
+  CREATE TABLE IF NOT EXISTS settings_tokens (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token      TEXT    NOT NULL UNIQUE,   -- crypto.randomBytes(32).toString('hex')
+    expires_at INTEGER NOT NULL           -- Unix timestamp (now + 7200)
+  );
+
   -- ── Indexes ──────────────────────────────────────────────────────────────────
   -- Covering the most common WHERE clauses: token lookups and handle lookups.
   -- x_id index is created below after the ALTER TABLE migration (see note above).
-  CREATE INDEX IF NOT EXISTS idx_magic_links_token ON magic_links(token);
-  CREATE INDEX IF NOT EXISTS idx_sessions_token    ON sessions(token);
-  CREATE INDEX IF NOT EXISTS idx_users_handle      ON users(handle);
-  CREATE INDEX IF NOT EXISTS idx_messages_handle   ON messages(handle);
+  CREATE INDEX IF NOT EXISTS idx_magic_links_token    ON magic_links(token);
+  CREATE INDEX IF NOT EXISTS idx_sessions_token       ON sessions(token);
+  CREATE INDEX IF NOT EXISTS idx_settings_tokens_tok  ON settings_tokens(token);
+  CREATE INDEX IF NOT EXISTS idx_users_handle         ON users(handle);
+  CREATE INDEX IF NOT EXISTS idx_messages_handle      ON messages(handle);
 `);
 
 // ── Runtime migrations ────────────────────────────────────────────────────────
