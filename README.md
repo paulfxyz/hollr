@@ -1,6 +1,6 @@
 # 📢 hollr
 
-[![Version](https://img.shields.io/badge/version-5.7.0-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v5.7.0)
+[![Version](https://img.shields.io/badge/version-5.2.7-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v5.2.7)
 [![License: MIT](https://img.shields.io/badge/license-MIT-c96a2a?style=flat-square)](LICENSE)
 [![Node](https://img.shields.io/badge/node-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![SQLite](https://img.shields.io/badge/SQLite-WAL-003b57?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org)
@@ -1315,7 +1315,7 @@ MIT — see [LICENSE](LICENSE). Fork it, self-host it, extend it, sell it. No re
 
 ## Deep-dive: PIN & Settings authentication
 
-### The problem (pre-v5.7.0)
+### The problem (pre-v5.2.7)
 
 Settings were locked by a PIN, but the PIN verify call required a **login session** (`Authorization: Bearer <session_token>`). Session tokens live in `sessionStorage` (tab-scoped) or `localStorage`. This created a hard failure:
 
@@ -1323,7 +1323,7 @@ Settings were locked by a PIN, but the PIN verify call required a **login sessio
 - Open in a **different browser** → same problem
 - **PIN was correct** — the DB had the right hash — but the API rejected it before even checking
 
-### The fix (v5.7.0) — Two-token architecture
+### The fix (v5.2.7) — Two-token architecture
 
 ```
 Handle owner enters PIN

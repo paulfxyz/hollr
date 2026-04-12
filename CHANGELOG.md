@@ -902,7 +902,7 @@ Changes:
 - Voice recording: Web MediaRecorder API, blob uploaded as multipart form data.
 - Transactional email via Resend REST API: notification email sent to Paul on each message.
 - Static HTML/CSS/JS frontend hosted on SiteGround.
-## [5.7.0] — 2026-04-12
+## [5.2.7] — 2026-04-12
 
 ### PIN authentication architecture overhaul
 
@@ -952,7 +952,7 @@ The architecture was wrong.
 - `page_title`, `welcome_eyebrow`, `send_to_paul`, `send_modal_title` templates
   now fully translated in all 10 languages (from v5.2.6 series)
 - README: new "PIN & Settings authentication" deep-dive section
-- All version headers → v5.7.0
+- All version headers → v5.2.7
 
 ---
 

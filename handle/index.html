@@ -509,7 +509,7 @@
     }
     .mfield input::placeholder { color: var(--fg-2); }
     .mfield input:focus { border-bottom-color: var(--fg); }
-    /* .msend-label removed v5.7.0 */
+    /* .msend-label removed v5.2.7 */
     .mbtn-email {
       display: flex; align-items: center; gap: 12px;
       width: 100%; border: none; border-radius: 10px;
@@ -521,7 +521,7 @@
     }
     .mbtn-email:hover:not(:disabled) { opacity: .88; }
     .mbtn-email:disabled { opacity: .5; cursor: not-allowed; }
-    /* mbtn-copy (Open email client) removed v5.7.0 — not useful */
+    /* mbtn-copy (Open email client) removed v5.2.7 — not useful */
     .mbtn-hint { margin-left: auto; font-size: 12px; color: var(--fg-2); }
     .mbtn-email .mbtn-hint { color: rgba(255,255,255,.4); }
     [data-theme="dark"] .mbtn-email .mbtn-hint { color: rgba(0,0,0,.4); }
@@ -2248,7 +2248,7 @@
     } catch (err) { showErrorStep(err.message); }
   };
 
-  // sendViaMailto removed — open email client fallback was not useful (v5.7.0)
+  // sendViaMailto removed — open email client fallback was not useful (v5.2.7)
 
   /* ════════════════════════════════════════════════════════════════════════
    * WORD COUNT
@@ -2657,7 +2657,7 @@
     el.classList.remove('show');
     if (!pin) { el.textContent = 'Enter your PIN to continue.'; el.classList.add('show'); return; }
 
-    // v5.7.0: No session token required. POST /api/settings/verify checks the
+    // v5.2.7: No session token required. POST /api/settings/verify checks the
     // PIN against the handle's bcrypt hash and returns a 2-hour settings token.
     // This works from any device, any browser, incognito — no login needed.
     try {
@@ -2997,7 +2997,7 @@
   $('send-close').addEventListener('click', () => sendOverlay.classList.remove('open'));
   sendOverlay.addEventListener('click', e => { if (e.target === sendOverlay) sendOverlay.classList.remove('open'); });
   $('mbtn-email').addEventListener('click', doSend);
-  // mbtn-copy removed (v5.7.0)
+  // mbtn-copy removed (v5.2.7)
   $('sent-back').addEventListener('click', () => { sendOverlay.classList.remove('open'); reset(); });
   $('err-back').addEventListener('click', showFormStep);
   $('err-retry').addEventListener('click', doSend);
