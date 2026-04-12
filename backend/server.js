@@ -683,7 +683,7 @@ app.post('/api/settings/verify', pinVerifyLimiter, (req, res) => {
     'INSERT INTO settings_tokens (user_id, token, expires_at) VALUES (?, ?, ?)'
   ).run(user.id, token, expiresAt);
 
-  console.log(\`[settings/verify] issued token for handle=\${handle}\`);
+  console.log(`[settings/verify] issued token for handle=${handle}`);
 
   res.json({
     ok:              true,
