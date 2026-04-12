@@ -1,5 +1,5 @@
 /**
- * mailer.js — Email delivery via Resend REST API for hollr.to (v5.2.3)
+ * mailer.js — Email delivery via Resend REST API for hollr.to (v5.2.6)
  * ──────────────────────────────────────────────────────────────────────
  *
  * OVERVIEW

@@ -1,6 +1,6 @@
 # 📢 hollr
 
-[![Version](https://img.shields.io/badge/version-5.2.5-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v5.2.5)
+[![Version](https://img.shields.io/badge/version-5.2.6-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v5.2.6)
 [![License: MIT](https://img.shields.io/badge/license-MIT-c96a2a?style=flat-square)](LICENSE)
 [![Node](https://img.shields.io/badge/node-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![SQLite](https://img.shields.io/badge/SQLite-WAL-003b57?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org)
@@ -1306,6 +1306,85 @@ git push origin feat/your-feature
 ## License
 
 MIT — see [LICENSE](LICENSE). Fork it, self-host it, extend it, sell it. No restrictions.
+
+---
+
+---
+
+## Deep-dive: Internationalisation (i18n)
+
+hollr ships with full support for 10 languages, selected by the visitor
+(not the handle owner). Every string on the canvas — including the owner's
+display name — is rendered in the visitor's language.
+
+### How it works
+
+All translations live in a single `T` object inside the IIFE in `handle/index.html`:
+
+```js
+const T = {
+  en: { page_title: 'Message to…', welcome_eyebrow: 'Message to…', send_to_paul: 'Message to…', … },
+  fr: { page_title: 'Message pour …', welcome_eyebrow: 'Message pour …', send_to_paul: 'Message pour…', … },
+  de: { page_title: 'Nachricht an …', … },
+  // … 7 more languages
+};
+```
+
+The `…` character (U+2026 ELLIPSIS) is a runtime placeholder. When
+`loadHollrProfile()` fetches the owner's public profile, it replaces `…`
+with the owner's `display_name` using a regex-aware replace:
+
+```js
+// \s?… matches an optional space before the ellipsis — handles languages
+// where the name comes first (Japanese: '…へのメッセージ' → 'Paul Fleury へのメッセージ')
+// vs languages where the name comes last (French: 'Message pour …' → 'Message pour Paul Fleury')
+pageTitleEl.innerHTML = ptTemplate.replace(/\s?…/g, ` <strong>${escHtml(displayName)}</strong>`);
+```
+
+### Language detection & persistence
+
+1. On first visit: defaults to `en`
+2. Visitor clicks the flag button → language picker overlay appears
+3. Selection stored in `localStorage('hollr_lang')` — persists across visits
+4. `applyTranslations()` re-renders all `[data-i18n]` elements from `T[currentLang]`
+5. After language switch, the owner's name is re-injected in the new language's template
+
+### Critical: localStorage guard
+
+`localStorage` throws `Access is denied` in some browser contexts (privacy
+modes, certain CDN/bot-screening layers). Without protection, this crashes the
+entire IIFE and nothing works — no translations, no profile load, no PIN.
+
+```js
+// WRONG — throws in restricted contexts, kills everything
+let currentLang = localStorage.getItem('hollr_lang') || 'en';
+
+// CORRECT — safe fallback
+let currentLang;
+try { currentLang = localStorage.getItem('hollr_lang') || 'en'; } catch { currentLang = 'en'; }
+```
+
+### Supported languages
+
+| Code | Language | Native name | "Message to" translation |
+|------|----------|-------------|--------------------------|
+| `en` | English | English | Message to… |
+| `fr` | French | Français | Message pour … |
+| `de` | German | Deutsch | Nachricht an … |
+| `it` | Italian | Italiano | Messaggio per … |
+| `es` | Spanish | Español | Mensaje para … |
+| `nl` | Dutch | Nederlands | Bericht aan … |
+| `zh` | Chinese | 中文 | 致…的消息 |
+| `hi` | Hindi | हिन्दी | … के लिए संदेश |
+| `ja` | Japanese | 日本語 | …へのメッセージ |
+| `ru` | Russian | Русский | Сообщение для… |
+
+### Adding a new language
+
+1. Add a new key to `T` in `handle/index.html` with all required strings
+2. Add the language to `LANGS` (flag, name, native name)
+3. Translate the welcome-modal onboarding strings in the `T[lang]` block of `landing/index.html`
+4. Done — the picker grid and language-switch logic are automatic
 
 ---
 
