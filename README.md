@@ -658,7 +658,7 @@ Fly.io runs Docker containers as Firecracker microVMs. Key decisions:
 - **Region: cdg (Paris).** Lowest latency for the expected European user base.
 - **Persistent volume: 3 GB `hollr_data`.** SQLite file and uploads live on `/data`. The volume survives deploys, restarts, and even app destruction (if the volume isn't explicitly deleted).
 - **`--remote-only` flag.** Builds the Docker image on Fly's remote builders. Avoids arm64/amd64 cross-compilation issues on Apple Silicon Macs.
-- **Health check.** Fly polls `GET /health` every 30s. If it fails, the machine is replaced. Response: `{ ok: true, version: "5.2.0" }`.
+- **Health check.** Fly polls `GET /health` every 30s. If it fails, the machine is replaced. Response: `{ ok: true, version: "5.2.7" }`.
 - **Zero-downtime deploys.** Rolling strategy: new machine starts, health check passes, old machine stops. Database migrations run on startup — they're fast (ALTER TABLE) so there's no meaningful window where the old and new schemas conflict.
 
 **The CNAME trap:** When you rename a Fly.io app, the old `*.fly.dev` hostname disappears immediately. Any DNS CNAME pointing to the old name breaks silently — requests return DNS resolution failures, which surface in the browser as "Network error." Always update CNAMEs before or simultaneously with an app rename.
@@ -734,7 +734,7 @@ Sets security headers on every response: `X-Frame-Options`, `X-Content-Type-Opti
 
 Handle registration in hollr is a multi-step flow: a user types a handle in the landing modal, receives a magic link, lands on the onboarding wizard, and finally claims the handle. That's four distinct moments where a race condition or missing check could allow one user to steal another's chosen — or worse, existing — handle.
 
-v5.2.0 closes all four gaps with a three-layer defence-in-depth system.
+v5.2.7 closes all four gaps with a three-layer defence-in-depth system.
 
 ### Layer 1 — Frontend gate (landing modal)
 
@@ -1472,6 +1472,76 @@ try { currentLang = localStorage.getItem('hollr_lang') || 'en'; } catch { curren
 2. Add the language to `LANGS` (flag, name, native name)
 3. Translate the welcome-modal onboarding strings in the `T[lang]` block of `landing/index.html`
 4. Done — the picker grid and language-switch logic are automatic
+
+---
+
+---
+
+## API Reference
+
+All endpoints are on `https://hollr-api.fly.dev`. No API key required for public routes.
+
+### Auth
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/api/auth/magic-link` | — | Send a login link to an email address |
+| `GET` | `/api/auth/verify/:token` | — | Verify magic link, get session token |
+| `GET` | `/api/auth/x` | — | Start X (Twitter) OAuth flow |
+| `GET` | `/api/auth/x/callback` | — | X OAuth callback |
+| `POST` | `/api/auth/forgot-pin` | — | Send PIN reset link to email on file |
+| `POST` | `/api/auth/logout` | Session | Destroy current session |
+
+### Settings
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/api/settings/verify` | — | Verify PIN → get 2h settings token |
+| `GET` | `/api/settings` | Session or Settings | Read current settings |
+| `POST` | `/api/settings` | Session or Settings | Update Resend key, PGP, email, name |
+| `POST` | `/api/settings/change-pin` | Session or Settings | Change PIN |
+| `POST` | `/api/settings/email` | Session or Settings | Add/update notification email |
+
+### Handles
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/api/handle/check` | — | Check if a handle is available |
+| `POST` | `/api/handle/claim` | Session | Claim a handle during onboarding |
+
+### Canvas (public)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/profile/:handle` | — | Get public profile (name, PGP key) |
+| `POST` | `/api/send/:handle` | — | Send a hollr to a handle |
+| `POST` | `/api/upload/:handle` | — | Upload an encrypted file attachment |
+
+### Token types
+
+```
+┌─────────────────────┬──────────────────────────────────────────────────┐
+│ Token type          │ Properties                                       │
+├─────────────────────┼──────────────────────────────────────────────────┤
+│ Session token       │ Issued on login. 30-day TTL.                     │
+│                     │ Stored in localStorage + sessionStorage.          │
+│                     │ Grants full account access.                      │
+├─────────────────────┼──────────────────────────────────────────────────┤
+│ Settings token      │ Issued by /api/settings/verify (PIN only).       │
+│                     │ 2-hour TTL. Stored in sessionStorage only.        │
+│                     │ Works from incognito, any device, no login.       │
+│                     │ Grants settings access only.                     │
+└─────────────────────┴──────────────────────────────────────────────────┘
+```
+
+### Rate limits
+
+| Endpoint | Limit |
+|----------|-------|
+| Auth endpoints | 10 req / IP / 15 min |
+| `POST /api/settings/verify` | 10 req / IP / 15 min |
+| `POST /api/send/:handle` | 5 req / IP / min |
+| `POST /api/upload/:handle` | 5 req / IP / min |
 
 ---
 

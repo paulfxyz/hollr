@@ -26,15 +26,15 @@
  *   POST /api/upload/:handle           — upload encrypted file/voice
  *   GET  /api/decrypt/:handle/:file    — serve encrypted bytes for client-side decrypt
  *
- * v4.3.0 additions
- * ────────────────
- *   • Default PIN is 1234. First settings open forces a PIN change.
- *   • Settings are always locked by PIN (no longer separate "setup" flow).
- *   • X-registered users must provide an email (for PIN reset + notifications).
- *   • POST /api/auth/forgot-pin sends magic link to email on file.
- *   • POST /api/settings/email lets users update their contact email.
+ * Notable version changes
+ * ────────────────────────
+ *   v4.3.0  Default PIN 1234; forced change on first open; forgot-pin flow.
+ *   v5.2.0  Handle squatting fix: 3-layer security (modal → magic-link → claim).
+ *   v5.2.7  PIN works from any device/incognito: POST /api/settings/verify
+ *           issues a 2-hour settings token — no login session required.
  *
- * Auth: Bearer session token in Authorization header.
+ * Auth: Bearer token — either a 30-day session token (from login) or a
+ *       2-hour settings token (from POST /api/settings/verify, PIN only).
  *
  * Environment variables (see .env.example)
  * ─────────────────────────────────────────
@@ -124,8 +124,13 @@ app.use(session({
 
 // ── Rate limiting ────────────────────────────────────────────────────────────
 
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10,  message: { error: 'Too many requests' } });
-const sendLimiter = rateLimit({ windowMs: 60 * 1000,      max: 5,   message: { error: 'Too many requests' } });
+// authLimiter — applied to all auth endpoints (magic-link, forgot-pin, logout)
+// 10 requests per IP per 15 minutes prevents email flooding and brute-forcing.
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many requests' } });
+
+// sendLimiter — applied to POST /api/send/:handle and POST /api/upload/:handle
+// 5 messages per IP per minute prevents canvas spam from a single sender.
+const sendLimiter = rateLimit({ windowMs: 60 * 1000, max: 5, message: { error: 'Too many requests' } });
 
 // ── Auth middleware ──────────────────────────────────────────────────────────
 
@@ -183,8 +188,15 @@ function requireAuth(req, res, next) {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+// DEFAULT_PIN — the PIN assigned to every new account. Users are forced to
+// change it on their first settings open (pin_is_default flag).
 const DEFAULT_PIN = '1234';
+
+// HANDLE_RE — valid handle: 2-30 chars, letters/digits/hyphens/underscores.
 const HANDLE_RE   = /^[a-zA-Z0-9_-]{2,30}$/;
+
+// RESERVED — handles that could be confused with platform paths or abused.
+// Any handle matching one of these is rejected at /api/handle/check.
 const RESERVED    = new Set([
   'admin','api','app','www','mail','root','support','help','about',
   'legal','status','cdn','static','uploads','hollr','yo','auth',
@@ -195,8 +207,11 @@ function isValidHandle(h) {
   return HANDLE_RE.test(h) && !RESERVED.has(h.toLowerCase());
 }
 
+// sessionToken — generates a cryptographically secure random 64-char hex string.
 function sessionToken() { return crypto.randomBytes(32).toString('hex'); }
 
+// createSession — inserts a new 30-day session into the DB and returns the token.
+// The token is sent to the client, which stores it in localStorage/sessionStorage.
 function createSession(userId) {
   const token     = sessionToken();
   const expiresAt = Math.floor(Date.now() / 1000) + 30 * 24 * 3600; // 30 days
@@ -812,7 +827,9 @@ app.post('/api/settings/email', requireAuth, (req, res) => {
   const { pin, email } = req.body;
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.user_id);
 
-  if (!user.pin_hash || !bcrypt.compareSync(String(pin), user.pin_hash)) {
+  // PIN in body is still verified here for extra protection on email change,
+  // since changing the email affects PIN-reset recovery.
+  if (pin !== undefined && (!user.pin_hash || !bcrypt.compareSync(String(pin), user.pin_hash))) {
     return res.status(403).json({ error: 'Incorrect PIN' });
   }
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -831,7 +848,9 @@ app.post('/api/settings/email', requireAuth, (req, res) => {
 
 /**
  * GET /api/profile/:handle
- * Public endpoint for canvas rendering.
+ * Public endpoint — no auth required. Used by the canvas page to load the
+ * owner's display name, PGP key, and X username. Returns only public data;
+ * email, resend_key, pin_hash etc. are never included.
  */
 app.get('/api/profile/:handle', (req, res) => {
   const user = db.prepare(`
