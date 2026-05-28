@@ -1716,6 +1716,91 @@ a { color: inherit; }
 .modal__sub strong { color: var(--text); font-weight: 600; }
 
 /* X OAuth button — bold, full-width, X-branded */
+/* ── X Coming Soon overlay ──────────────────────────────────────────────────
+   Shown when visitor clicks 'Continue with X' before the integration is live.
+   Dismiss with the × button or click 'Register with email instead'.
+   ─────────────────────────────────────────────────────────────────────────── */
+.modal__x-soon {
+  position: absolute;
+  inset: 0;
+  background: var(--modal-bg, #fdf8f2);
+  border-radius: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 28px;
+  text-align: center;
+  z-index: 10;
+  animation: xSoonIn 0.22s cubic-bezier(.22,.68,0,1.2) both;
+}
+[data-theme="dark"] .modal__x-soon { background: #1e1b16; }
+
+@keyframes xSoonIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.modal__x-soon[hidden] { display: none !important; }
+
+.modal__x-soon-close {
+  position: absolute; top: 16px; right: 18px;
+  background: none; border: none;
+  font-size: 22px; line-height: 1;
+  color: var(--muted, #8a837a);
+  cursor: pointer; padding: 4px 8px; border-radius: 6px;
+  transition: background 120ms;
+}
+.modal__x-soon-close:hover { background: rgba(0,0,0,.06); }
+[data-theme="dark"] .modal__x-soon-close:hover { background: rgba(255,255,255,.08); }
+
+.modal__x-soon-icon {
+  width: 56px; height: 56px;
+  background: #1a1814;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  margin-bottom: 18px;
+  animation: xSoonBounce 0.45s 0.15s cubic-bezier(.22,.68,0,1.5) both;
+}
+[data-theme="dark"] .modal__x-soon-icon { background: #fff; color: #000; }
+
+@keyframes xSoonBounce {
+  from { transform: scale(0.55) rotate(-10deg); opacity: 0; }
+  to   { transform: scale(1)    rotate(0deg);   opacity: 1; }
+}
+
+.modal__x-soon-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--amber, #c96a2a);
+  margin: 0 0 8px;
+}
+
+.modal__x-soon-title {
+  font-family: var(--serif, 'Fraunces', Georgia, serif);
+  font-size: 22px; font-weight: 700; line-height: 1.25;
+  color: #1a1814;
+  margin: 0 0 12px;
+}
+[data-theme="dark"] .modal__x-soon-title { color: var(--fg, #f0e8de); }
+
+.modal__x-soon-body {
+  font-size: 14px; line-height: 1.65;
+  color: var(--muted, #8a837a);
+  margin: 0 0 24px; max-width: 270px;
+}
+
+.modal__x-soon-cta {
+  background: var(--amber, #c96a2a);
+  color: #fff; border: none; border-radius: 10px;
+  padding: 12px 22px; font-size: 14px; font-weight: 600;
+  font-family: inherit; cursor: pointer;
+  transition: opacity 120ms, transform 80ms;
+}
+.modal__x-soon-cta:hover  { opacity: .88; }
+.modal__x-soon-cta:active { transform: scale(.97); }
+
+/* ── X OAuth button ─────────────────────────────────────────────────────── */
 .btn-x-auth {
   display: flex;
   align-items: center;
@@ -2993,7 +3078,7 @@ a { color: inherit; }
 
         <!-- Live features strip -->
         <div class="roadmap-live-strip js-reveal">
-          <p class="roadmap-live-strip__label">&#x2705; Live now &mdash; v5.2.7</p>
+          <p class="roadmap-live-strip__label">&#x2705; Live now &mdash; v5.2.8</p>
           <div class="roadmap-live-chips">
             <span class="roadmap-chip">X OAuth + Magic links</span>
             <span class="roadmap-chip">PGP end-to-end encryption</span>
@@ -3338,12 +3423,28 @@ a { color: inherit; }
         <p class="modal__sub">Connect with X and your Twitter handle becomes your hollr link — instantly. <strong>hollr.to/@you</strong>. Encrypted, no middleman.</p>
 
         <!-- X OAuth button -->
-        <button class="btn-x-auth" id="btn-x-auth" type="button">
+        <button class="btn-x-auth" id="btn-x-auth" type="button" aria-label="Continue with X">
           <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
           </svg>
           Continue with X
         </button>
+
+        <!-- X Coming Soon overlay — shown instead of OAuth redirect until integration is ready -->
+        <div class="modal__x-soon" id="modal-x-soon" hidden aria-live="polite">
+          <button class="modal__x-soon-close" id="modal-x-soon-close" type="button" aria-label="Close">&times;</button>
+          <div class="modal__x-soon-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </div>
+          <p class="modal__x-soon-label">Coming soon</p>
+          <h3 class="modal__x-soon-title">X sign-in is on its way</h3>
+          <p class="modal__x-soon-body">We’re finishing the integration. In the meantime, grab your handle with your email address — same result, just a click away.</p>
+          <button class="modal__x-soon-cta" id="modal-x-soon-cta" type="button">
+            Register with email instead →
+          </button>
+        </div>
 
         <!-- Divider with email fallback -->
         <div class="modal__divider">
@@ -4317,6 +4418,9 @@ function applyLang(code) {
     // Always reset to connect state
     if (connectEl) connectEl.style.display = '';
     if (successEl) successEl.hidden = true;
+    // Always hide the X Coming Soon overlay when reopening the modal
+    const xso = document.getElementById('modal-x-soon');
+    if (xso) xso.hidden = true;
     // Reset email form
     const ef = document.getElementById('modal-email-form');
     const et = document.getElementById('modal-email-trigger');
@@ -4489,19 +4593,35 @@ function applyLang(code) {
    * fully visible on the landing page.
    * Replace this block with a real server-side OAuth callback.
    */
+  // ── X Coming Soon overlay ──────────────────────────────────────────────────
+  // X OAuth integration is not yet live. Instead of redirecting to the OAuth
+  // endpoint, we show a friendly 'Coming Soon' overlay that explains the
+  // situation and nudges the visitor toward the email registration path.
+  //
+  // TO RESTORE OAUTH: replace this entire block with:
+  //   xAuthBtn && xAuthBtn.addEventListener('click', () => {
+  //     xAuthBtn.disabled = true;
+  //     setTimeout(() => { window.location.href = API + '/api/auth/x'; }, 400);
+  //   });
+  const xSoonOverlay = document.getElementById('modal-x-soon');
+  const xSoonClose   = document.getElementById('modal-x-soon-close');
+  const xSoonCta     = document.getElementById('modal-x-soon-cta');
+
   xAuthBtn && xAuthBtn.addEventListener('click', () => {
-    // Visual loading state — then redirect to X OAuth PKCE
-    xAuthBtn.disabled = true;
-    xAuthBtn.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"
-           style="animation:spin 0.7s linear infinite">
-        <path d="M12 2a10 10 0 0 1 10 10"/>
-      </svg>
-      Connecting to X…
-    `;
-    setTimeout(() => {
-      window.location.href = 'https://hollr-api.fly.dev/api/auth/x';
-    }, 400);
+    if (xSoonOverlay) xSoonOverlay.hidden = false;
+  });
+
+  xSoonClose && xSoonClose.addEventListener('click', () => {
+    if (xSoonOverlay) xSoonOverlay.hidden = true;
+  });
+
+  xSoonCta && xSoonCta.addEventListener('click', () => {
+    // Dismiss overlay and open the email registration form
+    if (xSoonOverlay) xSoonOverlay.hidden = true;
+    const et = document.getElementById('modal-email-trigger');
+    const ef = document.getElementById('modal-email-form');
+    if (et && ef && ef.hidden) et.click();   // expand the form
+    setTimeout(() => ef && ef.querySelector('input')?.focus(), 120);
   });
 
   function showSuccess(xHandle) {

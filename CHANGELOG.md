@@ -18,6 +18,37 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 
+## [5.2.8] — 2026-05-28
+
+### X sign-in Coming Soon overlay
+
+X (Twitter) OAuth is not yet live. Clicking "Continue with X" in the
+registration modal now shows a friendly overlay instead of attempting
+the OAuth redirect.
+
+#### What it does
+
+- Animated overlay slides in over the modal with a scale + fade entrance
+- X logo bounces in with a spring animation
+- "COMING SOON" label in amber, Fraunces serif title, clear body copy
+- Amber CTA: "Register with email instead →" — dismisses overlay and
+  expands the email registration form automatically, focusing the first input
+- × close button in the top-right corner
+- Full dark mode support
+- Overlay resets cleanly each time the modal is opened
+
+#### Restoring X OAuth (when integration is ready)
+
+Remove the Coming Soon block in `landing/index.html` and restore:
+```js
+xAuthBtn.addEventListener('click', () => {
+  xAuthBtn.disabled = true;
+  setTimeout(() => { window.location.href = API + '/api/auth/x'; }, 400);
+});
+```
+
+---
+
 ## [5.2.7] — 2026-04-12
 
 ### PIN authentication architecture overhaul
