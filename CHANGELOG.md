@@ -18,6 +18,32 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 
+## [5.2.9] — 2026-09-01
+
+### Reserved handle aliases + redirects (PH launch prep)
+
+Six handles are now permanently reserved for the owner and redirect
+to `hollr.to/paulfxyz`:
+
+| URL | Redirects to |
+|---|---|
+| hollr.to/paul | hollr.to/paulfxyz |
+| hollr.to/p | hollr.to/paulfxyz |
+| hollr.to/polo | hollr.to/paulfxyz |
+| hollr.to/pablo | hollr.to/paulfxyz |
+| hollr.to/paulo | hollr.to/paulfxyz |
+| hollr.to/pf | hollr.to/paulfxyz |
+
+**Backend (`server.js`):** Added all six to the `RESERVED` set —
+`POST /api/handle/check` and `POST /api/handle/claim` both reject them
+with the same "already taken" response as any other claimed handle.
+
+**Frontend (`.htaccess`):** Added `301` permanent redirect rules before
+the generic handle route. Visitors hitting any of the alias URLs are
+immediately redirected to `/paulfxyz` by Apache — no JS involved.
+
+---
+
 ## [5.2.8] — 2026-05-28
 
 ### X sign-in Coming Soon overlay

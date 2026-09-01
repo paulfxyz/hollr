@@ -1,5 +1,5 @@
 /**
- * server.js — hollr.to API Backend (v5.2.8)
+ * server.js — hollr.to API Backend (v5.2.9)
  *
  * Routes overview
  * ───────────────
@@ -29,8 +29,8 @@
  * Notable version changes
  * ────────────────────────
  *   v4.3.0  Default PIN 1234; forced change on first open; forgot-pin flow.
- *   v5.2.0  Handle squatting fix: 3-layer security (modal → magic-link → claim).
- *   v5.2.8  PIN works from any device/incognito: POST /api/settings/verify
+ *   v5.2.9  Handle squatting fix: 3-layer security (modal → magic-link → claim).
+ *   v5.2.9  PIN works from any device/incognito: POST /api/settings/verify
  *           issues a 2-hour settings token — no login session required.
  *
  * Auth: Bearer token — either a 30-day session token (from login) or a
@@ -201,6 +201,9 @@ const RESERVED    = new Set([
   'admin','api','app','www','mail','root','support','help','about',
   'legal','status','cdn','static','uploads','hollr','yo','auth',
   'settings','profile','explore','discover','decrypt',
+  // Owner aliases — these all redirect to hollr.to/paulfxyz at the CDN level.
+  // Reserving them here prevents anyone else from claiming them.
+  'paul','p','polo','pablo','paulo','pf',
 ]);
 
 function isValidHandle(h) {
@@ -221,7 +224,7 @@ function createSession(userId) {
 
 // ── Health ───────────────────────────────────────────────────────────────────
 
-app.get('/health', (_req, res) => res.json({ ok: true, version: '5.2.8' }));
+app.get('/health', (_req, res) => res.json({ ok: true, version: '5.2.9' }));
 
 // ── Email magic link auth ────────────────────────────────────────────────────
 
@@ -998,5 +1001,5 @@ app.use((err, _req, res, _next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
-  console.log(`📢 hollr API v5.2.8 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  console.log(`📢 hollr API v5.2.9 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
 });

@@ -28,6 +28,16 @@ RewriteRule ^ - [L]
 # ── Route handles to the canvas ───────────────────────────────────────────────
 # Everything that doesn't match a file or directory (and isn't 'auth')
 # is treated as a :handle and served the canvas page.
+# ── Owner alias redirects ──────────────────────────────────────────────────────
+# These handles are reserved and redirect permanently to the owner's canvas.
+# Also blocked in server.js RESERVED set so they cannot be registered by anyone.
+RewriteRule ^paul/?$   https://hollr.to/paulfxyz [R=301,L]
+RewriteRule ^p/?$      https://hollr.to/paulfxyz [R=301,L]
+RewriteRule ^polo/?$   https://hollr.to/paulfxyz [R=301,L]
+RewriteRule ^pablo/?$  https://hollr.to/paulfxyz [R=301,L]
+RewriteRule ^paulo/?$  https://hollr.to/paulfxyz [R=301,L]
+RewriteRule ^pf/?$     https://hollr.to/paulfxyz [R=301,L]
+
 RewriteCond %{REQUEST_URI} !^/auth/
 RewriteCond %{REQUEST_URI} !^/decrypt
 RewriteRule ^([a-zA-Z0-9_-]+)/?$  handle/index.html [L]
