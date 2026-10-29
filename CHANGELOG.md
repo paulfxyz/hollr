@@ -18,6 +18,47 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ---
 
 
+## [5.3.0] — 2026-10-29
+
+### Security & honesty audit
+
+A full review of the code and of every public claim, cross-checked by two independent frontier-model reviews (`openai/gpt-6.1-sol`, `google/gemini-4-argon`). Full write-up: [docs/AUDIT-5.3.0.md](docs/AUDIT-5.3.0.md). Threat model and known limits: [SECURITY.md](SECURITY.md).
+
+### Security
+- **No silent plaintext downgrade.** If the handle has a PGP key and encryption fails in the browser, nothing is sent and the sender sees a translated error (all 10 languages). The server also refuses non-PGP bodies for PGP handles (`pgp_required`) and no longer trusts the client's `is_pgp` flag.
+- **Attachment validation.** `/api/send` only accepts files this server stored for that handle (own-origin URL, 64-hex key, 24-hex IV, max 10). Mailer URL-encodes parameters and escapes quotes, closing an HTML-injection / phishing path in emails sent from `yo@hollr.to`.
+- **Upload path traversal fixed.** File extension is reduced to `[a-z0-9.]`; storage directory is derived from the stored handle, not the URL.
+- **PIN hardening.** Per-handle lockout (10 wrong PINs → 15 min) shared by every PIN check; constant-time verification (unknown handle costs the same as a wrong PIN); accounts still on the default PIN `1234` can no longer open settings with handle + PIN; an explicit `1234` is treated as default on every path.
+- **Token hygiene.** Settings tokens are revoked on PIN change, PIN reset and logout. `/api/handle/claim` now requires a real login session, not a PIN-only settings token.
+- **Encryption at rest.** File/voice keys are no longer stored in the database (they only travel in the notification email). Non-PGP message bodies are encrypted at rest (`enc:v1:` prefix) instead of cleartext (nothing reads this table back today; older rows stay as they were).
+- **Supply chain.** OpenPGP.js is self-hosted and pinned (`/vendor/openpgp-5.11.3.min.js`) instead of loaded from an unpinned CDN. `npm audit fix` cleared the critical and high advisories (multer, proxy-addr, body-parser, qs).
+- `forgot-pin` returns an identical immediate response whatever the address or mail provider does. Internal error text is no longer returned to clients in production.
+
+### Fixed
+- **Handle bug:** `LIKE '__pending_%'` treated `_` as a wildcard, so handles such as `mypendingtask` counted as placeholders. Exact prefix comparison now; placeholder rows are hidden from public routes.
+- Uploads had to share the 5/min budget with sending, so a message with five attachments could not be sent. Uploads now have their own budget (20/min).
+- `Reply-To` was dropped whenever a sender typed "Name (email)".
+- Duplicate email at claim time returned a raw database error; now a clean 409.
+- Reserved handles are rejected at sign-up (magic-link step), not late at claim.
+
+### Added
+- **hollr.to/pgp** — generate a PGP key pair and decrypt messages entirely in the browser (no network requests; tested). Landing and docs now point there instead of promising key generation that never existed.
+- `backend/test/security.test.js` — 37-assertion integration test (`npm test`).
+- `SECURITY.md` (who can read what, guarantees, known limitations) and `docs/AUDIT-5.3.0.md`.
+- `package-lock.json` is now tracked (the Dockerfile uses `npm ci`).
+
+### Changed
+- **Landing copy now matches the code, in all 10 languages.** Removed "0 messages stored by us", "zero retention", "everything is encrypted before upload", and stale non-English text ("Aucune donnée stockée" and others). The hero statistic now reads "PGP — end-to-end, with your key". Decrypt viewer wording corrected (files are encrypted by the server on arrival, and the key stays in the URL fragment).
+- Reserved handles extended: `pgp`, `vendor`, `security`, `privacy`, `terms`.
+
+### Removed
+- Legacy files from the earlier "To" project (`send.php`, `settings.php`, `upload.php`, `cache/`, root `index.html`, root `.htaccess`), the stale `landing-src/` and a duplicate `landing/handle/`. None were deployed or referenced; they remain in git history.
+
+### Known open items (documented in SECURITY.md)
+Notification email is not verified separately; files/voice are server-side (not end-to-end) encrypted; no per-handle storage quota; bearer tokens stored unhashed; X sign-in stays disabled until its session hand-off and email linking are reworked.
+
+---
+
 ## [5.2.9] — 2026-09-01
 
 ### Reserved handle aliases + redirects (PH launch prep)

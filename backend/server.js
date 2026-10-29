@@ -1,5 +1,5 @@
 /**
- * server.js — hollr.to API Backend (v5.2.9)
+ * server.js — hollr.to API Backend (v5.3.0)
  *
  * Routes overview
  * ───────────────
@@ -29,6 +29,12 @@
  * Notable version changes
  * ────────────────────────
  *   v4.3.0  Default PIN 1234; forced change on first open; forgot-pin flow.
+ *   v5.3.0  Security & honesty audit (own review + two independent frontier-model reviews):
+ *           per-handle PIN lockout, constant-time verify, default-PIN accounts cannot mint
+ *           a settings token, settings tokens revoked on PIN change/reset/logout,
+ *           validated attachments (no foreign URLs / HTML injection in the email),
+ *           upload path-traversal fix, server refuses plaintext for PGP handles,
+ *           non-PGP bodies encrypted at rest, file keys no longer persisted.
  *   v5.2.9  Handle squatting fix: 3-layer security (modal → magic-link → claim).
  *   v5.2.9  PIN works from any device/incognito: POST /api/settings/verify
  *           issues a 2-hour settings token — no login session required.
@@ -132,6 +138,121 @@ const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { er
 // 5 messages per IP per minute prevents canvas spam from a single sender.
 const sendLimiter = rateLimit({ windowMs: 60 * 1000, max: 5, message: { error: 'Too many requests' } });
 
+// uploadLimiter — POST /api/upload/:handle.  v5.3.0: uploads previously SHARED the
+// 5/min budget with /api/send, so a message with 5 attachments (or 4 files + a voice
+// note) used up the whole allowance and the final send was rejected with 429.
+// Uploads now have their own, larger budget; sending stays at 5/min.
+const uploadLimiter = rateLimit({ windowMs: 60 * 1000, max: 20, message: { error: 'Too many requests' } });
+
+// handleCheckLimiter — POST /api/handle/check is public and hits the DB on every
+// keystroke of the claim form. 60/min per IP is far above human typing speed but
+// stops scripted enumeration of the whole handle space.  (v5.3.0)
+const handleCheckLimiter = rateLimit({ windowMs: 60 * 1000, max: 60, message: { error: 'Too many requests' } });
+
+/**
+ * pinGuard — per-HANDLE brute-force lockout for every PIN check.  (v5.3.0)
+ *
+ * WHY: the IP-based pinVerifyLimiter allows 10 guesses / 15 min per IP, but a
+ * 4-digit PIN has only 10,000 combinations, so an attacker spreading guesses over
+ * many IPs could still walk the whole space.  This guard counts failures per
+ * handle regardless of source IP: after MAX_FAILS wrong PINs the handle refuses
+ * further PIN checks for LOCK_MS.  A correct PIN clears the counter.
+ *
+ * TRADE-OFF (deliberate): an attacker can temporarily stop the owner from
+ * *re-entering their PIN* (15 min).  They can never get in.  Existing logins
+ * and the sending canvas are unaffected.
+ *
+ * State is in-memory (per Fly machine, reset on restart): enough to turn
+ * "10,000 guesses" into "a thousand days", with zero schema change.
+ */
+const pinGuard = (() => {
+  const MAX_FAILS = 10;
+  const LOCK_MS   = 15 * 60 * 1000;
+  const MAX_KEYS  = 5000;               // hard cap so the Map can never grow unbounded
+  const state     = new Map();          // key -> { fails, first }
+  const norm      = (h) => String(h || '').toLowerCase().slice(0, 64);
+  const prune     = () => {
+    const now = Date.now();
+    for (const [k, v] of state) if (now - v.first > LOCK_MS) state.delete(k);
+    if (state.size > MAX_KEYS) state.clear();   // pathological flood: fail open on memory, not on auth
+  };
+  return {
+    /** true when this handle is currently locked out */
+    locked(handle) {
+      const v = state.get(norm(handle));
+      if (!v) return false;
+      if (Date.now() - v.first > LOCK_MS) { state.delete(norm(handle)); return false; }
+      return v.fails >= MAX_FAILS;
+    },
+    fail(handle) {
+      if (state.size > MAX_KEYS * 0.9) prune();
+      const k = norm(handle), now = Date.now();
+      const v = state.get(k);
+      if (!v || now - v.first > LOCK_MS) state.set(k, { fails: 1, first: now });
+      else v.fails += 1;
+    },
+    ok(handle) { state.delete(norm(handle)); },
+  };
+})();
+
+// A real bcrypt hash of a random value.  When a handle does not exist we still run
+// one bcrypt comparison against it so "unknown handle" and "wrong PIN" take the same
+// time — otherwise response latency would reveal which handles exist.  (v5.3.0)
+const DUMMY_PIN_HASH = bcrypt.hashSync(crypto.randomBytes(16).toString('hex'), 10);
+
+/**
+ * checkUserPin — verify a PIN for an already-identified user, honouring pinGuard.
+ * Returns 'ok' | 'bad' | 'locked'. Used by every route that re-confirms the PIN
+ * (change-pin, email change, legacy pin-in-body) so none of them is a guessing oracle.
+ */
+const checkUserPin = (user, pin) => {
+  if (pinGuard.locked(user.handle)) return 'locked';
+  if (user.pin_hash && bcrypt.compareSync(String(pin), user.pin_hash)) { pinGuard.ok(user.handle); return 'ok'; }
+  pinGuard.fail(user.handle);
+  return 'bad';
+};
+const PIN_LOCKED_MSG = { error: 'Too many PIN attempts. Try again in 15 minutes.' };
+
+// ── Outbound-message validation (v5.3.0) ────────────────────────────────────────
+// Everything in /api/send that ends up inside the notification email comes from an
+// anonymous sender, and the email is delivered *from hollr's own trusted address*.
+// So every URL / key / name must be validated, or the email becomes a phishing vector.
+const HEX64 = /^[0-9a-f]{64}$/i;   // AES-256 key
+const HEX24 = /^[0-9a-f]{24}$/i;   // AES-GCM 96-bit IV
+const MAX_ATTACHMENTS = 10;
+
+/** Base URL under which this server's uploaded (encrypted) files for `handle` live. */
+const uploadPrefix = (handle) =>
+  `${process.env.BASE_URL || `http://localhost:${PORT}`}/uploads/${handle}/`;
+
+/** True if `u` is a file that THIS server stored for `handle` (no foreign URLs, no traversal). */
+const isOwnUploadUrl = (u, handle) =>
+  typeof u === 'string' && u.length < 500 &&
+  u.startsWith(uploadPrefix(handle)) &&
+  !u.slice(uploadPrefix(handle).length).includes('/') &&
+  !u.includes('..') && !/[\s"'<>\\]/.test(u);
+
+/**
+ * Normalise + validate the attachment list. Returns the clean array or null if
+ * anything is off. Only whitelisted fields survive.
+ */
+const cleanAttachments = (list, handle) => {
+  if (list === undefined || list === null) return [];
+  if (!Array.isArray(list) || list.length > MAX_ATTACHMENTS) return null;
+  const out = [];
+  for (const f of list) {
+    if (!f || !isOwnUploadUrl(f.url, handle)) return null;
+    if (!HEX64.test(String(f.file_key || '')) || !HEX24.test(String(f.file_iv || ''))) return null;
+    out.push({
+      url:      f.url,
+      file_key: String(f.file_key).toLowerCase(),
+      file_iv:  String(f.file_iv).toLowerCase(),
+      name:     String(f.name || 'file').replace(/[\r\n\u0000-\u001f]/g, ' ').slice(0, 200),
+    });
+  }
+  return out;
+};
+
 // ── Auth middleware ──────────────────────────────────────────────────────────
 
 /**
@@ -163,8 +284,9 @@ function requireAuth(req, res, next) {
   `).get(token);
 
   if (sess) {
-    req.user  = sess;
-    req.token = token;
+    req.user     = sess;
+    req.token    = token;
+    req.authKind = 'session';
     return next();
   }
 
@@ -178,8 +300,9 @@ function requireAuth(req, res, next) {
   `).get(token);
 
   if (stok) {
-    req.user  = stok;
-    req.token = token;
+    req.user     = stok;
+    req.token    = token;
+    req.authKind = 'settings';   // PIN-verified, settings-only authority (v5.3.0)
     return next();
   }
 
@@ -201,13 +324,14 @@ const RESERVED    = new Set([
   'admin','api','app','www','mail','root','support','help','about',
   'legal','status','cdn','static','uploads','hollr','yo','auth',
   'settings','profile','explore','discover','decrypt',
+  'pgp','vendor','security','privacy','terms',
   // Owner aliases — these all redirect to hollr.to/paulfxyz at the CDN level.
   // Reserving them here prevents anyone else from claiming them.
   'paul','p','polo','pablo','paulo','pf',
 ]);
 
 function isValidHandle(h) {
-  return HANDLE_RE.test(h) && !RESERVED.has(h.toLowerCase());
+  return HANDLE_RE.test(h) && !RESERVED.has(h.toLowerCase()) && !h.toLowerCase().startsWith('__pending_');
 }
 
 // sessionToken — generates a cryptographically secure random 64-char hex string.
@@ -224,7 +348,7 @@ function createSession(userId) {
 
 // ── Health ───────────────────────────────────────────────────────────────────
 
-app.get('/health', (_req, res) => res.json({ ok: true, version: '5.2.9' }));
+app.get('/health', (_req, res) => res.json({ ok: true, version: '5.3.0' }));
 
 // ── Email magic link auth ────────────────────────────────────────────────────
 
@@ -245,11 +369,19 @@ app.post('/api/auth/magic-link', authLimiter, async (req, res) => {
     if (!/^[a-zA-Z0-9_-]{2,30}$/.test(handle)) {
       return res.status(400).json({ error: 'Invalid handle format' });
     }
+    // Reserved names (paul, admin, api…) are reported exactly like taken ones, so the
+    // sign-up modal tells the visitor right away instead of failing later at claim. (v5.3.0)
+    if (!isValidHandle(handle)) {
+      return res.status(409).json({
+        error: `hollr.to/${handle} is already taken.`,
+        code:  'handle_taken',
+      });
+    }
     // Security: reject immediately if handle is already taken.
     // This prevents sending magic links that would let someone land on
     // onboarding with a pre-filled handle they can't actually claim.
     const takenByOther = db.prepare(
-      'SELECT id FROM users WHERE handle = ? COLLATE NOCASE AND handle NOT LIKE \'__pending_%\''
+      'SELECT id FROM users WHERE handle = ? COLLATE NOCASE AND substr(handle, 1, 10) != \'__pending_\''
     ).get(handle);
     if (takenByOther) {
       return res.status(409).json({
@@ -304,6 +436,8 @@ app.get('/api/auth/verify/:token', (req, res) => {
     if (row.is_pin_reset) {
       db.prepare('UPDATE users SET pin_is_default = 1, pin_hash = ? WHERE id = ?')
         .run(bcrypt.hashSync(DEFAULT_PIN, 12), user.id);
+      // Any settings token issued under the OLD PIN must die with it. (v5.3.0)
+      db.prepare('DELETE FROM settings_tokens WHERE user_id = ?').run(user.id);
     }
     const token = createSession(user.id);
     return res.json({
@@ -366,13 +500,12 @@ app.post('/api/auth/forgot-pin', authLimiter, async (req, res) => {
   const frontendUrl = process.env.FRONTEND_URL || 'https://hollr.to';
   const link = `${frontendUrl}/auth/verify?token=${token}&pin_reset=1`;
 
-  try {
-    await sendMagicLink(email, link, { subject: 'Reset your hollr PIN', isPinReset: true });
-    res.json({ ok: true });
-  } catch (err) {
-    console.error('Forgot-pin email failed:', err.message);
-    res.status(500).json({ error: 'Failed to send reset email' });
-  }
+  // Respond identically (and immediately) whether or not the address is registered and
+  // whatever the e-mail provider does — otherwise response time / a 500 would reveal
+  // which addresses have accounts. Delivery runs in the background. (v5.3.0)
+  sendMagicLink(email, link, { subject: 'Reset your hollr PIN', isPinReset: true })
+    .catch((err) => console.error('Forgot-pin email failed:', err.message));
+  res.json({ ok: true });
 });
 
 // ── X (Twitter) OAuth 2.0 ────────────────────────────────────────────────────
@@ -501,6 +634,7 @@ app.get('/api/auth/x/callback', async (req, res) => {
  */
 app.post('/api/auth/logout', requireAuth, (req, res) => {
   db.prepare('DELETE FROM sessions WHERE token = ?').run(req.token);
+  db.prepare('DELETE FROM settings_tokens WHERE token = ?').run(req.token);   // v5.3.0: settings tokens too
   res.json({ ok: true });
 });
 
@@ -530,7 +664,7 @@ app.get('/api/me', requireAuth, (req, res) => {
  * POST /api/handle/check
  * Body: { handle }
  */
-app.post('/api/handle/check', (req, res) => {
+app.post('/api/handle/check', handleCheckLimiter, (req, res) => {
   const { handle } = req.body;
 
   // Basic format validation first
@@ -547,7 +681,7 @@ app.post('/api/handle/check', (req, res) => {
 
   // Database uniqueness check — only consider real (non-pending) handles as taken
   const exists = db.prepare(
-    'SELECT id FROM users WHERE handle = ? COLLATE NOCASE AND handle NOT LIKE \'__pending_%\''
+    'SELECT id FROM users WHERE handle = ? COLLATE NOCASE AND substr(handle, 1, 10) != \'__pending_\''
   ).get(handle);
   if (exists) {
     return res.json({
@@ -566,6 +700,11 @@ app.post('/api/handle/check', (req, res) => {
  * Email is required for X-only users (no email on file).
  */
 app.post('/api/handle/claim', requireAuth, async (req, res) => {
+  // Onboarding is an e-mail-login action. A PIN-only settings token must never be able to
+  // rewrite handle / PIN / e-mail / delivery key of an account in one call. (v5.3.0)
+  if (req.authKind === 'settings') {
+    return res.status(403).json({ error: 'Sign in with your email link to claim or change a handle.' });
+  }
   const { handle, resend_key, pin, from_email, pgp_public_key, email, display_name } = req.body;
 
   if (!handle || !isValidHandle(handle)) return res.status(400).json({ error: 'Invalid handle format' });
@@ -576,7 +715,7 @@ app.post('/api/handle/claim', requireAuth, async (req, res) => {
 
   // Case-insensitive uniqueness check — prevents PAULFXYZ from slipping past paulfxyz
   const existing = db.prepare(
-    'SELECT id FROM users WHERE handle = ? COLLATE NOCASE AND id != ? AND handle NOT LIKE \'__pending_%\''
+    'SELECT id FROM users WHERE handle = ? COLLATE NOCASE AND id != ? AND substr(handle, 1, 10) != \'__pending_\''
   ).get(handle, req.user.user_id);
   if (existing) return res.status(409).json({ error: 'Handle already taken', code: 'handle_taken' });
 
@@ -589,15 +728,22 @@ app.post('/api/handle/claim', requireAuth, async (req, res) => {
     return res.status(400).json({ error: 'Valid email required' });
   }
 
+  // An e-mail that already belongs to ANOTHER account would trip the UNIQUE constraint and
+  // surface as a raw database 500. Report it cleanly instead. (v5.3.0)
+  if (email) {
+    const emailTaken = db.prepare('SELECT id FROM users WHERE email = ? AND id != ?').get(email, req.user.user_id);
+    if (emailTaken) return res.status(409).json({ error: 'That email is already used by another account', code: 'email_taken' });
+  }
+
   // Validate PGP key if provided
   if (pgp_public_key) {
-    const trimmed = pgp_public_key.trim();
-    if (!trimmed.includes('BEGIN PGP PUBLIC KEY')) {
+    const trimmed = String(pgp_public_key).trim();
+    if (!/^-----BEGIN PGP PUBLIC KEY BLOCK-----[\s\S]+-----END PGP PUBLIC KEY BLOCK-----$/.test(trimmed) || trimmed.length > 20000) {
       return res.status(400).json({ error: 'Invalid PGP public key format' });
     }
   }
 
-  const isDefaultPin  = !pin;  // no pin provided → using default
+  const isDefaultPin  = !pin || String(pinValue) === DEFAULT_PIN;  // default OR explicitly '1234' → must be changed (v5.3.0)
   const pinHash       = bcrypt.hashSync(pinValue, 12);
   const encryptedKey  = resend_key ? encrypt(resend_key) : null;
 
@@ -678,16 +824,39 @@ app.post('/api/settings/verify', pinVerifyLimiter, (req, res) => {
   if (!handle || !pin) {
     return res.status(400).json({ error: 'handle and pin are required' });
   }
+  if (typeof handle !== 'string' || handle.length > 64) {
+    return res.status(403).json({ error: 'Incorrect PIN' });
+  }
+
+  // Per-handle lockout (see pinGuard) — independent of the caller's IP.
+  if (pinGuard.locked(handle)) {
+    return res.status(429).json({ error: 'Too many PIN attempts for this handle. Try again in 15 minutes.' });
+  }
 
   // Look up the user by handle (COLLATE NOCASE — case-insensitive match)
   const user = db.prepare(
-    "SELECT id, pin_hash, pin_is_default FROM users WHERE handle = ? COLLATE NOCASE AND handle NOT LIKE '__pending_%'"
+    "SELECT id, pin_hash, pin_is_default FROM users WHERE handle = ? COLLATE NOCASE AND substr(handle, 1, 10) != '__pending_'"
   ).get(handle);
 
-  // Unified 403 — same response whether handle is not found or PIN is wrong.
-  // This prevents enumeration: an attacker cannot tell if a handle exists.
-  if (!user || !user.pin_hash || !bcrypt.compareSync(String(pin), user.pin_hash)) {
+  // Unified 403 — same response AND same timing whether the handle is unknown or
+  // the PIN is wrong: we always run exactly one bcrypt comparison.
+  const pinOk = bcrypt.compareSync(String(pin), (user && user.pin_hash) || DUMMY_PIN_HASH);
+  if (!user || !user.pin_hash || !pinOk) {
+    pinGuard.fail(handle);
     return res.status(403).json({ error: 'Incorrect PIN' });
+  }
+  pinGuard.ok(handle);
+
+  // An account still on the temporary default PIN (1234) must NOT be reachable with
+  // just handle + PIN — that value is public knowledge, so anyone could take the
+  // account over.  The owner proves control by email instead (Forgot PIN / magic link
+  // → real login session → choose a PIN).  Only reached after a CORRECT guess, so it
+  // does not weaken the unknown-handle / wrong-PIN uniformity.  (v5.3.0)
+  if (user.pin_is_default) {
+    return res.status(403).json({
+      error: 'This account still uses the temporary PIN. Use "Forgot PIN" to sign in by email and choose your own.',
+      code:  'pin_reset_required',
+    });
   }
 
   // Issue a settings token: 32 random bytes, 2-hour TTL
@@ -701,7 +870,7 @@ app.post('/api/settings/verify', pinVerifyLimiter, (req, res) => {
     'INSERT INTO settings_tokens (user_id, token, expires_at) VALUES (?, ?, ?)'
   ).run(user.id, token, expiresAt);
 
-  console.log(`[settings/verify] issued token for handle=${handle}`);
+  console.log(`[settings/verify] issued token for user_id=${user.id}`);
 
   res.json({
     ok:              true,
@@ -730,9 +899,9 @@ app.post('/api/settings', requireAuth, (req, res) => {
   // Legacy compatibility: if a pin is provided in the body (old clients), verify it.
   // This ensures older frontend versions still work during the rollout.
   if (pin !== undefined) {
-    if (!user.pin_hash || !bcrypt.compareSync(String(pin), user.pin_hash)) {
-      return res.status(403).json({ error: 'Incorrect PIN' });
-    }
+    const r = checkUserPin(user, pin);
+    if (r === 'locked') return res.status(429).json(PIN_LOCKED_MSG);
+    if (r !== 'ok')     return res.status(403).json({ error: 'Incorrect PIN' });
   }
 
   // If this is still the default PIN, force a change before allowing other edits.
@@ -805,18 +974,21 @@ app.post('/api/settings/change-pin', requireAuth, (req, res) => {
   const { current_pin, new_pin } = req.body;
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.user_id);
 
-  if (!user.pin_hash || !bcrypt.compareSync(String(current_pin), user.pin_hash)) {
-    return res.status(403).json({ error: 'Incorrect current PIN' });
-  }
+  const pinResult = checkUserPin(user, current_pin);
+  if (pinResult === 'locked') return res.status(429).json(PIN_LOCKED_MSG);
+  if (pinResult !== 'ok')     return res.status(403).json({ error: 'Incorrect current PIN' });
   if (!new_pin || !/^\d{4,8}$/.test(new_pin)) {
     return res.status(400).json({ error: 'New PIN must be 4-8 digits' });
   }
-  if (new_pin === DEFAULT_PIN) {
+  if (String(new_pin) === DEFAULT_PIN) {
     return res.status(400).json({ error: 'New PIN cannot be 1234' });
   }
 
   const pinHash = bcrypt.hashSync(String(new_pin), 12);
   db.prepare('UPDATE users SET pin_hash = ?, pin_is_default = 0, updated_at = unixepoch() WHERE id = ?').run(pinHash, req.user.user_id);
+  // Revoke every OTHER settings token (e.g. one an intruder obtained with the old PIN);
+  // the token making this very request stays valid so the open tab keeps working. (v5.3.0)
+  db.prepare('DELETE FROM settings_tokens WHERE user_id = ? AND token != ?').run(req.user.user_id, req.token || '');
   res.json({ ok: true });
 });
 
@@ -832,8 +1004,10 @@ app.post('/api/settings/email', requireAuth, (req, res) => {
 
   // PIN in body is still verified here for extra protection on email change,
   // since changing the email affects PIN-reset recovery.
-  if (pin !== undefined && (!user.pin_hash || !bcrypt.compareSync(String(pin), user.pin_hash))) {
-    return res.status(403).json({ error: 'Incorrect PIN' });
+  if (pin !== undefined) {
+    const r = checkUserPin(user, pin);
+    if (r === 'locked') return res.status(429).json(PIN_LOCKED_MSG);
+    if (r !== 'ok')     return res.status(403).json({ error: 'Incorrect PIN' });
   }
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: 'Valid email required' });
@@ -858,7 +1032,7 @@ app.post('/api/settings/email', requireAuth, (req, res) => {
 app.get('/api/profile/:handle', (req, res) => {
   const user = db.prepare(`
     SELECT handle, resend_key IS NOT NULL as has_own_key, pgp_public_key, x_username, display_name
-    FROM users WHERE handle = ? COLLATE NOCASE
+    FROM users WHERE handle = ? COLLATE NOCASE AND substr(handle, 1, 10) != '__pending_'
   `).get(req.params.handle);
   if (!user) return res.status(404).json({ error: 'Handle not found' });
 
@@ -878,23 +1052,28 @@ app.get('/api/profile/:handle', (req, res) => {
  * Multipart: file field = "file"
  * File is AES-256-GCM encrypted server-side before writing to disk.
  */
-app.post('/api/upload/:handle', sendLimiter, uploadMem.single('file'), async (req, res) => {
+app.post('/api/upload/:handle', uploadLimiter, uploadMem.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file received' });
 
-  const user = db.prepare('SELECT id FROM users WHERE handle = ? COLLATE NOCASE').get(req.params.handle);
+  // Use the CANONICAL (stored) handle for the directory and URL, never the raw URL
+  // parameter: "/PaulFXYZ" and "/paulfxyz" must map to the same folder, and the
+  // /api/send validation compares against this exact prefix.  (v5.3.0)
+  const user = db.prepare("SELECT id, handle FROM users WHERE handle = ? COLLATE NOCASE AND substr(handle, 1, 10) != '__pending_'").get(req.params.handle);
   if (!user) return res.status(404).json({ error: 'Handle not found' });
 
   try {
     const { encrypted, keyHex, ivHex } = encryptBuffer(req.file.buffer);
 
-    const ext      = path.extname(req.file.originalname) || '.bin';
+    // Sanitised extension: only [a-z0-9.], max 10 chars. The stored file is opaque
+    // ciphertext anyway; the real filename travels separately as `name`.
+    const ext      = (path.extname(req.file.originalname || '').toLowerCase().replace(/[^a-z0-9.]/g, '').slice(0, 10)) || '.bin';
     const filename = `${Date.now()}-${uuidv4().slice(0, 8)}${ext}.enc`;
-    const dir      = path.join(UPLOAD_DIR, req.params.handle);
+    const dir      = path.join(UPLOAD_DIR, user.handle);
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, filename), encrypted);
 
     const baseUrl  = process.env.BASE_URL || `http://localhost:${PORT}`;
-    const url      = `${baseUrl}/uploads/${req.params.handle}/${filename}`;
+    const url      = `${baseUrl}/uploads/${user.handle}/${filename}`;
     const origName = req.file.originalname;
 
     res.json({
@@ -920,24 +1099,62 @@ app.use('/uploads', express.static(UPLOAD_DIR));
 app.post('/api/send/:handle', sendLimiter, async (req, res) => {
   const { contact, message, file_attachments, audio_url, audio_key, audio_iv, is_pgp } = req.body;
 
-  if (!message || message.trim().length < 1) return res.status(400).json({ error: 'Message is empty' });
-  if (!contact)                               return res.status(400).json({ error: 'Contact is required' });
+  if (typeof message !== 'string' || message.trim().length < 1) return res.status(400).json({ error: 'Message is empty' });
+  if (typeof contact !== 'string' || !contact.trim())           return res.status(400).json({ error: 'Contact is required' });
+  if (contact.length > 400)        return res.status(400).json({ error: 'Contact is too long' });
+  if (message.length > 1_000_000)  return res.status(413).json({ error: 'Message is too long' });
 
-  const user = db.prepare('SELECT * FROM users WHERE handle = ? COLLATE NOCASE').get(req.params.handle);
+  const user = db.prepare("SELECT * FROM users WHERE handle = ? COLLATE NOCASE AND substr(handle, 1, 10) != '__pending_'").get(req.params.handle);
   if (!user)  return res.status(404).json({ error: 'Handle not found' });
 
-  // Store message in DB
+  // ── Encryption policy (v5.3.0) ────────────────────────────────────────────────
+  // The server cannot decrypt PGP, but it CAN check that what it was handed is
+  // actually an OpenPGP block.  If the owner published a PGP key, plaintext is
+  // refused: a failed/blocked/old client can no longer silently downgrade the
+  // message to cleartext.  Conversely, is_pgp must not be claimed for non-PGP text.
+  const looksPgp = /^\s*-----BEGIN PGP MESSAGE-----[\s\S]+-----END PGP MESSAGE-----\s*$/.test(message);
+  if (user.pgp_public_key && !looksPgp) {
+    return res.status(400).json({
+      error: 'This hollr is end-to-end encrypted. Your browser must encrypt the message before sending.',
+      code:  'pgp_required',
+    });
+  }
+  const isPgp = !!user.pgp_public_key && looksPgp;   // never trust the client flag alone
+
+  // ── Attachment / voice validation (v5.3.0) ────────────────────────────────────
+  // Only files THIS server stored for THIS handle may be linked, with well-formed
+  // key/IV. Prevents anyone from putting arbitrary links into an email that is
+  // delivered from hollr's own trusted sender address.
+  const attachments = cleanAttachments(file_attachments, user.handle);
+  if (attachments === null) return res.status(400).json({ error: 'Invalid attachment' });
+
+  let audioUrl = null, audioKey = null, audioIv = null;
+  if (audio_url) {
+    if (!isOwnUploadUrl(audio_url, user.handle) ||
+        !HEX64.test(String(audio_key || '')) || !HEX24.test(String(audio_iv || ''))) {
+      return res.status(400).json({ error: 'Invalid voice recording' });
+    }
+    audioUrl = audio_url; audioKey = String(audio_key).toLowerCase(); audioIv = String(audio_iv).toLowerCase();
+  }
+
+  // Store message in DB.
+  //  • PGP messages are stored as the ciphertext they already are.
+  //  • Non-PGP bodies are encrypted at rest with the server secret (AES-256-CBC) —
+  //    previously they were stored in cleartext.
+  //  • File/voice KEYS are never persisted (only the email carries them), so a
+  //    database copy alone cannot decrypt uploaded files.
+  const storedBody = isPgp ? message.trim() : 'enc:v1:' + encrypt(message.trim());
   db.prepare(`
     INSERT INTO messages (handle, sender, body, is_pgp, file_urls, audio_url, audio_encrypted)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `).run(
     user.handle,
-    contact,
-    message.trim(),
-    is_pgp ? 1 : 0,
-    JSON.stringify(file_attachments || []),
-    audio_url || null,
-    (audio_key && audio_iv) ? 1 : 0,
+    contact.trim(),
+    storedBody,
+    isPgp ? 1 : 0,
+    JSON.stringify(attachments.map(({ url, name }) => ({ url, name }))),
+    audioUrl,
+    audioUrl ? 1 : 0,
   );
 
   // Determine which Resend key + from address to use
@@ -968,13 +1185,13 @@ app.post('/api/send/:handle', sendLimiter, async (req, res) => {
       resendKey,
       fromEmail,
       toEmail:        user.email,
-      senderContact:  contact,
+      senderContact:  contact.trim(),
       message:        message.trim(),
-      isPgp:          !!is_pgp,
-      fileAttachments: Array.isArray(file_attachments) ? file_attachments : [],
-      audioUrl:       audio_url || null,
-      audioKey:       audio_key || null,
-      audioIv:        audio_iv  || null,
+      isPgp,
+      fileAttachments: attachments,
+      audioUrl,
+      audioKey,
+      audioIv,
       handle:         user.handle,
     });
 
@@ -995,11 +1212,16 @@ app.post('/api/send/:handle', sendLimiter, async (req, res) => {
 app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
 app.use((err, _req, res, _next) => {
   console.error(err);
-  res.status(500).json({ error: err.message || 'Internal server error' });
+  // Never echo internal error text (SQLite, filesystem…) to clients in production. (v5.3.0)
+  // CORS rejections keep their message so a misconfigured origin is still diagnosable.
+  const isCors = /^CORS:/.test(err.message || '');
+  res.status(isCors ? 403 : 500).json({
+    error: (isCors || process.env.NODE_ENV !== 'production') ? err.message : 'Internal server error',
+  });
 });
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
-  console.log(`📢 hollr API v5.2.9 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  console.log(`📢 hollr API v5.3.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
 });

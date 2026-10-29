@@ -360,25 +360,25 @@ flyctl logs --app hollr-api --tail
 
 ### 1. File structure
 
-The frontend directory contains:
+The frontend is plain static files — no build step. In the repo it lives in two folders that are merged into one web root when you deploy:
 
 ```
-frontend/
-├── index.html        # Landing page (CSS+JS inlined by build script)
-├── canvas.html       # The send-message canvas
-├── auth/
-│   ├── verify.html   # Auth callback page
-│   └── magic.html    # Magic-link sent confirmation
-├── dashboard.html    # Logged-in user dashboard
-├── settings.html     # Settings modal page
-├── onboarding.html   # Handle selection
-├── decrypt.html      # In-browser file decrypt viewer
-├── .htaccess         # Apache URL rewriting rules
-├── style.css         # Global styles
-└── js/
-    ├── config.js     # API_BASE and other constants
-    ├── i18n.js       # STRINGS translations object
-    └── ...
+landing/                      → web root (public_html/)
+├── index.html                  landing page (CSS + JS inline)
+├── auth/verify.html            magic-link / sign-in callback
+├── decrypt/index.html          file & voice decrypt viewer (Web Crypto)
+├── pgp/index.html              in-browser PGP key generator + message decryptor
+├── vendor/openpgp-5.11.3.min.js  self-hosted, version-pinned OpenPGP.js
+└── .htaccess                   Apache routing (handle URLs, /decrypt, /pgp)
+handle/index.html             → public_html/handle/index.html (the canvas, served for hollr.to/<name>)
+```
+
+Stage them together before uploading:
+
+```bash
+rm -rf stage && mkdir -p stage/handle
+cp -r landing/. stage/
+cp handle/index.html stage/handle/index.html
 ```
 
 ### 2. Update API_BASE before deploying
@@ -392,7 +392,7 @@ lftp -e "
   set ftp:ssl-allow no;
   set net:timeout 30;
   open -u YOUR_FTP_USERNAME,YOUR_FTP_PASSWORD ftp.siteground.com;
-  mirror --reverse --delete ./frontend/ /public_html/;
+  mirror --reverse --delete ./stage/ /public_html/;
   bye
 "
 ```
@@ -433,7 +433,7 @@ const API_BASE = 'https://hollr-api.fly.dev';
 Some pages may also hardcode `API_BASE` locally (for standalone files). Grep for any remaining occurrences:
 
 ```bash
-grep -r "localhost:3001" frontend/
+grep -rn "localhost:3001" landing/ handle/
 ```
 
 Replace all occurrences with your production API URL before deploying.

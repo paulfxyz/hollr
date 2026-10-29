@@ -4,6 +4,9 @@
 #   /                     → index.html  (landing page)
 #   /auth/verify          → auth/verify.html
 #   /auth/verify.html     → auth/verify.html (direct access)
+#   /decrypt              → decrypt/index.html (file/voice decryptor)
+#   /pgp                  → pgp/index.html (in-browser PGP keygen + decryptor)
+#   /vendor/*             → self-hosted, version-pinned libraries (OpenPGP.js)
 #   /:handle              → handle/index.html (the canvas for that handle)
 #
 # API calls go to api.hollr.to (separate Fly.io backend via CNAME).
@@ -15,8 +18,9 @@ RewriteEngine On
 # ── Serve auth pages directly ─────────────────────────────────────────────────
 RewriteRule ^auth/verify/?$  auth/verify.html [L]
 
-# ── Serve decrypt viewer ──────────────────────────────────────────────────────
+# ── Serve decrypt viewer + PGP tool ───────────────────────────────────────────
 RewriteRule ^decrypt/?$  decrypt/index.html [L]
+RewriteRule ^pgp/?$      pgp/index.html [L]
 
 # ── Serve static assets as-is ────────────────────────────────────────────────
 RewriteCond %{REQUEST_FILENAME} -f
@@ -40,6 +44,8 @@ RewriteRule ^pf/?$     https://hollr.to/paulfxyz [R=301,L]
 
 RewriteCond %{REQUEST_URI} !^/auth/
 RewriteCond %{REQUEST_URI} !^/decrypt
+RewriteCond %{REQUEST_URI} !^/pgp
+RewriteCond %{REQUEST_URI} !^/vendor
 RewriteRule ^([a-zA-Z0-9_-]+)/?$  handle/index.html [L]
 
 # ── Security headers ──────────────────────────────────────────────────────────

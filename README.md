@@ -1,6 +1,6 @@
 # 📢 hollr
 
-[![Version](https://img.shields.io/badge/version-5.2.9-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v5.2.9)
+[![Version](https://img.shields.io/badge/version-5.3.0-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v5.3.0)
 [![License: MIT](https://img.shields.io/badge/license-MIT-c96a2a?style=flat-square)](LICENSE)
 [![Node](https://img.shields.io/badge/node-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![SQLite](https://img.shields.io/badge/SQLite-WAL-003b57?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org)
@@ -76,8 +76,8 @@ No account. No login. No app. Just a link and a canvas.
 |---|---|---|
 | 𝕏 | **X OAuth 2.0 PKCE** | One-click sign-in with Twitter/X. PKCE code verifier lives server-side in express-session — not the browser. |
 | 📬 | **Magic-link email auth** | No passwords. Enter email → click link → you're in. Tokens are UUID v4, 15-min TTL, single-use. |
-| 🔐 | **PGP end-to-end encryption** | Paste your OpenPGP public key in Settings. Senders encrypt in-browser via OpenPGP.js v5 (lazy-loaded from esm.sh). You decrypt offline. |
-| 🔒 | **AES-256-GCM file & voice encryption** | Every upload encrypted with a fresh 32-byte key + 12-byte IV server-side before touching disk. Key/IV returned in the email as URL hash params. |
+| 🔐 | **PGP end-to-end encryption** | Paste your OpenPGP public key in Settings. Senders encrypt in-browser via OpenPGP.js 5.11.3 (self-hosted, version-pinned). If encryption fails, nothing is sent. Make a key pair at [hollr.to/pgp](https://hollr.to/pgp) or paste your own. You decrypt offline or at `/pgp#dec`. |
+| 🔒 | **AES-256-GCM file & voice encryption** | Every upload encrypted with a fresh 32-byte key + 12-byte IV by the server before touching disk (server-side, not end-to-end). Key/IV are not stored; they reach you only in the email, as URL hash params. |
 | 🌐 | **In-browser decrypt viewer** | `/decrypt` page — Web Crypto API (`SubtleCrypto.decrypt`). Key never leaves the URL hash, never sent to server. |
 | ⏱️ | **Timed writing canvas** | Timer runs only while typing. Idle time doesn't count. Makes senders think before they holler. |
 | 🎤 | **Voice recording** | Record in-browser via MediaRecorder API. Encrypted, uploaded, linked in notification email. |
@@ -86,7 +86,7 @@ No account. No login. No app. Just a link and a canvas.
 | ✏️ | **Display name** | Set a name that appears as "Message to [Name]" on your canvas. Updates live — no page reload. |
 | 🌍 | **10 languages** | EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU. Auto-detected from browser. Persisted in `localStorage`. |
 | 🌙 | **Dark / light mode** | CSS custom properties. No-flash inline script reads preference before first paint. |
-| 🛡️ | **PIN-protected settings** | 4–8 digit PIN, bcrypt cost 12. Default 1234 forced-change on first settings open. |
+| 🛡️ | **PIN-protected settings** | 4–8 digit PIN, bcrypt cost 12, per-handle lockout after 10 wrong tries. A temporary default PIN (1234) cannot open settings; the owner signs in by email and chooses one. |
 | 🔑 | **Forgot PIN** | Inline email input in the PIN gate sends a reset link — no session required. Resets PIN to 1234 and flags `pin_is_default`, forcing change on next settings open. |
 | 🧩 | **3-step onboarding wizard** | Handle → PIN (confirmed, no defaults) → Display name + notification email. Single API call on finish. |
 | 🛡️ | **Handle squatting protection** | Three-layer defence-in-depth: frontend pre-check, backend magic-link gate, claim-time race protection with `COLLATE NOCASE`. |
@@ -184,8 +184,9 @@ Landing modal
 |---|---|---|
 | Resend API key | AES-256-CBC + PBKDF2-SHA256 (100k iterations, random salt per value) | SQLite `users.resend_key` as `"salt:iv:cipher"` hex |
 | PIN | bcrypt (cost 12, built-in salt) | SQLite `users.pin_hash` |
-| File / audio uploads | AES-256-GCM (random 32-byte key + 12-byte IV per file) | Fly.io persistent volume |
-| Message body (optional) | OpenPGP (client-side, sender's browser, owner's public key) | SQLite `messages.body` |
+| File / audio uploads | AES-256-GCM (random 32-byte key + 12-byte IV per file), applied **by the server on arrival**; the key is never stored, it travels only in the notification email | Fly.io persistent volume |
+| Message body, owner has a PGP key | OpenPGP, client-side, in the sender's browser (owner's public key). The server refuses plaintext for such handles | SQLite `messages.body` (ciphertext) |
+| Message body, no PGP key | AES-256-CBC with the server secret (`enc:v1:` prefix) | SQLite `messages.body` |
 | Magic link tokens | UUID v4 (cryptographically random) | SQLite `magic_links.token` |
 | Session tokens | `crypto.randomBytes(32).toString('hex')` | SQLite `sessions.token` |
 
@@ -375,19 +376,24 @@ PINs that are still the default `1234` are flagged with `pin_is_default = 1`. Th
 PGP is asymmetric: the sender uses the recipient's public key to encrypt, only the private key (which never leaves the recipient's device) can decrypt.
 
 ```javascript
-// In the sender's browser, when the handle owner has a PGP key set:
-const openpgp = await import('https://esm.sh/openpgp@5');
+// In the sender's browser, when the handle owner has a PGP key set (handle/index.html):
+const openpgp = await import('/vendor/openpgp-5.11.3.min.js');   // self-hosted, pinned
 const publicKey = await openpgp.readKey({ armoredKey: profilePgpKey });
 const encrypted = await openpgp.encrypt({
   message: await openpgp.createMessage({ text: messageBody }),
   encryptionKeys: publicKey,
 });
-// encrypted is an armoured PGP block — hollr's server never saw the plaintext
+// encrypted is an armoured PGP block — hollr's server never sees the plaintext.
+// If any step throws, the canvas aborts: it never falls back to sending plaintext.
 ```
 
-**Why client-side?** If the server encrypted, it would have to see the plaintext first. The entire point is that even hollr cannot read PGP-encrypted messages.
+**Why client-side?** If the server encrypted, it would have to see the plaintext first. The entire point is that hollr cannot read PGP-encrypted messages.
 
-**Why esm.sh?** OpenPGP.js is a ~300KB library. Loading it lazily via `import('https://esm.sh/openpgp@5')` means it only downloads when the profile has a PGP key set. No build step, no bundler. esm.sh transforms npm packages to native ESM.
+**Server-side policy (5.3.0).** The server cannot decrypt PGP, but it can check that what it receives is an OpenPGP block. If the handle has a public key, plaintext is rejected (`400 pgp_required`), and the client's `is_pgp` flag is ignored in favour of that check — a blocked or outdated browser cannot silently downgrade a message.
+
+**Why self-hosted?** Before 5.3.0 the library came from `esm.sh/openpgp@5`, an unpinned third-party URL — whoever controlled that response controlled the code that does the encryption. It is now served from hollr.to at an exact version (~550 KB, loaded lazily, only when the profile has a PGP key).
+
+**Getting a key:** [hollr.to/pgp](https://hollr.to/pgp) generates a curve25519 key pair in your browser (no network requests) and decrypts messages locally. Any OpenPGP tool (`gpg --full-generate-key`) works too.
 
 **Decrypt hint in email:** PGP-encrypted messages arrive as an armoured block with a GPG usage hint: `gpg --decrypt message.asc`. hollr never attempts server-side decryption.
 
@@ -522,7 +528,8 @@ The `origin` function (not a string/array) enables dynamic origin checking. `cre
 ### Rate limiting
 
 - **Auth routes** (magic link, forgot-pin, verify): 10 requests per 15 minutes per IP. Prevents magic-link spam and brute-force attempts.
-- **Send/upload routes**: 5 requests per minute per IP. Prevents canvas abuse from automated senders.
+- **Send route**: 5 requests per minute per IP. **Upload route**: 20 per minute per IP (separate budget, so a message with several attachments can still be sent). **Handle availability check**: 60 per minute per IP.
+- **PIN checks** (`/api/settings/verify`, change-pin, email/settings changes with a PIN): in addition to the per-IP limit, a **per-handle lockout** — 10 wrong PINs lock that handle's PIN checks for 15 minutes regardless of source IP. State is in memory (resets on restart; use a shared store before running more than one instance).
 - Limits are per-IP (from `X-Forwarded-For`, trusted because of `trust proxy: 1`) because these endpoints are unauthenticated or pre-authentication.
 
 ---
@@ -542,17 +549,7 @@ The trade-offs are real: more verbose JS, no component reuse, manual DOM manipul
 
 ### Single-file deploy strategy
 
-The landing page (`index.html`) has its CSS and JS inlined via a Python script:
-
-```python
-with open('style.css') as f: css = f.read()
-with open('main.js')   as f: js  = f.read()
-html = html.replace('<link rel="stylesheet" href="style.css" />', f'<style>{css}</style>')
-html = html.replace('<script src="main.js"></script>', f'<script>{js}</script>')
-# favicon embedded as base64 data URI
-```
-
-Result: one HTTP request to load the entire page (minus Google Fonts). The source files (`landing-src/`) are kept in the repo for editing.
+Each page is one self-contained HTML file with its CSS and JS inline (`landing/index.html`, `handle/index.html`, `landing/auth/verify.html`, `landing/decrypt/index.html`, `landing/pgp/index.html`). They are edited directly — there is no build step. Result: one HTTP request per page (plus the web fonts). The only external file the frontend loads is the self-hosted, version-pinned OpenPGP.js bundle in `landing/vendor/`.
 
 ### i18n system
 
@@ -693,6 +690,8 @@ Resend is used for two purposes with two different keys:
 
 ## Deep-dive: Security decisions
 
+> **Read first:** [SECURITY.md](SECURITY.md) lists exactly who can read what, what the code enforces, and the known limitations. The full 5.3.0 review, including independent model reviews, is in [docs/AUDIT-5.3.0.md](docs/AUDIT-5.3.0.md). Run the checks with `cd backend && npm test`.
+
 ### No passwords, ever
 
 hollr has no password field anywhere in the codebase. Authentication is:
@@ -722,11 +721,11 @@ PGP-armoured ciphertext is rendered in `<pre>` with the same escaping. The canva
 
 ### Helmet.js
 
-Sets security headers on every response: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `X-XSS-Protection`. CSP is disabled (`contentSecurityPolicy: false`) because the canvas loads OpenPGP.js from `esm.sh` — a strict CSP would block this external import. This is a deliberate trade-off.
+Sets security headers on every response: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `X-XSS-Protection`. These headers protect the **API**, which only returns JSON. The static frontend on SiteGround has no Content-Security-Policy yet: its pages use inline scripts, so a correct policy needs a hash-based rollout tested on the host. This is a known gap, listed in [SECURITY.md](SECURITY.md).
 
 ### Email enumeration prevention
 
-`POST /api/auth/forgot-pin` always returns `{ ok: true }` regardless of whether the email exists. An attacker cannot use the endpoint to determine which emails are registered.
+`POST /api/auth/forgot-pin` always returns `{ ok: true }` immediately, whether or not the email exists and whatever the mail provider does (delivery runs in the background), so neither the response nor its timing reveals which emails are registered. `POST /api/settings/verify` returns the same 403 and performs the same bcrypt work for an unknown handle as for a wrong PIN.
 
 ---
 

@@ -155,7 +155,7 @@
     <span class="icon">🔐</span>
     <span class="tag">AES-256-GCM ENCRYPTED</span>
     <h1 id="readyTitle">Decrypt file</h1>
-    <p>This file was encrypted end-to-end before leaving the sender's browser. Only you can decrypt it — the key never touches the server after delivery.</p>
+    <p>This file was encrypted with AES-256-GCM by hollr's server when it was uploaded. The key lives only in this link, which is delivered in your notification email — it is not stored on the server. Decryption happens here, in your browser.</p>
     <div class="file-name" id="fileName">file</div>
     <button class="btn btn-primary" id="btnDecrypt" onclick="startDecrypt()">🔓 Decrypt &amp; Download</button>
     <a href="/" class="back-link">← Back to hollr.to</a>
@@ -166,7 +166,7 @@
     <span class="icon">🎙️</span>
     <span class="tag">AES-256-GCM ENCRYPTED</span>
     <h1>Encrypted voice recording</h1>
-    <p>This voice message was encrypted before leaving the sender's browser.</p>
+    <p>This voice message was encrypted with AES-256-GCM by hollr's server on upload. The key is in this link only; decryption happens here, in your browser.</p>
     <button class="btn btn-primary" id="btnDecryptAudio" onclick="startDecrypt()">🔓 Decrypt &amp; Play</button>
     <a href="/" class="back-link">← Back to hollr.to</a>
   </div>
@@ -184,7 +184,7 @@
   <div id="stateDone" style="display:none">
     <span class="icon">✅</span>
     <h1>Decrypted!</h1>
-    <p>Your file has been decrypted locally and the download started. The decryption key was never sent to any server.</p>
+    <p>Your file has been decrypted locally and the download started. The decryption key stays in your browser — it is in the URL fragment, which is never sent to any server.</p>
     <button class="btn btn-secondary" onclick="startDecrypt()">Download again</button>
     <a href="/" class="back-link">← Back to hollr.to</a>
   </div>
@@ -193,7 +193,7 @@
   <div id="stateDoneAudio" style="display:none">
     <span class="icon">🎙️</span>
     <h1>Voice message</h1>
-    <p>Decrypted locally — ready to play. The key never left your browser.</p>
+    <p>Decrypted locally — ready to play. The key stayed in your browser.</p>
     <audio id="audioPlayer" controls></audio>
     <button class="btn btn-secondary" style="margin-top:16px" onclick="downloadDecrypted()">⬇️ Download</button>
     <a href="/" class="back-link">← Back to hollr.to</a>

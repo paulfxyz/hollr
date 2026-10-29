@@ -1,5 +1,5 @@
 /**
- * mailer.js — Email delivery via Resend REST API for hollr.to (v5.2.9)
+ * mailer.js — Email delivery via Resend REST API for hollr.to (v5.3.0)
  * ──────────────────────────────────────────────────────────────────────
  *
  * OVERVIEW
@@ -214,7 +214,9 @@ async function forwardMessage(opts) {
   const esc = (str) => String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')     // v5.3.0: also safe inside HTML attributes
+    .replace(/'/g, '&#39;');
 
   let messageHtml, messageText;
 
@@ -259,13 +261,13 @@ async function forwardMessage(opts) {
     const fileItems = fileAttachments.map((f) => {
       const viewerUrl = `${frontendUrl}/decrypt` +
         `#url=${encodeURIComponent(f.url)}` +
-        `&key=${f.file_key}&iv=${f.file_iv}` +
+        `&key=${encodeURIComponent(f.file_key)}&iv=${encodeURIComponent(f.file_iv)}` +
         `&name=${encodeURIComponent(f.name || 'file')}`;
       // Use <div> rows instead of <ul><li> to avoid browser-default bullet points
       // in email clients and plain-text renderers.
       return `
         <div style="margin-bottom:10px">
-          <a href="${viewerUrl}" style="color:#c96a2a;text-decoration:none;font-weight:500">
+          <a href="${esc(viewerUrl)}" style="color:#c96a2a;text-decoration:none;font-weight:500">
             🔒 ${esc(f.name || 'Encrypted file')} — Decrypt &amp; Download →
           </a>
         </div>`;
@@ -279,7 +281,7 @@ async function forwardMessage(opts) {
 
     filesText = '\n\nAttachments:\n' + fileAttachments.map((f) => {
       const viewerUrl = `${frontendUrl}/decrypt` +
-        `#url=${encodeURIComponent(f.url)}&key=${f.file_key}&iv=${f.file_iv}`;
+        `#url=${encodeURIComponent(f.url)}&key=${encodeURIComponent(f.file_key)}&iv=${encodeURIComponent(f.file_iv)}`;
       return `  ${f.name || 'file'}: ${viewerUrl}`;
     }).join('\n');
   }
@@ -294,11 +296,11 @@ async function forwardMessage(opts) {
       // Encrypted voice — link to decrypt viewer
       const viewerUrl = `${frontendUrl}/decrypt` +
         `#url=${encodeURIComponent(audioUrl)}` +
-        `&key=${audioKey}&iv=${audioIv}` +
+        `&key=${encodeURIComponent(audioKey)}&iv=${encodeURIComponent(audioIv)}` +
         `&name=voice-recording.webm&type=audio`;
       audioHtml = `
         <p style="margin-top:20px">
-          <a href="${viewerUrl}"
+          <a href="${esc(viewerUrl)}"
              style="color:#c96a2a;text-decoration:none;font-weight:500;font-size:14px">
             🎙️ Encrypted voice recording — Decrypt &amp; Play →
           </a>
@@ -308,7 +310,7 @@ async function forwardMessage(opts) {
       // Unencrypted voice (legacy path)
       audioHtml = `
         <p style="margin-top:16px">
-          <a href="${audioUrl}" style="color:#c96a2a;text-decoration:none">
+          <a href="${esc(audioUrl)}" style="color:#c96a2a;text-decoration:none">
             🎙️ Listen to voice recording →
           </a>
         </p>`;
@@ -363,8 +365,12 @@ async function forwardMessage(opts) {
 
   // Only add reply_to when the contact field is a valid email address.
   // Sending reply_to: null causes Resend to return a 422 error.
-  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(senderContact)) {
-    payload.reply_to = [senderContact];
+  // The canvas sends "Name (contact)" when a sender fills both fields, so look for an
+  // address anywhere in the string rather than requiring the WHOLE string to be one.
+  // (v5.3.0 — previously Reply-To was silently dropped whenever a name was given.)
+  const replyMatch = String(senderContact).match(/[^\s@()<>,;:"]+@[^\s@()<>,;:"]+\.[^\s@()<>,;:"]+/);
+  if (replyMatch) {
+    payload.reply_to = [replyMatch[0]];
   }
 
   return resendPost(resendKey, payload);

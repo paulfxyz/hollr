@@ -6,7 +6,7 @@
   <title>hollr — holla at me.</title>
   <meta name="description" content="Your personal hollr link, encrypted end-to-end. Add your email and hollrs land straight in your inbox. Free & open source." />
   <meta property="og:title" content="hollr — holla at me." />
-  <meta property="og:description" content="Claim your handle, share your link. Messages arrive PGP-encrypted — zero setup, or bring your own Resend key. Free & open source." />
+  <meta property="og:description" content="Claim your handle, share your link. Add your PGP key and messages are end-to-end encrypted in the sender's browser. Free & open source." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://hollr.to" />
 
@@ -242,6 +242,7 @@ a { color: inherit; }
 }
 .eyebrow--center { text-align: center; }
 
+.inline-link { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .inline-code {
   font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
   font-size: 0.9em;
@@ -2594,7 +2595,7 @@ a { color: inherit; }
             <em class="hero__h1-em">Encrypted<br>on arrival.</em>
           </h1>
           <p class="hero__sub" data-i18n="hero_sub">
-            Your personal hollr link. Anyone can write, drop a voice note, or attach files — straight to your inbox, PGP-encrypted before it leaves their screen.
+            Your personal hollr link. Anyone can write, drop a voice note, or attach files — straight to your inbox. Add your PGP public key and the message is end-to-end encrypted in their browser.
           </p>
           <div class="hero__actions">
             <button class="btn btn--primary btn--hero" data-modal-open>
@@ -2701,8 +2702,8 @@ a { color: inherit; }
         </div>
         <div class="stat__divider"></div>
         <div class="stat">
-          <span class="stat__val">0</span>
-          <span class="stat__label">Messages stored by us</span>
+          <span class="stat__val">PGP</span>
+          <span class="stat__label">End-to-end, with your key</span>
         </div>
         <div class="stat__divider"></div>
         <div class="stat">
@@ -2733,7 +2734,7 @@ a { color: inherit; }
               <h3>Drop your email</h3>
               <p>A magic link hits your inbox. No password, no account setup. One click and you're in.</p>
             </div>
-            <p class="step-row__aside">No passwords to forget, no data to leak. Magic links expire after one use — nothing lingers.</p>
+            <p class="step-row__aside">No passwords to forget. Magic links expire after 15 minutes and work only once.</p>
           </li>
           <li class="step-row js-reveal">
             <span class="step-row__num">02</span>
@@ -2749,7 +2750,7 @@ a { color: inherit; }
               <h3>Works out of the box</h3>
               <p>Add your notification email and hollrs land straight in your inbox — sent from <code class="inline-code">yo@hollr.to</code>. Bring your own Resend key and they come from your domain instead.</p>
             </div>
-            <p class="step-row__aside">Either way, every hollr is PGP-encrypted before it leaves the sender's browser. We deliver the ciphertext — nothing sits in plaintext, ever.</p>
+            <p class="step-row__aside">Add a PGP public key and every hollr is encrypted in the sender's browser before it leaves their screen — we only ever deliver ciphertext. If encryption fails, the message is not sent.</p>
           </li>
           <li class="step-row js-reveal">
             <span class="step-row__num">04</span>
@@ -2863,7 +2864,7 @@ a { color: inherit; }
               </svg>
             </div>
             <h3 class="sender-panel__title">Hollr received</h3>
-            <p class="sender-panel__body">PGP-encrypted before it left their browser, then delivered to your notification inbox — sent from <code style="font-size:0.85em;background:var(--surface-2);padding:1px 5px;border-radius:4px">yo@hollr.to</code> or your own domain. It lands in your inbox — and nowhere else.</p>
+            <p class="sender-panel__body">With your PGP key set, encrypted in their browser, then delivered to your notification inbox — sent from <code style="font-size:0.85em;background:var(--surface-2);padding:1px 5px;border-radius:4px">yo@hollr.to</code> or your own domain. It lands in your inbox — and nowhere else.</p>
           </div>
         </div>
       </div>
@@ -2883,7 +2884,7 @@ a { color: inherit; }
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </div>
             <h3 class="feature-card__title">Zero setup. Or full control.</h3>
-            <p class="feature-card__body">Add your notification email and hollrs land right in your inbox — no config needed. Bring your own Resend key and domain for custom delivery. Same AES-256-GCM encryption either way. You choose how deep you go.</p>
+            <p class="feature-card__body">Add your notification email and hollrs land right in your inbox — no config needed. Bring your own Resend key and domain for custom delivery. Your PGP key protects the message either way. You choose how deep you go.</p>
           </div>
 
           <div class="feature-card js-reveal">
@@ -2899,7 +2900,7 @@ a { color: inherit; }
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>
             </div>
             <h3 class="feature-card__title">Voice &amp; files</h3>
-            <p class="feature-card__body">Record a voice note or attach any file — right in the browser, no app needed. Everything is encrypted before upload. A secure decrypt link lands in your inbox.</p>
+            <p class="feature-card__body">Record a voice note or attach any file — right in the browser, no app needed. Our server encrypts it with AES-256-GCM on arrival; the key travels only in your notification email and is never stored. A secure decrypt link lands in your inbox.</p>
           </div>
 
           <div class="feature-card js-reveal">
@@ -2907,7 +2908,7 @@ a { color: inherit; }
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
             <h3 class="feature-card__title">Locked down, always</h3>
-            <p class="feature-card__body">Everything encrypted. Messages optionally PGP end-to-end from sender’s browser. Files and voice notes AES-256-GCM at rest. Your Resend key AES-256-CBC + PBKDF2. Settings PIN-protected. Nothing in plaintext — ever.</p>
+            <p class="feature-card__body">Optional end-to-end PGP for messages, from the sender’s browser. Files and voice notes AES-256-GCM at rest. Your Resend key AES-256-CBC + PBKDF2. Settings PIN-protected, with lockout.</p>
           </div>
 
           <div class="feature-card js-reveal">
@@ -2937,7 +2938,7 @@ a { color: inherit; }
         <div class="sec-header js-reveal">
           <p class="eyebrow eyebrow--light">No snitching, ever</p>
           <h2 class="sec-title">Encrypted on the street.<br><em>Private in your hands.</em></h2>
-          <p class="sec-sub">Every hollr — message, voice note, file — is PGP-encrypted in the sender's browser before it moves an inch. By the time it lands in your inbox, nobody else has seen it. Not us. Not anyone.</p>
+          <p class="sec-sub">With your PGP public key set, every message is encrypted in the sender's browser before it moves an inch — what reaches our servers is ciphertext we cannot read. Voice notes and files are encrypted by our server the moment they arrive, and their keys are never stored.</p>
         </div>
 
         <!-- Encryption flow diagram -->
@@ -3007,25 +3008,25 @@ a { color: inherit; }
           <div class="sec-claim">
             <div class="sec-claim__num">01</div>
             <h3 class="sec-claim__title">PGP in the browser, before it moves</h3>
-            <p class="sec-claim__body">OpenPGP.js encrypts every hollr client-side with your public key before a single byte leaves the sender's device. What travels through our servers is ciphertext — unreadable without your private key.</p>
+            <p class="sec-claim__body">OpenPGP.js — self-hosted and version-pinned — encrypts each message in the sender's browser with your public key before it is sent. What travels through our servers is ciphertext, unreadable without your private key. If encryption fails, nothing is sent: no silent fallback to plaintext.</p>
           </div>
 
           <div class="sec-claim">
             <div class="sec-claim__num">02</div>
             <h3 class="sec-claim__title">We generate your keys — or you come correct with your own</h3>
-            <p class="sec-claim__body">hollr creates a fresh PGP keypair on setup and hands you the private key. Or paste your existing public key. Either way, we never see the private side — ever.</p>
+            <p class="sec-claim__body">Create a key pair in your browser at <a href="/pgp" class="inline-link">hollr.to/pgp</a> — nothing is uploaded — or paste an existing public key. hollr only ever sees the public half.</p>
           </div>
 
           <div class="sec-claim">
             <div class="sec-claim__num">03</div>
             <h3 class="sec-claim__title">Your inbox, your rules</h3>
-            <p class="sec-claim__body">By default, notifications are sent from <code class="inline-code" style="font-size:0.8em">yo@hollr.to</code> to whatever email you set in settings. Plug in your own Resend key and they come from your domain instead — not a shared relay. Either way, same encryption, zero storage.</p>
+            <p class="sec-claim__body">By default, notifications are sent from <code class="inline-code" style="font-size:0.8em">yo@hollr.to</code> to whatever email you set in settings. Plug in your own Resend key and they come from your domain instead — not a shared relay. Either way, your PGP key protects the message.</p>
           </div>
 
           <div class="sec-claim">
             <div class="sec-claim__num">04</div>
             <h3 class="sec-claim__title">Decrypt on your own turf — no PGP client needed</h3>
-            <p class="sec-claim__body">No GPG installed? No problem. Open the hollr decryptor, paste your private key and the ciphertext, and it decrypts locally in your browser. Nothing leaves the tab. No install. No excuses.</p>
+            <p class="sec-claim__body">No GPG installed? No problem. Open <a href="/pgp#dec" class="inline-link">hollr.to/pgp</a>, paste the ciphertext and your private key, and it decrypts locally in your browser. Nothing leaves the tab. No install. No excuses.</p>
           </div>
 
         </div>
@@ -3078,7 +3079,7 @@ a { color: inherit; }
 
         <!-- Live features strip -->
         <div class="roadmap-live-strip js-reveal">
-          <p class="roadmap-live-strip__label">&#x2705; Live now &mdash; v5.2.9</p>
+          <p class="roadmap-live-strip__label">&#x2705; Live now &mdash; v5.3.0</p>
           <div class="roadmap-live-chips">
             <span class="roadmap-chip">X OAuth + Magic links</span>
             <span class="roadmap-chip">PGP end-to-end encryption</span>
@@ -3512,13 +3513,13 @@ const LANGS = {
     nav_cta: 'Claim your handle',
     hero_pill: 'Free & open source',
     hero_h1_1: 'Holla', hero_h1_2: 'at me.', hero_h1_3: 'Encrypted, on arrival.',
-    hero_sub: 'Back in the day, you\'d holler across the block. hollr brings that energy online — give someone your link, hollr.to/yourname, and they can write, drop a voice note, or attach files straight to your inbox. PGP-encrypted before it leaves their screen.',
+    hero_sub: "Back in the day, you'd holler across the block. hollr brings that energy online — give someone your link, hollr.to/yourname, and they can write, drop a voice note, or attach files straight to your inbox. Add your PGP public key and the message is end-to-end encrypted in their browser.",
     hero_cta: 'Get your hollr link', hero_github: 'View on GitHub',
     mock_label: 'MESSAGE TO YOURNAME', mock_title: 'Say something worth writing.',
     mock_desc: 'This is a timed message canvas. The clock runs while you type — every second is spent actually writing.',
     mock_btn: '▶ Start writing',
     stat1_val: '100%', stat1_label: 'Always free, no cap',
-    stat2_val: '0',    stat2_label: 'Messages stored by us',
+    stat2_val: "PGP",    stat2_label: "End-to-end, with your key",
     stat3_val: '10',   stat3_label: 'Languages — worldwide',
     stat4_val: '∞',   stat4_label: 'Handles to claim',
     how_eyebrow: 'How it works', how_title: 'Up and running\nin 60 seconds.',
@@ -3538,18 +3539,12 @@ const LANGS = {
     canvas_b3: 'Drag-and-drop file attachments', canvas_b4: 'Message lands in your inbox instantly',
     canvas_send: 'Send message',
     feat_eyebrow: 'Features', feat_title: 'Everything you need,\nnothing you don\'t.',
-    f1_title: 'Zero setup. Or full control.', f1_body: 'Add your notification email and hollrs land right in your inbox — no config needed. Bring your own Resend key and domain for custom delivery. Same AES-256-GCM encryption either way.',
+    f1_title: 'Zero setup. Or full control.', f1_body: "Add your notification email and hollrs land in your inbox, sent from yo@hollr.to — no setup. Bring your own Resend key and domain to send from your own address instead.",
     f2_title: 'Timed canvas', f2_body: "An always-running timer shows senders how long they've been composing. No idle drifting — it's a writing tool.",
-    f3_title: 'Voice & files', f3_body: 'Record a voice note or attach any file — right in the browser. Everything is encrypted before upload. A secure decrypt link lands in your inbox.',
-    f4_title: 'Locked down, always', f4_body: 'Everything encrypted. Messages optionally PGP end-to-end. Files and voice AES-256-GCM at rest. Your Resend key AES-256-CBC + PBKDF2. Settings PIN-protected. Nothing in plaintext — ever.',
+    f3_title: 'Voice & files', f3_body: "Record a voice note or attach any file, right in the browser. Our server encrypts it with AES-256-GCM on arrival; the key travels only in your notification email and is never stored.",
+    f4_title: 'Locked down, always', f4_body: "Optional end-to-end PGP for messages. Files and voice are AES-256-GCM encrypted at rest. Your Resend key is AES-256-CBC + PBKDF2. Settings are PIN-protected with lockout.",
     f5_title: '10 languages', f5_body: "EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU. The canvas speaks your senders' language automatically.",
     f6_title: 'Fully open source', f6_body: 'MIT licensed. Fork it, self-host on Fly.io, extend it however you want. The code is yours.',
-    priv_eyebrow: 'Privacy by design', priv_title: 'Everything encrypted.', priv_title_em: 'Nothing stored.',
-    priv_sub: "Every message, voice note, and file that passes through hollr is end-to-end encrypted. We designed this so that even if you trust us — you don't have to.",
-    p1_title: 'End-to-end encrypted', p1_body: 'Messages, voice recordings, and attached files are encrypted in transit and at rest. Nobody — not even us — can read what someone sends you.',
-    p2_title: 'Bring your own storage', p2_body: 'Don\'t want to rely on our infrastructure? Connect your own S3-compatible bucket — Cloudflare R2, AWS S3, Backblaze B2 — and files go directly there. Your data, your rules.',
-    p3_title: 'Zero retention', p3_body: 'hollr holds no copy of your messages. Once delivered to your inbox, the data is gone from our servers. We can\'t hand over what we don\'t have.',
-    p4_title: 'Self-hostable', p4_body: 'Run your own instance on Fly.io or any Node.js host in minutes. Full control over every byte — keys, storage, and routing all belong to you.',
     test_eyebrow: 'What people say', test_title: 'Loved by creators\nand builders.',
     t1_text: '"I replaced my contact form with hollr. The timed canvas means people actually think about what they write. Every message I get now is thoughtful."',
     t1_name: 'Maya Lin', t1_role: 'Product Designer, SF',
@@ -3577,13 +3572,13 @@ const LANGS = {
     nav_cta: 'Réserver mon handle',
     hero_pill: 'Gratuit & open source',
     hero_h1_1: 'Votre espace de message,', hero_h1_2: 'votre handle.',
-    hero_sub: 'hollr offre à chacun un lien personnel — hollr.to/tonnom — où les gens peuvent écrire, enregistrer et envoyer directement dans votre boîte mail. Aucun email exposé. Aucune donnée stockée.',
+    hero_sub: "hollr offre à chacun un lien personnel — hollr.to/tonnom — où l'on peut écrire, enregistrer une note vocale ou joindre des fichiers, directement dans votre boîte mail. Ajoutez votre clé publique PGP et le message est chiffré de bout en bout dans le navigateur de l'expéditeur.",
     hero_cta: 'Réserver mon handle', hero_github: 'Voir sur GitHub',
     mock_label: 'MESSAGE À PAULFXYZ', mock_title: 'Dites quelque chose qui vaut la peine.',
     mock_desc: 'Un espace d\u2019écriture chronométré. L\u2019horloge tourne pendant que vous tapez — chaque seconde compte.',
     mock_btn: '▶ Commencer',
     stat1_val: '100%', stat1_label: 'Gratuit pour toujours',
-    stat2_val: '0',    stat2_label: 'Messages stockés',
+    stat2_val: "PGP",    stat2_label: "De bout en bout, avec votre clé",
     stat3_val: '10',   stat3_label: 'Langues',
     stat4_val: '∞',   stat4_label: 'Handles disponibles',
     how_eyebrow: 'Comment ça marche', how_title: 'Opérationnel\nen 60 secondes.',
@@ -3603,18 +3598,12 @@ const LANGS = {
     canvas_b3: 'Pièces jointes par glisser-déposer', canvas_b4: 'Message reçu instantanément',
     canvas_send: 'Envoyer',
     feat_eyebrow: 'Fonctionnalités', feat_title: 'Tout ce qu\u2019il faut,\nrien de superflu.',
-    f1_title: 'Votre clé API, votre boîte', f1_body: 'Les messages sont envoyés via votre compte Resend. hollr n\u2019est jamais intermédiaire.',
+    f1_title: 'Votre clé API, votre boîte', f1_body: "Ajoutez votre email de notification et les hollrs arrivent dans votre boîte, envoyés depuis yo@hollr.to — sans configuration. Apportez votre propre clé Resend et votre domaine pour envoyer depuis votre adresse.",
     f2_title: 'Canvas chronométré', f2_body: 'Un minuteur permanent montre aux expéditeurs combien de temps ils ont écrit.',
-    f3_title: 'Notes vocales', f3_body: 'Enregistrez directement dans le navigateur. L\u2019audio est joint et livré en lien de téléchargement.',
-    f4_title: 'Chiffré AES-256', f4_body: 'Votre clé Resend est chiffrée au repos avec AES-256-CBC + PBKDF2. Paramètres protégés par PIN.',
+    f3_title: 'Notes vocales', f3_body: "Enregistrez une note vocale ou joignez n'importe quel fichier, directement dans le navigateur. Notre serveur le chiffre en AES-256-GCM dès réception ; la clé ne circule que dans votre email de notification et n'est jamais conservée.",
+    f4_title: 'Chiffré AES-256', f4_body: "PGP de bout en bout en option pour les messages. Fichiers et voix chiffrés en AES-256-GCM au repos. Votre clé Resend en AES-256-CBC + PBKDF2. Paramètres protégés par PIN, avec verrouillage.",
     f5_title: '10 langues', f5_body: 'EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU. Le canvas parle la langue de vos expéditeurs automatiquement.',
     f6_title: 'Entièrement open source', f6_body: 'Licence MIT. Forkez-le, hébergez-le, étendez-le comme vous voulez.',
-    priv_eyebrow: 'Vie privée par conception', priv_title: 'Tout est chiffré.', priv_title_em: 'Rien n\u2019est stocké.',
-    priv_sub: 'Chaque message, note vocale et fichier qui passe par hollr est chiffré de bout en bout. Dessiné pour que vous n\u2019ayez pas à nous faire confiance.',
-    p1_title: 'Chiffrement de bout en bout', p1_body: 'Messages, enregistrements vocaux et fichiers sont chiffrés en transit et au repos. Personne — pas même nous — ne peut lire vos messages.',
-    p2_title: 'Votre propre stockage', p2_body: 'Connectez votre propre bucket S3 — Cloudflare R2, AWS S3, Backblaze B2 — et les fichiers y vont directement.',
-    p3_title: 'Zéro rétention', p3_body: 'hollr ne conserve aucune copie de vos messages. Une fois livré, la donnée disparaît de nos serveurs.',
-    p4_title: 'Auto-hébergeable', p4_body: 'Lancez votre propre instance sur Fly.io ou tout hôte Node.js en quelques minutes.',
     test_eyebrow: 'Ce qu\u2019on en dit', test_title: 'Apprécié par les créateurs\net les constructeurs.',
     t1_text: '"J\u2019ai remplacé mon formulaire de contact par hollr. Le canvas minuté fait que les gens réfléchissent avant d\u2019écrire."',
     t1_name: 'Maya Lin', t1_role: 'Designer Produit, SF',
@@ -3642,13 +3631,13 @@ const LANGS = {
     nav_cta: 'Handle sichern',
     hero_pill: 'Kostenlos & Open Source',
     hero_h1_1: 'Deine Nachrichtenfläche,', hero_h1_2: 'dein Handle.',
-    hero_sub: 'hollr gibt jedem einen persönlichen Link — hollr.to/deinname — wo andere schreiben, aufnehmen und direkt in dein Postfach senden können.',
+    hero_sub: "hollr gibt jedem einen persönlichen Link — hollr.to/deinname — über den andere schreiben, Sprachnachrichten aufnehmen oder Dateien anhängen und direkt in dein Postfach senden können. Mit deinem öffentlichen PGP-Schlüssel wird die Nachricht im Browser des Absenders Ende-zu-Ende verschlüsselt.",
     hero_cta: 'Handle sichern', hero_github: 'Auf GitHub ansehen',
     mock_label: 'NACHRICHT AN PAULFXYZ', mock_title: 'Sag etwas, das es wert ist.',
     mock_desc: 'Eine zeitgesteuerte Schreibfläche. Die Uhr läuft während du tippst.',
     mock_btn: '▶ Schreiben beginnen',
     stat1_val: '100%', stat1_label: 'Dauerhaft kostenlos',
-    stat2_val: '0',    stat2_label: 'Gespeicherte Nachrichten',
+    stat2_val: "PGP",    stat2_label: "Ende-zu-Ende, mit deinem Schlüssel",
     stat3_val: '10',   stat3_label: 'Sprachen',
     stat4_val: '∞',   stat4_label: 'Handles verfügbar',
     how_eyebrow: 'So funktioniert es', how_title: 'Einsatzbereit\nin 60 Sekunden.',
@@ -3668,18 +3657,12 @@ const LANGS = {
     canvas_b3: 'Datei-Anhänge per Drag & Drop', canvas_b4: 'Nachricht landet sofort im Postfach',
     canvas_send: 'Senden',
     feat_eyebrow: 'Funktionen', feat_title: 'Alles was du brauchst,\nnichts was du nicht brauchst.',
-    f1_title: 'Dein API-Schlüssel, dein Postfach', f1_body: 'Nachrichten werden über dein Resend-Konto geliefert. hollr ist nie Mittelmann.',
+    f1_title: 'Dein API-Schlüssel, dein Postfach', f1_body: "Gib deine Benachrichtigungs-E-Mail an und die hollrs landen in deinem Postfach, gesendet von yo@hollr.to — ohne Einrichtung. Mit eigenem Resend-Schlüssel und eigener Domain sendest du stattdessen von deiner Adresse.",
     f2_title: 'Zeitgesteuert', f2_body: 'Ein immer laufender Timer zeigt Absendern, wie lange sie schreiben.',
-    f3_title: 'Sprachnotizen', f3_body: 'Direkt im Browser aufnehmen. Audio wird als Download-Link geliefert.',
-    f4_title: 'AES-256 verschlüsselt', f4_body: 'Dein Resend-Schlüssel ist mit AES-256-CBC + PBKDF2 verschlüsselt. PIN-geschützte Einstellungen.',
+    f3_title: 'Sprachnotizen', f3_body: "Nimm eine Sprachnachricht auf oder hänge beliebige Dateien an — direkt im Browser. Unser Server verschlüsselt sie beim Eingang mit AES-256-GCM; der Schlüssel steht nur in deiner Benachrichtigungs-E-Mail und wird nie gespeichert.",
+    f4_title: 'AES-256 verschlüsselt', f4_body: "Optional Ende-zu-Ende-PGP für Nachrichten. Dateien und Sprache liegen AES-256-GCM-verschlüsselt. Dein Resend-Schlüssel: AES-256-CBC + PBKDF2. Einstellungen per PIN geschützt, mit Sperre.",
     f5_title: '10 Sprachen', f5_body: 'EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU. Die Fläche spricht die Sprache deiner Absender.',
     f6_title: 'Vollständig Open Source', f6_body: 'MIT-Lizenz. Forke es, hoste es selbst, erweitere es wie du willst.',
-    priv_eyebrow: 'Datenschutz by Design', priv_title: 'Alles verschlüsselt.', priv_title_em: 'Nichts gespeichert.',
-    priv_sub: 'Jede Nachricht, Sprachnotiz und Datei durch hollr ist Ende-zu-Ende verschlüsselt.',
-    p1_title: 'Ende-zu-Ende-Verschlüsselung', p1_body: 'Nachrichten, Sprachaufnahmen und Dateien sind verschlüsselt. Niemand — nicht einmal wir — kann lesen was gesendet wird.',
-    p2_title: 'Eigener Speicher', p2_body: 'Verbinde deinen eigenen S3-Bucket — Cloudflare R2, AWS S3, Backblaze B2 — und Dateien gehen direkt dorthin.',
-    p3_title: 'Null Retention', p3_body: 'hollr speichert keine Kopie deiner Nachrichten. Nach der Zustellung ist die Daten weg.',
-    p4_title: 'Selbst-hostbar', p4_body: 'Betreibe deine eigene Instanz auf Fly.io oder jedem Node.js-Host in Minuten.',
     test_eyebrow: 'Was andere sagen', test_title: 'Beliebt bei Kreativen\nund Machern.',
     t1_text: '"Ich habe mein Kontaktformular durch hollr ersetzt. Der Timer sorgt dafür, dass Leute nachdenken."',
     t1_name: 'Maya Lin', t1_role: 'Produktdesignerin, SF',
@@ -3707,13 +3690,13 @@ const LANGS = {
     nav_cta: 'Scegli il tuo handle',
     hero_pill: 'Gratuito & open source',
     hero_h1_1: 'Il tuo spazio messaggi,', hero_h1_2: 'il tuo handle.',
-    hero_sub: 'hollr dà a chiunque un link personale — hollr.to/tuonome — dove le persone possono scrivere, registrare e inviare direttamente alla tua casella.',
+    hero_sub: "hollr dà a chiunque un link personale — hollr.to/tuonome — da cui le persone possono scrivere, registrare un vocale o allegare file direttamente nella tua casella. Con la tua chiave pubblica PGP il messaggio viene cifrato end-to-end nel browser di chi scrive.",
     hero_cta: 'Scegli il tuo handle', hero_github: 'Vedi su GitHub',
     mock_label: 'MESSAGGIO A PAULFXYZ', mock_title: 'Di\u2019 qualcosa che vale la pena.',
     mock_desc: 'Uno spazio di scrittura a tempo. Il timer gira mentre scrivi.',
     mock_btn: '▶ Inizia a scrivere',
     stat1_val: '100%', stat1_label: 'Sempre gratuito',
-    stat2_val: '0',    stat2_label: 'Messaggi salvati',
+    stat2_val: "PGP",    stat2_label: "End-to-end, con la tua chiave",
     stat3_val: '10',   stat3_label: 'Lingue',
     stat4_val: '∞',   stat4_label: 'Handle disponibili',
     how_eyebrow: 'Come funziona', how_title: 'Operativo\nin 60 secondi.',
@@ -3733,18 +3716,12 @@ const LANGS = {
     canvas_b3: 'Allegati drag & drop', canvas_b4: 'Messaggio nella casella istantaneamente',
     canvas_send: 'Invia messaggio',
     feat_eyebrow: 'Funzionalità', feat_title: 'Tutto ciò che serve,\nnulla di superfluo.',
-    f1_title: 'La tua chiave API, la tua casella', f1_body: 'I messaggi vengono consegnati tramite il tuo account Resend. hollr non è mai intermediario.',
+    f1_title: 'La tua chiave API, la tua casella', f1_body: "Aggiungi la tua email di notifica e gli hollr arrivano nella tua casella, inviati da yo@hollr.to — senza configurazione. Con la tua chiave Resend e il tuo dominio puoi inviare dal tuo indirizzo.",
     f2_title: 'Canvas a tempo', f2_body: 'Un timer sempre attivo mostra ai mittenti quanto hanno scritto.',
-    f3_title: 'Note vocali', f3_body: 'Registra direttamente nel browser. L\u2019audio viene allegato come link.',
-    f4_title: 'Crittografia AES-256', f4_body: 'La tua chiave Resend è cifrata con AES-256-CBC + PBKDF2.',
+    f3_title: 'Note vocali', f3_body: "Registra un vocale o allega qualsiasi file, direttamente nel browser. Il nostro server lo cifra con AES-256-GCM appena arriva; la chiave viaggia solo nella tua email di notifica e non viene mai salvata.",
+    f4_title: 'Crittografia AES-256', f4_body: "PGP end-to-end opzionale per i messaggi. File e voce cifrati AES-256-GCM a riposo. La tua chiave Resend: AES-256-CBC + PBKDF2. Impostazioni protette da PIN, con blocco.",
     f5_title: '10 lingue', f5_body: 'EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU. Il canvas parla la lingua dei tuoi mittenti.',
     f6_title: 'Completamente open source', f6_body: 'Licenza MIT. Forkalo, ospitalo, estendilo come vuoi.',
-    priv_eyebrow: 'Privacy by design', priv_title: 'Tutto cifrato.', priv_title_em: 'Nulla memorizzato.',
-    priv_sub: 'Ogni messaggio, nota vocale e file che passa per hollr è cifrato end-to-end.',
-    p1_title: 'Crittografia end-to-end', p1_body: 'Messaggi, registrazioni vocali e file sono cifrati. Nessuno — nemmeno noi — può leggerli.',
-    p2_title: 'Porta il tuo storage', p2_body: 'Collega il tuo bucket S3 — Cloudflare R2, AWS S3, Backblaze B2 — e i file vanno direttamente lì.',
-    p3_title: 'Zero retention', p3_body: 'hollr non conserva copie dei messaggi. Consegnato = cancellato dai nostri server.',
-    p4_title: 'Auto-ospitabile', p4_body: 'Avvia la tua istanza su Fly.io o qualsiasi host Node.js in pochi minuti.',
     test_eyebrow: 'Cosa dicono', test_title: 'Amato da creatori\ne sviluppatori.',
     t1_text: '"Ho sostituito il mio modulo di contatto con hollr. Il canvas a tempo fa pensare prima di scrivere."',
     t1_name: 'Maya Lin', t1_role: 'Product Designer, SF',
@@ -3772,13 +3749,13 @@ const LANGS = {
     nav_cta: 'Elige tu handle',
     hero_pill: 'Gratis y de código abierto',
     hero_h1_1: 'Tu lienzo de mensajes,', hero_h1_2: 'tu handle.',
-    hero_sub: 'hollr le da a cualquiera un enlace personal — hollr.to/tunombre — donde la gente puede escribir, grabar y enviar directamente a tu bandeja de entrada.',
+    hero_sub: "hollr le da a cualquiera un enlace personal — hollr.to/tunombre — donde la gente puede escribir, grabar una nota de voz o adjuntar archivos directamente a tu bandeja de entrada. Con tu clave pública PGP, el mensaje se cifra de extremo a extremo en el navegador del remitente.",
     hero_cta: 'Elige tu handle', hero_github: 'Ver en GitHub',
     mock_label: 'MENSAJE A PAULFXYZ', mock_title: 'Di algo que valga la pena.',
     mock_desc: 'Un lienzo de escritura cronometrado. El reloj corre mientras escribes.',
     mock_btn: '▶ Empezar a escribir',
     stat1_val: '100%', stat1_label: 'Gratis para siempre',
-    stat2_val: '0',    stat2_label: 'Mensajes almacenados',
+    stat2_val: "PGP",    stat2_label: "De extremo a extremo, con tu clave",
     stat3_val: '10',   stat3_label: 'Idiomas',
     stat4_val: '∞',   stat4_label: 'Handles disponibles',
     how_eyebrow: 'Cómo funciona', how_title: 'En marcha\nen 60 segundos.',
@@ -3798,18 +3775,12 @@ const LANGS = {
     canvas_b3: 'Adjuntos drag & drop', canvas_b4: 'Mensaje en tu bandeja al instante',
     canvas_send: 'Enviar mensaje',
     feat_eyebrow: 'Características', feat_title: 'Todo lo que necesitas,\nnada más.',
-    f1_title: 'Tu clave API, tu bandeja', f1_body: 'Los mensajes se entregan vía tu cuenta Resend. hollr nunca es intermediario.',
+    f1_title: 'Tu clave API, tu bandeja', f1_body: "Añade tu correo de notificación y los hollrs llegan a tu bandeja, enviados desde yo@hollr.to — sin configuración. Con tu propia clave de Resend y tu dominio, se envían desde tu dirección.",
     f2_title: 'Lienzo cronometrado', f2_body: 'Un temporizador siempre activo muestra a los remitentes cuánto tiempo llevan escribiendo.',
-    f3_title: 'Notas de voz', f3_body: 'Graba directamente en el navegador. El audio se adjunta como enlace de descarga.',
-    f4_title: 'Cifrado AES-256', f4_body: 'Tu clave Resend está cifrada con AES-256-CBC + PBKDF2.',
+    f3_title: 'Notas de voz', f3_body: "Graba una nota de voz o adjunta cualquier archivo, directamente en el navegador. Nuestro servidor lo cifra con AES-256-GCM al recibirlo; la clave solo viaja en tu correo de notificación y nunca se guarda.",
+    f4_title: 'Cifrado AES-256', f4_body: "PGP de extremo a extremo opcional para los mensajes. Archivos y voz cifrados con AES-256-GCM en reposo. Tu clave de Resend: AES-256-CBC + PBKDF2. Ajustes protegidos con PIN y bloqueo.",
     f5_title: '10 idiomas', f5_body: 'EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU. El lienzo habla el idioma de tus remitentes.',
     f6_title: 'Totalmente open source', f6_body: 'Licencia MIT. Forkéalo, alójalo, extiéndelo como quieras.',
-    priv_eyebrow: 'Privacidad por diseño', priv_title: 'Todo cifrado.', priv_title_em: 'Nada almacenado.',
-    priv_sub: 'Cada mensaje, nota de voz y archivo que pasa por hollr está cifrado de extremo a extremo.',
-    p1_title: 'Cifrado extremo a extremo', p1_body: 'Mensajes, grabaciones de voz y archivos están cifrados. Nadie — ni nosotros — puede leerlos.',
-    p2_title: 'Trae tu propio almacenamiento', p2_body: 'Conecta tu propio bucket S3 — Cloudflare R2, AWS S3, Backblaze B2 — y los archivos van allí directamente.',
-    p3_title: 'Cero retención', p3_body: 'hollr no guarda copia de tus mensajes. Una vez entregado, el dato desaparece.',
-    p4_title: 'Auto-alojable', p4_body: 'Ejecuta tu propia instancia en Fly.io o cualquier host Node.js en minutos.',
     test_eyebrow: 'Lo que dicen', test_title: 'Amado por creadores\ny desarrolladores.',
     t1_text: '"Reemplacé mi formulario de contacto con hollr. El canvas cronometrado hace que la gente piense antes de escribir."',
     t1_name: 'Maya Lin', t1_role: 'Diseñadora de Producto, SF',
@@ -3837,13 +3808,13 @@ const LANGS = {
     nav_cta: 'Claim je handle',
     hero_pill: 'Gratis & open source',
     hero_h1_1: 'Jouw berichtdoek,', hero_h1_2: 'jouw handle.',
-    hero_sub: 'hollr geeft iedereen een persoonlijke link — hollr.to/jounaam — waar mensen kunnen schrijven, opnemen en direct naar je inbox sturen.',
+    hero_sub: "hollr geeft iedereen een persoonlijke link — hollr.to/jounaam — waar mensen kunnen schrijven, een spraakbericht opnemen of bestanden toevoegen, direct naar je inbox. Met je publieke PGP-sleutel wordt het bericht in de browser van de afzender end-to-end versleuteld.",
     hero_cta: 'Claim je handle', hero_github: 'Bekijk op GitHub',
     mock_label: 'BERICHT AAN PAULFXYZ', mock_title: 'Zeg iets dat de moeite waard is.',
     mock_desc: 'Een getimede schrijfruimte. De klok loopt terwijl je typt.',
     mock_btn: '▶ Begin met schrijven',
     stat1_val: '100%', stat1_label: 'Altijd gratis',
-    stat2_val: '0',    stat2_label: 'Berichten opgeslagen',
+    stat2_val: "PGP",    stat2_label: "End-to-end, met jouw sleutel",
     stat3_val: '10',   stat3_label: 'Talen',
     stat4_val: '∞',   stat4_label: 'Handles beschikbaar',
     how_eyebrow: 'Hoe het werkt', how_title: 'Operationeel\nin 60 seconden.',
@@ -3863,18 +3834,12 @@ const LANGS = {
     canvas_b3: 'Bijlagen via slepen en neerzetten', canvas_b4: 'Bericht direct in je inbox',
     canvas_send: 'Stuur bericht',
     feat_eyebrow: 'Functies', feat_title: 'Alles wat je nodig hebt,\nniets meer.',
-    f1_title: 'Jouw API-sleutel, jouw inbox', f1_body: 'Berichten worden geleverd via je eigen Resend-account. hollr is nooit tussenpersoon.',
+    f1_title: 'Jouw API-sleutel, jouw inbox', f1_body: "Voeg je notificatie-e-mail toe en de hollrs komen in je inbox, verzonden vanaf yo@hollr.to — zonder configuratie. Met je eigen Resend-sleutel en domein verstuur je vanaf je eigen adres.",
     f2_title: 'Getimede ruimte', f2_body: 'Een altijd lopende timer toont verzenders hoe lang ze hebben geschreven.',
-    f3_title: 'Spraaknotities', f3_body: 'Neem direct op in de browser. Audio wordt als downloadlink geleverd.',
-    f4_title: 'AES-256 versleuteld', f4_body: 'Je Resend-sleutel is versleuteld met AES-256-CBC + PBKDF2.',
+    f3_title: 'Spraaknotities', f3_body: "Neem een spraakbericht op of voeg elk bestand toe, direct in de browser. Onze server versleutelt het bij ontvangst met AES-256-GCM; de sleutel staat alleen in je notificatie-e-mail en wordt nooit opgeslagen.",
+    f4_title: 'AES-256 versleuteld', f4_body: "Optionele end-to-end PGP voor berichten. Bestanden en spraak zijn in rust AES-256-GCM-versleuteld. Je Resend-sleutel: AES-256-CBC + PBKDF2. Instellingen met pincode en blokkade.",
     f5_title: '10 talen', f5_body: 'EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU. Het doek spreekt automatisch de taal van je verzenders.',
     f6_title: 'Volledig open source', f6_body: 'MIT-licentie. Fork het, host het zelf, breid het uit.',
-    priv_eyebrow: 'Privacy by design', priv_title: 'Alles versleuteld.', priv_title_em: 'Niets opgeslagen.',
-    priv_sub: 'Elk bericht, spraaknotitie en bestand dat door hollr gaat is end-to-end versleuteld.',
-    p1_title: 'End-to-end versleuteld', p1_body: 'Berichten, spraakopnames en bestanden zijn versleuteld. Niemand — zelfs wij niet — kan lezen wat iemand stuurt.',
-    p2_title: 'Breng je eigen opslag', p2_body: 'Verbind je eigen S3-bucket — Cloudflare R2, AWS S3, Backblaze B2 — en bestanden gaan er direct naartoe.',
-    p3_title: 'Nul retentie', p3_body: 'hollr bewaart geen kopie van je berichten. Na levering zijn ze weg van onze servers.',
-    p4_title: 'Zelf te hosten', p4_body: 'Draai je eigen instantie op Fly.io of een Node.js-host in minuten.',
     test_eyebrow: 'Wat mensen zeggen', test_title: 'Geliefd bij makers\nen bouwers.',
     t1_text: '"Ik heb mijn contactformulier vervangen door hollr. De timer zorgt dat mensen nadenken."',
     t1_name: 'Maya Lin', t1_role: 'Productontwerper, SF',
@@ -3902,13 +3867,13 @@ const LANGS = {
     nav_cta: '领取您的手柄',
     hero_pill: '免费且开源',
     hero_h1_1: '您的消息画布，', hero_h1_2: '您的手柄。',
-    hero_sub: 'hollr 为每个人提供个人链接 — hollr.to/您的名字 — 世界各地的人可以直接写信、录音并发送到您的邮箱。',
+    hero_sub: "hollr 为每个人提供个人链接 — hollr.to/您的名字 — 任何人都可以写信、录制语音或附加文件，直接发送到您的邮箱。添加您的 PGP 公钥后，消息会在发送者的浏览器中完成端到端加密。",
     hero_cta: '领取手柄', hero_github: '在 GitHub 上查看',
     mock_label: '给 PAULFXYZ 的消息', mock_title: '说些值得说的话。',
     mock_desc: '这是一个计时消息画布。当您打字时，时钟就会运行。',
     mock_btn: '▶ 开始写作',
     stat1_val: '100%', stat1_label: '永远免费',
-    stat2_val: '0',    stat2_label: '已存储消息',
+    stat2_val: "PGP",    stat2_label: "端到端，使用您的密钥",
     stat3_val: '10',   stat3_label: '语言',
     stat4_val: '∞',   stat4_label: '可用手柄',
     how_eyebrow: '工作原理', how_title: '60秒内就开始运行。',
@@ -3928,18 +3893,12 @@ const LANGS = {
     canvas_b3: '拖放文件附件', canvas_b4: '消息立即达到您的邮箱',
     canvas_send: '发送消息',
     feat_eyebrow: '功能', feat_title: '您需要的一切，\n没有多余的。',
-    f1_title: '您的 API 密钥，您的邮箱', f1_body: '消息通过您自己的 Resend 账户传递。hollr 从不拦截。',
+    f1_title: '您的 API 密钥，您的邮箱', f1_body: "添加通知邮箱，hollr 就会从 yo@hollr.to 发到您的收件箱，无需任何配置。使用自己的 Resend 密钥和域名，则可改用您自己的地址发送。",
     f2_title: '计时画布', f2_body: '始终运行的计时器。',
-    f3_title: '语音笔记', f3_body: '直接在浏览器内录音。音频作为链接附上。',
-    f4_title: 'AES-256 加密', f4_body: '您的 Resend 密钥使用 AES-256-CBC + PBKDF2 加密存储。',
+    f3_title: '语音笔记', f3_body: "直接在浏览器中录制语音或附加任意文件。服务器收到后会用 AES-256-GCM 加密，密钥仅出现在您的通知邮件中，从不存储。",
+    f4_title: 'AES-256 加密', f4_body: "消息可选端到端 PGP 加密。文件与语音以 AES-256-GCM 加密存放。Resend 密钥采用 AES-256-CBC + PBKDF2。设置由 PIN 保护，并带有锁定机制。",
     f5_title: '10 种语言', f5_body: 'EN、FR、DE、IT、ES、NL、ZH、HI、JA、RU。画布自动适应发件人的语言。',
     f6_title: '完全开源', f6_body: 'MIT 许可。随意 Fork、自托管或扩展。',
-    priv_eyebrow: '隐私优先的设计', priv_title: '一切都加密。', priv_title_em: '没有任何存储。',
-    priv_sub: '通过 hollr 的每一条消息、语音和文件都是端到端加密的。',
-    p1_title: '端到端加密', p1_body: '消息、语音和文件均已加密。没有人能读取。',
-    p2_title: '自带存储', p2_body: '连接您自己的 S3 桶 — Cloudflare R2、AWS S3、Backblaze B2。',
-    p3_title: '零保留', p3_body: 'hollr 不保留消息副本。交付后即删除。',
-    p4_title: '可自托管', p4_body: '在 Fly.io 或任何 Node.js 主机上运行您自己的实例。',
     test_eyebrow: '人们怎么说', test_title: '深受创作者\n和开发者喜爱。',
     t1_text: '"我用 hollr 替换了联系表单。计时画布让人们在写作前思考。"',
     t1_name: 'Maya Lin', t1_role: '产品设计师, SF',
@@ -3967,13 +3926,13 @@ const LANGS = {
     nav_cta: 'अपना हैंडल लें',
     hero_pill: 'मुफ़्त और ओपन सोर्स',
     hero_h1_1: 'आपका संदेश कैन्वास,', hero_h1_2: 'आपका हैंडल।',
-    hero_sub: 'hollr हर किसी को एक निजी लिंक देता है — hollr.to/आपकानाम — जहाँ लोग सीधे आपके इनबॉक्स में लिख सकते हैं।',
+    hero_sub: "hollr हर किसी को एक निजी लिंक देता है — hollr.to/आपकानाम — जहाँ लोग सीधे आपके इनबॉक्स में संदेश लिख सकते हैं, वॉइस नोट रिकॉर्ड कर सकते हैं या फ़ाइलें जोड़ सकते हैं। आपकी PGP सार्वजनिक कुंजी जोड़ने पर संदेश भेजने वाले के ब्राउज़र में एंड-टू-एंड एन्क्रिप्ट हो जाता है।",
     hero_cta: 'अपना हैंडल लें', hero_github: 'GitHub पर देखें',
     mock_label: 'PAULFXYZ को संदेश', mock_title: 'कुछ कहें जो कहने लायक हो।',
     mock_desc: 'यह एक टाइमड संदेश कैन्वास है। घड़ी चलती रहती है।',
     mock_btn: '▶ लिखना शुरू करें',
     stat1_val: '100%', stat1_label: 'हमेशा मुफ़्त',
-    stat2_val: '0',    stat2_label: 'संदेश संग्रहीत',
+    stat2_val: "PGP",    stat2_label: "एंड-टू-एंड, आपकी कुंजी से",
     stat3_val: '10',   stat3_label: 'भाषाएँ',
     stat4_val: '∞',   stat4_label: 'उपलब्ध हैंडल',
     how_eyebrow: 'यह कैसे काम करता है', how_title: '60 सेकंड में\nतैयार।',
@@ -3993,18 +3952,12 @@ const LANGS = {
     canvas_b3: 'ड्रैग-ड्रॉप अटैचमेंट', canvas_b4: 'संदेश तुरंत इनबॉक्स में',
     canvas_send: 'संदेश भेजें',
     feat_eyebrow: 'विशेषताएँ', feat_title: 'जो चाहिए वो सब,\nबाकी कुछ नहीं।',
-    f1_title: 'आपकी API कुंजी, आपका इनबॉक्स', f1_body: 'संदेश आपके Resend खाते से डिलीवर होते हैं। hollr बीच में नहीं आता।',
+    f1_title: 'आपकी API कुंजी, आपका इनबॉक्स', f1_body: "अपना नोटिफ़िकेशन ईमेल जोड़ें और hollr बिना किसी सेटअप के yo@hollr.to से आपके इनबॉक्स में पहुँचते हैं। अपनी Resend कुंजी और डोमेन जोड़ने पर वे आपके अपने पते से भेजे जाते हैं।",
     f2_title: 'टाइमड कैन्वास', f2_body: 'एक हमेशा चलने वाला टाइमर।',
-    f3_title: 'वॉयस नोट्स', f3_body: 'सीधे ब्राउज़र में रिकॉर्ड करें। ऑडियो लिंक के रूप में डिलीवर होता है।',
-    f4_title: 'AES-256 एन्क्रिप्टेड', f4_body: 'आपकी Resend कुंजी AES-256-CBC + PBKDF2 से सुरक्षित है।',
+    f3_title: 'वॉयस नोट्स', f3_body: "ब्राउज़र में ही वॉइस नोट रिकॉर्ड करें या कोई भी फ़ाइल जोड़ें। हमारा सर्वर उसे प्राप्त होते ही AES-256-GCM से एन्क्रिप्ट करता है; कुंजी केवल आपके नोटिफ़िकेशन ईमेल में जाती है और कभी संग्रहीत नहीं होती।",
+    f4_title: 'AES-256 एन्क्रिप्टेड', f4_body: "संदेशों के लिए वैकल्पिक एंड-टू-एंड PGP। फ़ाइलें और वॉइस AES-256-GCM से एन्क्रिप्ट होकर रखी जाती हैं। आपकी Resend कुंजी AES-256-CBC + PBKDF2 से सुरक्षित है। सेटिंग्स PIN से सुरक्षित, लॉकआउट के साथ।",
     f5_title: '10 भाषाएँ', f5_body: 'EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU। कैन्वास आपके भेजनेवाले की भाषा में होता है।',
     f6_title: 'पूरी तरह ओपन सोर्स', f6_body: 'MIT लाइसेंस। जितना चाहें फॉर्क और सेल्फ-होस्ट करें।',
-    priv_eyebrow: 'डिज़ाइन द्वारा गोपनीयता', priv_title: 'सब कुछ एन्क्रिप्टेड।', priv_title_em: 'कुछ संग्रहीत नहीं।',
-    priv_sub: 'hollr से गुजरने वाला हर संदेश, वॉयस नोट और फ़ाइल एंड-टु-एंड एन्क्रिप्टेड है।',
-    p1_title: 'एंड-टु-एंड एन्क्रिप्शन', p1_body: 'संदेश, वॉयस रिकॉर्डिंग और फ़ाइलें एन्क्रिप्टेड हैं। कोई नहीं पढ़ सकता।',
-    p2_title: 'अपना स्टोरेज लाएं', p2_body: 'Cloudflare R2, AWS S3, Backblaze B2 आपका S3 बकेट जोड़ें।',
-    p3_title: 'शून्य धारण', p3_body: 'hollr संदेशों की कोई कॉपी नहीं रखता।',
-    p4_title: 'सेल्फ-होस्ट योग्य', p4_body: 'Fly.io पर मिनटों में अपना इंस्टेंस चलाएं।',
     test_eyebrow: 'लोग क्या कहते हैं', test_title: 'रचनाकारों और\nनिर्माताओं द्वारा पसंद।',
     t1_text: '"मैंने अपना संपर्क फ़ॉर्म hollr से बदल दिया। टाइमड कैन्वास लोगों को सोचने पर मजबूर करता है।"',
     t1_name: 'Maya Lin', t1_role: 'प्रोडक्ट डिज़ाइनर, SF',
@@ -4032,13 +3985,13 @@ const LANGS = {
     nav_cta: 'ハンドルを取得',
     hero_pill: '無料 & オープンソース',
     hero_h1_1: 'あなたのメッセージキャンバス、', hero_h1_2: 'あなたのハンドル。',
-    hero_sub: 'hollrは誰にでも個人リンクを提供します — hollr.to/あなたの名前 — ここで人々は書き、録音し、直接あなたのインボックスに送れます。',
+    hero_sub: "hollrは誰にでも個人リンクを提供します — hollr.to/あなたの名前 — メッセージの入力、音声メモの録音、ファイルの添付をして、あなたの受信箱へ直接送れます。PGP公開鍵を追加すると、メッセージは送信者のブラウザー内でエンドツーエンド暗号化されます。",
     hero_cta: 'ハンドルを取得', hero_github: 'GitHubで見る',
     mock_label: 'PAULFXYZへのメッセージ', mock_title: '書く価値のあることを。',
     mock_desc: '時間測定式メッセージキャンバス。タイピング中はクロックが進みます。',
     mock_btn: '▶ 書き始める',
     stat1_val: '100%', stat1_label: '永遠無料',
-    stat2_val: '0',    stat2_label: '保存メッセージ',
+    stat2_val: "PGP",    stat2_label: "あなたの鍵でエンドツーエンド",
     stat3_val: '10',   stat3_label: '言語',
     stat4_val: '∞',   stat4_label: '利用可能ハンドル',
     how_eyebrow: '仕組み', how_title: '60秒で\n始められます。',
@@ -4058,18 +4011,12 @@ const LANGS = {
     canvas_b3: 'ドラッグ&ドロップ添付', canvas_b4: 'メッセージは即座に届く',
     canvas_send: '送信',
     feat_eyebrow: '機能', feat_title: '必要なものすべて、\n不要なものはなし。',
-    f1_title: 'あなたのAPIキー、あなたのインボックス', f1_body: 'Resendアカウント経由で配信。hollrは中間業者ではありません。',
+    f1_title: 'あなたのAPIキー、あなたのインボックス', f1_body: "通知用メールアドレスを追加すれば、設定不要でyo@hollr.toからあなたの受信箱にhollrが届きます。自分のResendキーとドメインを使えば、ご自身のアドレスから送信できます。",
     f2_title: '時間測定式キャンバス', f2_body: '常に動くタイマーが送信者の記述時間を示します。',
-    f3_title: '音声メモ', f3_body: 'ブラウザ内で直接録音。音声はダウンロードリンクとして配信。',
-    f4_title: 'AES-256暗号化', f4_body: 'AES-256-CBC + PBKDF2で暗号化。PIN保護。',
+    f3_title: '音声メモ', f3_body: "ブラウザー上で音声を録音したり、任意のファイルを添付できます。サーバーは受信時にAES-256-GCMで暗号化し、鍵は通知メールにのみ含まれ、保存されることはありません。",
+    f4_title: 'AES-256暗号化', f4_body: "メッセージにはオプションでエンドツーエンドPGP。ファイルと音声はAES-256-GCMで暗号化して保管。ResendキーはAES-256-CBC + PBKDF2。設定はPIN保護で、ロックアウト機能付き。",
     f5_title: '10言語', f5_body: 'EN、FR、DE、IT、ES、NL、ZH、HI、JA、RU。自動で送信者の言語に対応。',
     f6_title: '完全オープンソース', f6_body: 'MITライセンス。フォーク、セルフホスト、拡張、自由自在。',
-    priv_eyebrow: 'プライバシーバイデザイン', priv_title: 'すべて暗号化。', priv_title_em: '何も保存しない。',
-    priv_sub: 'hollrを通じるすべてのメッセージ、音声メモ、ファイルはエンドツーエンド暗号化されています。',
-    p1_title: 'エンドツーエンド暗号化', p1_body: '誰も—私たちでさえ—内容を読めません。',
-    p2_title: 'ストレージを持ち込む', p2_body: 'Cloudflare R2、AWS S3、Backblaze B2など自分のS3バケットを接続。',
-    p3_title: 'ゼロ保持', p3_body: 'hollrはメッセージのコピーを保存しません。配信後は削除されます。',
-    p4_title: 'セルフホスト可能', p4_body: 'Fly.io上に数分で自分のインスタンスを起動。',
     test_eyebrow: '人々の声', test_title: 'クリエイターや\nビルダーに愛されています。',
     t1_text: '"コンタクトフォームをhollrに置き換えました。タイマー付きキャンバスで考えてから書く。"',
     t1_name: 'Maya Lin', t1_role: 'プロダクトデザイナー, SF',
@@ -4097,13 +4044,13 @@ const LANGS = {
     nav_cta: 'Забрать хэндл',
     hero_pill: 'Бесплатно & open source',
     hero_h1_1: 'Ваш холст для сообщений,', hero_h1_2: 'ваш хэндл.',
-    hero_sub: 'hollr даёт каждому личную ссылку — hollr.to/вашеимя — где люди могут писать, записывать и отправлять прямо в ваш ящик.',
+    hero_sub: "hollr даёт каждому личную ссылку — hollr.to/вашеимя — где люди могут писать, записывать голосовые заметки и прикреплять файлы прямо в ваш ящик. Если добавить публичный PGP-ключ, сообщение шифруется сквозным образом в браузере отправителя.",
     hero_cta: 'Забрать хэндл', hero_github: 'Посмотреть на GitHub',
     mock_label: 'СООБЩЕНИЕ PAULFXYZ', mock_title: 'Скажите что-то стоящее.',
     mock_desc: 'Холст с таймером. Часы идут пока вы пишете.',
     mock_btn: '▶ Начать писать',
     stat1_val: '100%', stat1_label: 'Бесплатно навсегда',
-    stat2_val: '0',    stat2_label: 'Сохранённых сообщений',
+    stat2_val: "PGP",    stat2_label: "Сквозное, с вашим ключом",
     stat3_val: '10',   stat3_label: 'Языков',
     stat4_val: '∞',   stat4_label: 'Доступных хэндлов',
     how_eyebrow: 'Как это работает', how_title: 'Готово к работе\nза 60 секунд.',
@@ -4123,18 +4070,12 @@ const LANGS = {
     canvas_b3: 'Вложения через drag & drop', canvas_b4: 'Сообщение сразу в ящике',
     canvas_send: 'Отправить',
     feat_eyebrow: 'Функции', feat_title: 'Всё необходимое,\nничего лишнего.',
-    f1_title: 'Ваш API-ключ, ваш ящик', f1_body: 'Сообщения доставляются через ваш Resend. hollr не посредник.',
+    f1_title: 'Ваш API-ключ, ваш ящик', f1_body: "Укажите почту для уведомлений — hollr приходят в ваш ящик с адреса yo@hollr.to, без настройки. Со своим ключом Resend и доменом письма уходят с вашего адреса.",
     f2_title: 'Таймерный холст', f2_body: 'Таймер показывает отправителю время написания.',
-    f3_title: 'Голосовые записки', f3_body: 'Запись прямо в браузере. Аудио прикрепляется как ссылка.',
-    f4_title: 'AES-256 шифрование', f4_body: 'Ключ Resend зашифрован AES-256-CBC + PBKDF2. PIN-защита.',
+    f3_title: 'Голосовые записки', f3_body: "Запишите голосовую заметку или прикрепите любой файл прямо в браузере. Сервер шифрует его AES-256-GCM при получении; ключ передаётся только в письме-уведомлении и нигде не хранится.",
+    f4_title: 'AES-256 шифрование', f4_body: "Необязательное сквозное PGP для сообщений. Файлы и голос хранятся зашифрованными AES-256-GCM. Ключ Resend — AES-256-CBC + PBKDF2. Настройки защищены PIN-кодом с блокировкой.",
     f5_title: '10 языков', f5_body: 'EN, FR, DE, IT, ES, NL, ZH, HI, JA, RU. Холст автоматически адаптируется.',
     f6_title: 'Полностью open source', f6_body: 'MIT лицензия. Форкайте, хостите сами, расширяйте.',
-    priv_eyebrow: 'Приватность по дизайну', priv_title: 'Всё зашифровано.', priv_title_em: 'Ничего не хранится.',
-    priv_sub: 'Каждое сообщение, голосовая заметка и файл через hollr шифруется от конца до конца.',
-    p1_title: 'Шифрование от конца до конца', p1_body: 'Никто — даже мы — не можем прочитать ваши сообщения.',
-    p2_title: 'Своё хранилище', p2_body: 'Cloudflare R2, AWS S3, Backblaze B2 — подключите свой S3-бакет.',
-    p3_title: 'Нулевое хранение', p3_body: 'hollr не хранит копий. После доставки данные удаляются.',
-    p4_title: 'Самохостинг', p4_body: 'Запустите свой экземпляр на Fly.io за несколько минут.',
     test_eyebrow: 'Что говорят', test_title: 'Любим создателями\nи разработчиками.',
     t1_text: '"Заменил свою контактную форму на hollr. Таймер заставляет людей думать перед написанием."',
     t1_name: 'Maya Lin', t1_role: 'Продуктовый дизайнер, SF',

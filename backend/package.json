@@ -1,11 +1,12 @@
 {
   "name": "hollr-backend",
-  "version": "5.2.9",
-  "description": "hollr.to — open source SaaS messaging platform backend",
+  "version": "5.3.0",
+  "description": "hollr.to \u2014 open source SaaS messaging platform backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "node test/security.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

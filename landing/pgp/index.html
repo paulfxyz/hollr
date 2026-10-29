@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  hollr.to/pgp — in-browser PGP key generator + message decryptor      (v5.3.0)
+  ============================================================================
+
+  PURPOSE
+  ───────
+  hollr can PGP-encrypt every incoming message in the SENDER'S browser, using the
+  public key you put in Settings.  This page gives people who don't run GPG a way
+  to (1) create that key pair and (2) read what arrives — with zero install.
+
+  PRIVACY MODEL
+  ─────────────
+  • Everything runs locally with OpenPGP.js (self-hosted at /vendor/, pinned 5.11.3).
+  • No request is made with your keys, passphrase or messages. There is no fetch /
+    XHR / form post anywhere in this file — read the script, it is ~100 lines.
+  • Keys are generated from the browser's CSPRNG (curve25519 ECC) and live only in
+    this tab's memory until you copy or download them.
+  • hollr's servers never see the private key — not here, not anywhere else.
+
+  The page deliberately has no analytics, no third-party scripts (only a font
+  stylesheet) and no storage (no cookies, no localStorage).
+  ============================================================================
+-->
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PGP keys &amp; decryptor — hollr</title>
+  <meta name="description" content="Generate a PGP key pair and decrypt hollr messages entirely in your browser. Nothing is uploaded.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>📢</text></svg>">
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0d0d; --surface: #141414; --surface-2: #1b1b1b; --border: #2a2a2a;
+      --text: #e8e8e6; --muted: #8d8d8a; --accent: #ff6b35; --success: #52c07a; --error: #e05252;
+      --font-d: 'Cabinet Grotesk', system-ui, sans-serif; --font-b: 'Satoshi', system-ui, sans-serif;
+    }
+    @media (prefers-color-scheme: light) {
+      :root { --bg: #fafaf8; --surface: #fff; --surface-2: #f3f2ee; --border: #e5e5e0; --text: #1a1a18; --muted: #6b6b68; }
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-b); background: var(--bg); color: var(--text); min-height: 100dvh;
+           padding: 40px 20px 64px; -webkit-font-smoothing: antialiased; line-height: 1.55; }
+    .wrap { max-width: 640px; margin: 0 auto; }
+    .brand { font-family: var(--font-d); font-weight: 800; font-size: 20px; letter-spacing: -.02em;
+             color: var(--text); text-decoration: none; display: inline-block; margin-bottom: 28px; }
+    h1 { font-family: var(--font-d); font-size: 30px; font-weight: 800; letter-spacing: -.025em; margin-bottom: 8px; }
+    .lede { color: var(--muted); font-size: 15.5px; margin-bottom: 24px; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .05em; padding: 3px 10px;
+             border-radius: 6px; background: rgba(82,192,122,.12); color: var(--success); margin-bottom: 14px; }
+    .tabs { display: flex; gap: 6px; background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 4px; margin-bottom: 18px; }
+    .tab { flex: 1; border: 0; background: transparent; color: var(--muted); font: 600 14px var(--font-b);
+           padding: 10px 12px; border-radius: 9px; cursor: pointer; }
+    .tab[aria-selected="true"] { background: var(--accent); color: #fff; }
+    .tab:focus-visible, .btn:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+    .panel[hidden] { display: none; }
+    label { display: block; font-size: 13px; font-weight: 700; margin: 16px 0 6px; }
+    label:first-child { margin-top: 0; }
+    .hint { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
+    input[type=text], input[type=password], textarea {
+      width: 100%; background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+      border-radius: 10px; padding: 11px 13px; font: 14px var(--font-b); }
+    textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; min-height: 120px; resize: vertical; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .btn { border: 0; border-radius: 10px; padding: 12px 18px; font: 700 14px var(--font-b); cursor: pointer; transition: opacity 120ms; }
+    .btn:hover { opacity: .88; } .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; width: 100%; margin-top: 18px; }
+    .btn-ghost { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); padding: 8px 14px; font-size: 13px; }
+    .out { margin-top: 20px; }
+    .warn { background: rgba(255,107,53,.08); border: 1px solid rgba(255,107,53,.35); border-radius: 10px;
+            padding: 12px 14px; font-size: 13px; margin-top: 10px; }
+    .msg { margin-top: 14px; font-size: 13.5px; min-height: 20px; }
+    .msg.err { color: var(--error); } .msg.ok { color: var(--success); }
+    pre.plain { white-space: pre-wrap; word-break: break-word; background: var(--surface-2); border: 1px solid var(--border);
+                border-radius: 10px; padding: 14px; font: 14px/1.55 var(--font-b); margin-top: 8px; }
+    .foot { margin-top: 26px; font-size: 12.5px; color: var(--muted); }
+    .foot a { color: var(--muted); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <a class="brand" href="/">📢 hollr</a>
+  <span class="badge">RUNS 100% IN YOUR BROWSER</span>
+  <h1>PGP keys &amp; decryptor</h1>
+  <p class="lede">Create the key pair that makes your hollrs end-to-end encrypted, and read them when they arrive. Nothing on this page is uploaded &mdash; there is no server involved.</p>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-gen"  aria-selected="true"  aria-controls="panel-gen">Create keys</button>
+    <button class="tab" role="tab" id="tab-dec"  aria-selected="false" aria-controls="panel-dec">Decrypt a message</button>
+  </div>
+
+  <!-- ── CREATE KEYS ─────────────────────────────────────────────────────── -->
+  <section class="card panel" id="panel-gen" role="tabpanel" aria-labelledby="tab-gen">
+    <label for="gen-pass">Passphrase (recommended)</label>
+    <input type="password" id="gen-pass" autocomplete="new-password" placeholder="Protects your private key if the file leaks">
+    <p class="hint">You will need it every time you decrypt. It cannot be recovered &mdash; not by you, not by us.</p>
+    <button class="btn btn-primary" id="gen-btn">Generate key pair</button>
+    <p class="msg" id="gen-msg" role="status"></p>
+
+    <div class="out" id="gen-out" hidden>
+      <label for="gen-pub">Public key &mdash; paste this into hollr Settings &rarr; PGP public key</label>
+      <textarea id="gen-pub" readonly></textarea>
+      <div class="row"><button class="btn btn-ghost" data-copy="gen-pub">Copy public key</button></div>
+
+      <label for="gen-priv">Private key &mdash; keep this secret</label>
+      <textarea id="gen-priv" readonly></textarea>
+      <div class="row">
+        <button class="btn btn-ghost" data-copy="gen-priv">Copy private key</button>
+        <button class="btn btn-ghost" id="gen-dl">Download .asc file</button>
+      </div>
+      <div class="warn">Save the private key in a password manager now. It exists only in this tab: if you close it without saving, nobody &mdash; including hollr &mdash; can recover it, and messages encrypted to the public key become unreadable.</div>
+    </div>
+  </section>
+
+  <!-- ── DECRYPT ─────────────────────────────────────────────────────────── -->
+  <section class="card panel" id="panel-dec" role="tabpanel" aria-labelledby="tab-dec" hidden>
+    <label for="dec-msg">Encrypted message</label>
+    <textarea id="dec-msg" placeholder="-----BEGIN PGP MESSAGE-----&#10;…&#10;-----END PGP MESSAGE-----"></textarea>
+    <label for="dec-priv">Your private key</label>
+    <textarea id="dec-priv" placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----&#10;…"></textarea>
+    <label for="dec-pass">Passphrase <span style="font-weight:400;color:var(--muted)">(if you set one)</span></label>
+    <input type="password" id="dec-pass" autocomplete="off">
+    <button class="btn btn-primary" id="dec-btn">Decrypt</button>
+    <p class="msg" id="dec-msg-status" role="status"></p>
+    <div class="out" id="dec-out" hidden>
+      <label>Decrypted message</label>
+      <pre class="plain" id="dec-plain"></pre>
+    </div>
+  </section>
+
+  <p class="foot">Open source &middot; <a href="https://github.com/paulfxyz/hollr">github.com/paulfxyz/hollr</a> &middot; <a href="/decrypt">Decrypt a file instead</a> &middot; <a href="/">Back to hollr.to</a></p>
+</div>
+
+<script>
+/* Everything below runs locally. No fetch / XHR / beacon — only a dynamic import of
+   the self-hosted OpenPGP.js bundle. */
+(() => {
+  const $ = (id) => document.getElementById(id);
+  let _lib = null;
+  const lib = () => _lib || (_lib = import('/vendor/openpgp-5.11.3.min.js').catch((e) => { _lib = null; throw e; }));
+  const say = (el, text, cls) => { el.textContent = text; el.className = 'msg' + (cls ? ' ' + cls : ''); };
+
+  /* tabs */
+  const show = (which) => {
+    ['gen', 'dec'].forEach((k) => {
+      $('panel-' + k).hidden = k !== which;
+      $('tab-' + k).setAttribute('aria-selected', String(k === which));
+    });
+    if (location.hash !== '#' + which) history.replaceState(null, '', '#' + which);
+  };
+  $('tab-gen').onclick = () => show('gen');
+  $('tab-dec').onclick = () => show('dec');
+  if (location.hash === '#dec') show('dec');
+
+  /* copy buttons */
+  document.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
+    const t = $(b.dataset.copy); t.select();
+    try { await navigator.clipboard.writeText(t.value); const o = b.textContent; b.textContent = 'Copied'; setTimeout(() => (b.textContent = o), 1400); }
+    catch { document.execCommand('copy'); }
+  }));
+
+  /* generate */
+  $('gen-btn').onclick = async () => {
+    const btn = $('gen-btn'), msg = $('gen-msg');
+    btn.disabled = true; say(msg, 'Generating keys in your browser…');
+    try {
+      const openpgp = await lib();
+      const pass = $('gen-pass').value;
+      const { privateKey, publicKey } = await openpgp.generateKey({
+        type: 'ecc', curve: 'curve25519',
+        userIDs: [{ name: 'hollr user' }],
+        passphrase: pass || undefined,
+        format: 'armored',
+      });
+      $('gen-pub').value = publicKey; $('gen-priv').value = privateKey;
+      $('gen-out').hidden = false;
+      say(msg, pass ? 'Done. Your private key is passphrase-protected.' : 'Done. Tip: add a passphrase next time for extra safety.', 'ok');
+    } catch (e) {
+      say(msg, 'Could not generate keys: ' + (e && e.message ? e.message : e), 'err');
+    } finally { btn.disabled = false; }
+  };
+  $('gen-dl').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([$('gen-priv').value], { type: 'text/plain' }));
+    a.download = 'hollr-private-key.asc'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+
+  /* decrypt */
+  $('dec-btn').onclick = async () => {
+    const btn = $('dec-btn'), msg = $('dec-msg-status');
+    $('dec-out').hidden = true; btn.disabled = true; say(msg, 'Decrypting…');
+    try {
+      const openpgp = await lib();
+      const armoredMessage = $('dec-msg').value.trim(), armoredKey = $('dec-priv').value.trim();
+      if (!armoredMessage || !armoredKey) throw new Error('Paste both the encrypted message and your private key.');
+      let key = await openpgp.readPrivateKey({ armoredKey });
+      const pass = $('dec-pass').value;
+      if (!key.isDecrypted()) {
+        if (!pass) throw new Error('This private key is passphrase-protected — enter the passphrase.');
+        key = await openpgp.decryptKey({ privateKey: key, passphrase: pass });
+      }
+      const { data } = await openpgp.decrypt({ message: await openpgp.readMessage({ armoredMessage }), decryptionKeys: key });
+      $('dec-plain').textContent = data; $('dec-out').hidden = false;
+      say(msg, 'Decrypted locally. Nothing left this tab.', 'ok');
+    } catch (e) {
+      const m = String(e && e.message || e);
+      // Our own hints pass through; low-level OpenPGP errors become one friendly line.
+      const own = /^Paste both|^This private key is passphrase-protected/.test(m);
+      say(msg, own ? m : (/passphrase|Incorrect key|session key|decrypt/i.test(m) ? 'Wrong passphrase, or this key does not match the message.' : m), 'err');
+    } finally { btn.disabled = false; }
+  };
+})();
+</script>
+</body>
+</html>
