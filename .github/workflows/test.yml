@@ -1,0 +1,29 @@
+# hollr — backend integration tests
+# Boots the real server against a throw-away SQLite database and checks the
+# security-relevant behaviour (PIN lockout, token revocation, attachment
+# validation, PGP policy, encryption at rest, reserved handles).
+name: tests
+
+on:
+  push:
+    branches: [main, 'release/**']
+    paths: ['backend/**', '.github/workflows/test.yml']
+  pull_request:
+    paths: ['backend/**', '.github/workflows/test.yml']
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: node --check server.js && node --check mailer.js && node --check crypto.js && node --check db.js
+      - run: npm test

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="hollr">
+  <title>hollr</title>
+  <!-- Rounded tile in the brand ink colour -->
+  <rect width="128" height="128" rx="30" fill="#1a1814"/>
+  <!-- Megaphone: mouthpiece, cone, and handle, in the brand cream -->
+  <path d="M30 54h14l36-20v60L44 74H30a4 4 0 0 1-4-4V58a4 4 0 0 1 4-4Z" fill="#f9f6f1"/>
+  <path d="M46 78l5 20a3 3 0 0 0 3 2h7a3 3 0 0 0 3-3.7L59 82Z" fill="#f9f6f1"/>
+  <!-- Sound arcs in the brand accent -->
+  <path d="M92 50c6 8 6 20 0 28" fill="none" stroke="#c96a2a" stroke-width="6" stroke-linecap="round"/>
+  <path d="M103 38c12 14 12 38 0 52" fill="none" stroke="#c96a2a" stroke-width="6" stroke-linecap="round" opacity=".7"/>
+</svg>

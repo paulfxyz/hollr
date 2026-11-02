@@ -522,6 +522,20 @@ a { color: inherit; }
 }
 
 /* Mobile: bottom sheet */
+/* v5.3.0: the top-bar buttons were wider than a 390px phone and the CTA was clipped. */
+@media (max-width: 900px) {
+  /* long translations (fr, de, it, es) pushed the link row past the viewport on tablets */
+  .nav__links { display: none; }
+}
+@media (max-width: 480px) {
+  .nav__actions { gap: 6px; }
+  .nav__actions .btn { padding: 8px 12px; font-size: 13px; white-space: nowrap; }
+  .nav__inner { padding-inline: 14px; gap: 8px; }
+}
+@media (max-width: 380px) {
+  .nav__actions .btn { padding: 8px 8px; font-size: 11.5px; }
+  .nav__actions { gap: 4px; }
+}
 @media (max-width: 520px) {
   .lang-backdrop {
     align-items: flex-end;
@@ -654,6 +668,17 @@ a { color: inherit; }
 }
 .hero__h1-line {
   display: block;
+}
+/* CJK headlines have no spaces, so at the Latin display size they broke mid-word
+   ("メッセ / ージ"). Smaller size + phrase-aware line breaking keeps words intact. (v5.3.0) */
+html[lang="ja"] .hero__headline,
+html[lang="zh"] .hero__headline {
+  font-size: clamp(1.6rem, 0.9rem + 2vw, 2.4rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  line-break: strict;
+  word-break: auto-phrase;
+  overflow-wrap: anywhere;   /* never let one long phrase widen the page on phones */
 }
 .hero__h1-em {
   display: block;
@@ -1521,6 +1546,10 @@ a { color: inherit; }
 @media (max-width: 860px) {
   .sec-claims { grid-template-columns: 1fr; }
   .sec-byok { grid-template-columns: 1fr; }
+  /* v5.3.0: grid children default to min-width:auto, so the code sample forced the
+     whole page wider than a phone. Let them shrink and scroll the code instead. */
+  .sec-byok__left, .sec-byok__right { min-width: 0; }
+  .sec-byok__pre { overflow-x: auto; }
   .sec-flow { padding: 20px; gap: 0; }
   .sec-flow__arrow-line { width: 24px; }
 }
@@ -3013,7 +3042,7 @@ a { color: inherit; }
 
           <div class="sec-claim">
             <div class="sec-claim__num">02</div>
-            <h3 class="sec-claim__title">We generate your keys — or you come correct with your own</h3>
+            <h3 class="sec-claim__title">Make a key in your browser — or bring your own</h3>
             <p class="sec-claim__body">Create a key pair in your browser at <a href="/pgp" class="inline-link">hollr.to/pgp</a> — nothing is uploaded — or paste an existing public key. hollr only ever sees the public half.</p>
           </div>
 

@@ -42,10 +42,21 @@ A full review of the code and of every public claim, cross-checked by two indepe
 - Reserved handles are rejected at sign-up (magic-link step), not late at claim.
 
 ### Added
+- **README overhaul:** banner (light and dark), badges, product screenshots, a data-flow diagram, language table, project structure, quick start, tests/CI and documentation index. Screenshots live in `docs/screenshots/`.
+- **Logo and brand assets** in `docs/assets/` (`logo.svg`, `logo-light.svg`, `logo-512.png`, light/dark banners, `social-preview.png` at 1280x640 for the GitHub social preview).
+- **CI:** `.github/workflows/test.yml` runs syntax checks and the integration tests on every backend push and pull request.
 - **hollr.to/pgp** — generate a PGP key pair and decrypt messages entirely in the browser (no network requests; tested). Landing and docs now point there instead of promising key generation that never existed.
 - `backend/test/security.test.js` — 37-assertion integration test (`npm test`).
 - `SECURITY.md` (who can read what, guarantees, known limitations) and `docs/AUDIT-5.3.0.md`.
 - `package-lock.json` is now tracked (the Dockerfile uses `npm ci`).
+
+### Fixed (canvas and landing)
+- **Owner name vanished from the canvas.** Every Start/Pause re-rendered the translated text and replaced "Message to Paul Fleury" with "Message to…" on the Send button and in the send modal; the welcome card showed a literal "…". The name is now re-applied after every re-render, in all 10 languages.
+- **Untranslated strings:** the French welcome text and the Japanese "message delivered" line were still in English.
+- **Settings panel could not scroll** on short screens, hiding its header and the Save button. It now scrolls inside the viewport.
+- **Japanese and Chinese landing headline** broke in the middle of words ("メッセ / ージ"). Smaller size and phrase-aware line breaking.
+- **Landing page overflowed sideways on phones and tablets** (top-bar buttons, the code sample, long French/German labels). No horizontal overflow now at 360, 390 and 768 px in any of the 10 languages.
+- Security section heading "We generate your keys…" (not true) replaced with "Make a key in your browser — or bring your own".
 
 ### Changed
 - **Landing copy now matches the code, in all 10 languages.** Removed "0 messages stored by us", "zero retention", "everything is encrypted before upload", and stale non-English text ("Aucune donnée stockée" and others). The hero statistic now reads "PGP — end-to-end, with your key". Decrypt viewer wording corrected (files are encrypted by the server on arrival, and the key stays in the URL fragment).
@@ -574,7 +585,7 @@ Changes:
 ## [4.3.0] — 2026-04-05
 
 ### Changed
-- Purged all remaining `howlr/` directory references from the workspace. The old `howlr/` directory (typo remnant from the original project name) was deleted after confirming it contained no unique content not already present in `hollr/`.
+- Purged leftover references to an old, misspelled directory name from the workspace.
 - Added thorough inline code comments to all four backend source files: `server.js`, `db.js`, `crypto.js`, `mailer.js`. Every function, middleware registration, and non-obvious code path now has a comment explaining what it does and why.
 
 ### Added
@@ -594,7 +605,7 @@ Changes:
 - Landing page updated to 10 languages in the new design.
 
 ### Fixed
-- CNAME trap: `api.hollr.to` was pointing to `howlr-api.fly.dev` (the old, deleted app name). Updated CNAME record to `hollr-api.fly.dev`. This was a silent production outage — the API was running but unreachable via the custom domain.
+- CNAME trap: `api.hollr.to` was pointing to the old, deleted Fly.io app hostname. Updated the CNAME record to `hollr-api.fly.dev`. This was a silent production outage — the API was running but unreachable via the custom domain.
 - PGP tab in settings modal was invisible: the tab switcher JavaScript toggled `tab-key` and `tab-pin` but did not include `tab-pgp` in its list. Added `tab-pgp` to the switcher.
 - `GET /api/settings` was missing: the settings modal tried to fetch current settings on open but the endpoint didn't exist. The modal silently showed empty fields.
 
@@ -668,7 +679,7 @@ Changes:
 
 ### Security
 - Git history cleaned: `git-filter-repo` used to remove `.env` (containing a live Resend API key) from all commits. Key rotated in Resend dashboard immediately after GitGuardian alert. `.env` added to `.gitignore`.
-- All `howlr` → `hollr` typo fixes applied throughout codebase. The old typo in the Fly.io app name (`howlr-api`) was the root cause of the CNAME outage fixed in v4.2.0.
+- Spelling fixes applied throughout the codebase. The old misspelling in the Fly.io app name was the root cause of the CNAME outage fixed in v4.2.0.
 - No passwords stored — magic links and session tokens only.
 
 ---

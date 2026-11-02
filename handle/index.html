@@ -739,7 +739,10 @@
       background: var(--bg); border-radius: 16px;
       border: 1px solid var(--border-md);
       box-shadow: var(--shadow);
-      overflow: hidden; position: relative; font-family: var(--body);
+      /* v5.3.0: the box used to be taller than short screens with no way to scroll,
+         hiding the header and the Save button. It now scrolls inside the viewport. */
+      max-height: calc(100vh - 48px); max-height: calc(100dvh - 48px); overflow-y: auto; overscroll-behavior: contain;
+      position: relative; font-family: var(--body);
       transition: background 200ms, border-color 200ms;
     }
     #settings-box .s-head { padding: 24px 24px 16px; border-bottom: 1px solid var(--border); transition: border-color 200ms; }
@@ -1415,7 +1418,7 @@
       welcome_eyebrow:'Message pour …',
       welcome_title:'Dites quelque chose qui vaut la peine d\'être écrit.',
       welcome_desc1:'C\'est un canvas d\'écriture chronométré. L\'horloge tourne uniquement pendant que vous tapez — chaque seconde comptée est une seconde vraiment passée à écrire.',
-      welcome_desc2:'When you\'re done, the message is sent directly to the handle owner — with any voice note or files attached.',
+      welcome_desc2:'Quand vous avez terminé, votre message est envoyé directement à … par e-mail — avec les éventuelles notes vocales ou fichiers joints.',
       step1:'Cliquez sur Démarrer — le chrono commence.',
       step2:'Écrivez librement. Joignez des fichiers ou une note vocale.',
       step3:'Envoyez votre message quand c\'est prêt.',
@@ -1843,7 +1846,7 @@
       send_email_btn:'メッセージを送信する',
       modal_foot_note:'hollr を通じてメッセージが安全に届けられました。',
       sending:'ファイルをアップロードしてメッセージを送信中…',
-      sent_title:'メッセージを送信しました！', sent_sub:'Your message has been delivered to their inbox.',
+      sent_title:'メッセージを送信しました！', sent_sub:'メッセージは相手の受信箱に届きました。',
       write_another:'← 別のメッセージを書く', go_to_paul:'返回 hollr.to',
       error_title:'エラーが発生しました', back:'← 戻る', try_again:'再試行',
       err_encrypt:'このブラウザーではメッセージを暗号化できなかったため、送信されませんでした。接続を確認して、もう一度お試しください。',
@@ -1942,13 +1945,22 @@
 
   const applyTranslations = () => {
     document.documentElement.lang = currentLang;
+    // Strings whose template contains '…' as a placeholder for the owner's display name
+    // (e.g. "Message to…"). v5.3.0: previously only page_title and welcome_eyebrow were
+    // protected, so every Start / Pause (which calls applyTranslations) wiped the name
+    // from the Send button and the send-modal title, and welcome_desc2 kept a literal "…".
+    // The name is now re-applied here, after every re-render, for all of these keys.
+    const OWNER_NAME_KEYS = new Set(['page_title', 'welcome_eyebrow', 'send_to_paul', 'send_modal_title', 'welcome_desc2']);
+    const ownerName = window._hollrDisplayName;
+    const escName = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.dataset.i18n;
-      // page_title and welcome_eyebrow use the owner's display name once loaded.
-      // Skip re-rendering them from T strings (which say "Message to…") so the
-      // name doesn't get wiped on every state change or language switch.
-      if ((key === 'page_title' || key === 'welcome_eyebrow') && window._hollrDisplayName) return;
       const val = t(key);
+      if (ownerName && OWNER_NAME_KEYS.has(key) && val.includes('…')) {
+        if (key === 'page_title') el.innerHTML = val.replace(/\s?…/g, ` <strong>${escName(ownerName)}</strong>`);
+        else el.textContent = val.replace(/\s?…/g, ' ' + ownerName);
+        return;
+      }
       if (val.includes('<')) { el.innerHTML = val; }
       else { el.textContent = val; }
     });
@@ -3207,6 +3219,13 @@
       document.querySelectorAll('[data-i18n="welcome_eyebrow"]').forEach(el => {
         const ewTemplate = T[currentLang]?.welcome_eyebrow || T.en.welcome_eyebrow;
         el.textContent = ewTemplate.replace(/\s?…/g, ' ' + displayName);
+      });
+
+      // Welcome card paragraph ("…sent directly to … by email") — v5.3.0: this one was never
+      // filled in on first paint, so visitors saw a literal "…" until they pressed Start.
+      document.querySelectorAll('[data-i18n="welcome_desc2"]').forEach(el => {
+        const tmpl = T[currentLang]?.welcome_desc2 || T.en.welcome_desc2;
+        if (tmpl.includes('…')) el.textContent = tmpl.replace(/\s?…/g, ' ' + displayName);
       });
 
       function escHtml(str) {

@@ -1,24 +1,230 @@
-# 📢 hollr
+<div align="center">
 
-[![Version](https://img.shields.io/badge/version-5.3.0-1a1814?style=flat-square&logo=github)](https://github.com/paulfxyz/hollr/releases/tag/v5.3.0)
-[![License: MIT](https://img.shields.io/badge/license-MIT-c96a2a?style=flat-square)](LICENSE)
-[![Node](https://img.shields.io/badge/node-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner-dark.png">
+  <img src="docs/assets/banner-light.png" alt="hollr — Holla at me. Encrypted, on arrival." width="100%">
+</picture>
+
+<br>
+
+[![Version](https://img.shields.io/badge/version-5.3.0-1a1814?style=for-the-badge)](https://github.com/paulfxyz/hollr/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-c96a2a?style=for-the-badge)](LICENSE)
+[![Tests](https://img.shields.io/github/actions/workflow/status/paulfxyz/hollr/test.yml?branch=main&label=tests&style=for-the-badge)](https://github.com/paulfxyz/hollr/actions/workflows/test.yml)
+[![Stars](https://img.shields.io/github/stars/paulfxyz/hollr?style=for-the-badge&color=1a1814)](https://github.com/paulfxyz/hollr/stargazers)
+
+[![Node 20](https://img.shields.io/badge/node-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![Express](https://img.shields.io/badge/express-4-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com)
 [![SQLite](https://img.shields.io/badge/SQLite-WAL-003b57?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org)
-[![Deployed on Fly.io](https://img.shields.io/badge/Fly.io-deployed-7c3aed?style=flat-square)](https://fly.io)
-[![Open Source](https://img.shields.io/badge/open_source-MIT-f9f6f1?style=flat-square)](https://github.com/paulfxyz/hollr)
-[![Vibe Coded](https://img.shields.io/badge/vibe_coded-100%25-c96a2a?style=flat-square)](https://github.com/paulfxyz/hollr)
+[![OpenPGP.js](https://img.shields.io/badge/OpenPGP.js-5.11.3-0093dd?style=flat-square)](https://openpgpjs.org)
+[![Fly.io](https://img.shields.io/badge/API-Fly.io-7c3aed?style=flat-square&logo=flydotio&logoColor=white)](https://fly.io)
+[![Resend](https://img.shields.io/badge/email-Resend-000000?style=flat-square)](https://resend.com)
+[![Languages](https://img.shields.io/badge/languages-10-c96a2a?style=flat-square)](#languages)
+[![No build step](https://img.shields.io/badge/build_step-none-f9f6f1?style=flat-square&labelColor=1a1814)](#project-structure)
+[![Last commit](https://img.shields.io/github/last-commit/paulfxyz/hollr?style=flat-square&color=1a1814)](https://github.com/paulfxyz/hollr/commits)
+[![Issues](https://img.shields.io/github/issues/paulfxyz/hollr?style=flat-square&color=c96a2a)](https://github.com/paulfxyz/hollr/issues)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-3a3530?style=flat-square)](#contributing)
 
-> **Live:** [hollr.to](https://hollr.to) · **Example canvas:** [hollr.to/paulfxyz](https://hollr.to/paulfxyz) · **API health:** [hollr-api.fly.dev/health](https://hollr-api.fly.dev/health)
+**[Live site](https://hollr.to)** &nbsp;·&nbsp; **[Example canvas](https://hollr.to/paulfxyz)** &nbsp;·&nbsp; **[PGP tool](https://hollr.to/pgp)** &nbsp;·&nbsp; **[API health](https://hollr-api.fly.dev/health)** &nbsp;·&nbsp; **[Security](SECURITY.md)** &nbsp;·&nbsp; **[Changelog](CHANGELOG.md)**
+
+</div>
 
 ---
 
 ## What is hollr?
 
-**hollr** is a personal encrypted message canvas. Claim `hollr.to/yourname`, share the link, and anyone can write you a thoughtful message — no account required, no DMs, no algorithm deciding whether you see it.
+**hollr** is a personal message canvas. Claim `hollr.to/yourname`, share the link, and anyone can write you a thoughtful message — no account for the sender, no DMs, no algorithm deciding whether you see it.
 
-The sender gets a timed, distraction-free writing space. The clock only runs while they type, so every second on the timer is a second actually spent composing. Messages arrive in your inbox, optionally PGP-encrypted end-to-end so not even hollr's servers can read them. Files and voice recordings are encrypted with AES-256-GCM before they touch disk. Resend API key optional — the platform delivers from `yo@hollr.to` by default.
+The sender gets a timed, distraction-free writing space. The clock only runs while they type, so every second on the timer is a second actually spent composing. The message lands in your inbox, sent from `yo@hollr.to` (or from your own domain with your own [Resend](https://resend.com) key). Add a PGP public key and the message is encrypted in the sender's browser before it is sent, so hollr's servers only ever see ciphertext. Voice notes and files are encrypted with AES-256-GCM the moment they reach the server, and their keys are never stored.
 
-The project is deliberately free of framework overhead: Node.js + Express + SQLite on the backend, static HTML/CSS/JS on the frontend. No build step. No bundler. No ORM. Deployed to Fly.io (backend) and SiteGround via FTP (frontend). The entire codebase is MIT-licensed, self-hostable, and documented in this README at a level where you can understand every decision.
+The project is deliberately free of framework overhead: Node.js, Express and SQLite on the backend, plain static HTML, CSS and JS on the frontend. No build step, no bundler, no ORM. MIT-licensed, self-hostable, and documented below at a level where you can follow every decision.
+
+### Why people use it
+
+| | |
+|---|---|
+| **A link instead of an inbox** | Put `hollr.to/yourname` in a bio, an email footer or on a business card. People write; you read when you want. |
+| **Writing that means something** | The timer only runs while the sender types. It is a writing tool, not a text box. |
+| **Privacy you can verify** | End-to-end PGP when you add a key, a [documented threat model](SECURITY.md) that says exactly who can read what, and [an audit](docs/AUDIT-5.3.0.md) that checks every public claim against the code. |
+| **Yours to run** | MIT licence, one small Node service, one SQLite file. Bring your own Resend key and domain, or self-host the whole thing. |
+
+---
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%" align="center"><a href="docs/screenshots/canvas-writing.png"><img src="docs/screenshots/canvas-writing.png" alt="The writing canvas with the timer running"></a><br><sub><b>The canvas.</b> A calm page, a timer that only runs while you type, and a sidebar for files and voice.</sub></td>
+    <td width="50%" align="center"><a href="docs/screenshots/canvas-send-modal.png"><img src="docs/screenshots/canvas-send-modal.png" alt="The send modal asking for a name and a way to reach back"></a><br><sub><b>Sending.</b> Name and a way to reach back. Writing time, word and character counts at a glance.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" align="center"><a href="docs/screenshots/canvas-welcome.png"><img src="docs/screenshots/canvas-welcome.png" alt="The welcome card explaining how the canvas works"></a><br><sub><b>First visit.</b> A short welcome, then Start. The sender never needs an account.</sub></td>
+    <td width="50%" align="center"><a href="docs/screenshots/canvas-sent.png"><img src="docs/screenshots/canvas-sent.png" alt="The message sent confirmation"></a><br><sub><b>Delivered.</b> A recap of the session and a way to write another.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" align="center"><a href="docs/screenshots/landing-hero.png"><img src="docs/screenshots/landing-hero.png" alt="The hollr.to landing page, light mode"></a><br><sub><b>Landing page.</b> Light mode.</sub></td>
+    <td width="50%" align="center"><a href="docs/screenshots/landing-hero-dark.png"><img src="docs/screenshots/landing-hero-dark.png" alt="The hollr.to landing page, dark mode"></a><br><sub><b>Landing page.</b> Dark mode follows your system.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" align="center"><a href="docs/screenshots/settings-open.png"><img src="docs/screenshots/settings-open.png" alt="The settings panel"></a><br><sub><b>Settings.</b> Display name, notification email, optional Resend key, PGP key and PIN. Unlocked with your PIN from any device.</sub></td>
+    <td width="50%" align="center"><a href="docs/screenshots/pgp-generate.png"><img src="docs/screenshots/pgp-generate.png" alt="The in-browser PGP key generator"></a><br><sub><b><a href="https://hollr.to/pgp">hollr.to/pgp</a>.</b> Generate a key pair and decrypt messages in your browser. Nothing is uploaded.</sub></td>
+  </tr>
+</table>
+
+<details>
+<summary><b>More: how it works, features, security, dark mode, mobile, Japanese</b></summary>
+<br>
+
+<table>
+  <tr>
+    <td width="50%" align="center"><a href="docs/screenshots/landing-how.png"><img src="docs/screenshots/landing-how.png" alt="How it works section"></a><br><sub>How it works</sub></td>
+    <td width="50%" align="center"><a href="docs/screenshots/landing-features.png"><img src="docs/screenshots/landing-features.png" alt="Features section"></a><br><sub>Features</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" align="center"><a href="docs/screenshots/landing-security.png"><img src="docs/screenshots/landing-security.png" alt="Security section"></a><br><sub>Security, in plain language</sub></td>
+    <td width="50%" align="center"><a href="docs/screenshots/canvas-dark.png"><img src="docs/screenshots/canvas-dark.png" alt="The canvas in dark mode"></a><br><sub>Canvas, dark mode</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" align="center"><a href="docs/screenshots/landing-hero-ja.png"><img src="docs/screenshots/landing-hero-ja.png" alt="The landing page in Japanese"></a><br><sub>Landing page in 10 languages (Japanese shown)</sub></td>
+    <td width="50%" align="center"><a href="docs/screenshots/settings-pin.png"><img src="docs/screenshots/settings-pin.png" alt="PIN gate for settings"></a><br><sub>Settings are PIN-gated</sub></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><a href="docs/screenshots/mobile-welcome.png"><img src="docs/screenshots/mobile-welcome.png" alt="Mobile welcome card" width="240"></a> &nbsp; <a href="docs/screenshots/mobile-writing.png"><img src="docs/screenshots/mobile-writing.png" alt="Mobile writing view" width="240"></a><br><sub>On a phone</sub></td>
+  </tr>
+</table>
+
+</details>
+
+---
+
+## How it works
+
+```mermaid
+flowchart LR
+    S["Sender's browser<br/><b>hollr.to/yourname</b>"]
+    API["hollr API<br/>Node + SQLite on Fly.io"]
+    FS[("Encrypted<br/>uploads")]
+    R["Resend<br/>(platform key or yours)"]
+    I["Your inbox"]
+    D["Decrypt locally<br/><b>hollr.to/pgp</b>"]
+
+    S -- "message, PGP-encrypted in the browser<br/>when you have a key" --> API
+    S -- "voice / files over TLS" --> API
+    API -- "AES-256-GCM on arrival<br/>key not stored" --> FS
+    API -- "notification email" --> R --> I
+    I -- "your private key never leaves you" --> D
+```
+
+**As the owner:** sign in with a magic link, pick `hollr.to/yourname`, add a notification email, and optionally a PGP public key and your own Resend key. Share the link.
+
+**As a sender:** open the link, press Start, write (attach a file or record a voice note if you like), press Send, say how to reach you back. Done.
+
+### Privacy, honestly
+
+| | Sender's browser | hollr server | Your inbox |
+|---|---|---|---|
+| **Message, you have a PGP key** | encrypted with your public key | ciphertext only | you decrypt |
+| **Message, no PGP key** | plaintext | handled in memory, stored encrypted at rest | plaintext email |
+| **Files and voice** | plaintext over TLS | encrypted on arrival (AES-256-GCM), key not stored | link carries the key in its `#fragment` |
+
+Files and voice are encrypted by the server, not end to end, and metadata (who wrote, when) is never encrypted. The full table, the guarantees the code enforces and the known limitations are in **[SECURITY.md](SECURITY.md)**. Nothing in hollr reads, scans or summarises message content, and there is no feature that would need to.
+
+---
+
+## Features at a glance
+
+| | |
+|---|---|
+| **Timed canvas** | A running timer, word and character counts, keyboard shortcuts, dark and light themes. |
+| **Voice and files** | Record in the browser or attach any file. AES-256-GCM, decrypted in the browser from a link in your email. |
+| **Optional end-to-end PGP** | OpenPGP.js 5.11.3, self-hosted and pinned. If encryption fails the message is not sent, never silently downgraded. |
+| **No passwords** | Magic links (15 minutes, single use). Settings are reachable from any device with a PIN, with per-handle lockout. |
+| **Bring your own sender** | Default `yo@hollr.to`, or your own Resend key and verified domain. |
+| **10 languages** | The canvas, sign-in flow and main landing sections, fully translated with no mixed strings. |
+| **Handle protection** | Case-insensitive uniqueness, placeholder handles excluded, reserved names, three layers of checks. |
+| **In-browser PGP tool** | [hollr.to/pgp](https://hollr.to/pgp) generates keys and decrypts messages with zero network requests. |
+| **Self-hostable** | One Node process, one SQLite file, one Dockerfile. No build step. |
+| **Open source** | MIT. Every decision is written down in this README. |
+
+---
+
+## Languages
+
+| | | | | |
+|---|---|---|---|---|
+| 🇬🇧 English | 🇫🇷 Français | 🇩🇪 Deutsch | 🇮🇹 Italiano | 🇪🇸 Español |
+| 🇳🇱 Nederlands | 🇨🇳 中文 | 🇮🇳 हिन्दी | 🇯🇵 日本語 | 🇷🇺 Русский |
+
+The canvas and the landing page switch language automatically from the browser and can be changed from the globe button. Owner names are inserted into translated sentences ("Nachricht an Paul Fleury", "Paul Fleuryへのメッセージ") in every language.
+
+The long security and roadmap sections of the landing page are English only for now; everything a sender sees is translated.
+
+---
+
+## Quick start
+
+Run the backend locally in under a minute:
+
+```bash
+git clone https://github.com/paulfxyz/hollr.git
+cd hollr/backend
+cp .env.example .env        # then fill in the secrets (see Environment variables)
+npm install
+node server.js              # http://localhost:3000   (health: /health)
+```
+
+The frontend is static files: serve `landing/` (plus `handle/index.html` as `/handle/`) with any web server that can rewrite `/<name>` to `/handle/`. The repository ships the Apache rules in `landing/.htaccess`. Full walkthroughs for Fly.io, SiteGround/FTP and custom domains are in **[INSTALL.md](INSTALL.md)**.
+
+---
+
+## Project structure
+
+```
+hollr/
+├── backend/                  Node 20 + Express + SQLite (better-sqlite3)
+│   ├── server.js               routes, auth, rate limits, PIN lockout, validation
+│   ├── db.js                   schema + migrations
+│   ├── crypto.js               AES-256-CBC (secrets) and AES-256-GCM (files)
+│   ├── mailer.js               magic-link and message emails (Resend)
+│   ├── test/security.test.js   37-assertion integration test  (npm test)
+│   ├── Dockerfile · fly.toml
+│   └── package.json · package-lock.json
+├── landing/                  hollr.to web root (static, no build step)
+│   ├── index.html              landing page, 10 languages
+│   ├── auth/verify.html        magic-link callback
+│   ├── decrypt/index.html      file and voice decrypt viewer (Web Crypto)
+│   ├── pgp/index.html          in-browser PGP key generator and decryptor
+│   ├── vendor/                 self-hosted, version-pinned OpenPGP.js
+│   └── .htaccess               Apache routing
+├── handle/index.html         the canvas served for hollr.to/<name>
+├── docs/
+│   ├── AUDIT-5.3.0.md          security and honesty audit
+│   ├── screenshots/            product screenshots used in this README
+│   └── assets/                 logo and banners
+├── .github/workflows/test.yml  CI: syntax checks + integration tests
+├── README.md · INSTALL.md · CHANGELOG.md · SECURITY.md · LICENSE
+```
+
+---
+
+## Tests and CI
+
+```bash
+cd backend && npm ci && npm test
+```
+
+The suite boots the real server against a throw-away database and checks, over HTTP: PIN verification and lockout, token revocation, default-PIN handling, attachment validation, the PGP-required policy, encryption at rest, reserved and placeholder handles, and upload isolation. It runs on every push and pull request that touches the backend ([workflow](.github/workflows/test.yml)).
+
+---
+
+## Documentation
+
+| | |
+|---|---|
+| **[INSTALL.md](INSTALL.md)** | Step-by-step: local, Fly.io, SiteGround, custom domain, environment |
+| **[SECURITY.md](SECURITY.md)** | Who can read what, guarantees, known limitations, how to report |
+| **[docs/AUDIT-5.3.0.md](docs/AUDIT-5.3.0.md)** | The 5.3.0 audit: findings, claims checked against code, independent model reviews |
+| **[CHANGELOG.md](CHANGELOG.md)** | Every release, newest first |
+| **This README** | The deep dives below: architecture, auth, encryption, API reference, lessons learned |
 
 ---
 
@@ -929,23 +1135,11 @@ A complete record of everything that went wrong and why. Read this before you bu
 
 **Symptom:** Every API call from the frontend returned "Network error". Magic links failed to send. The health check still passed when called directly on `hollr-api.fly.dev`.
 
-**Root cause:** The CNAME `api.hollr.to → howlr-api.fly.dev` was configured during initial setup, when the app was named `howlr-api` (original typo). After renaming the app to `hollr-api`, the old `howlr-api.fly.dev` hostname ceased to exist. DNS continued resolving `api.hollr.to` to a dead address.
+**Root cause:** The CNAME `api.hollr.to` was configured during initial setup against the app's original hostname. After the app was renamed to `hollr-api`, that old `*.fly.dev` hostname ceased to exist. DNS continued resolving `api.hollr.to` to a dead address.
 
 **Fix:** Updated all frontend API references to `hollr-api.fly.dev` directly. The correct CNAME target (obtained from `flyctl certs setup`) includes a unique prefix: `xxxxxxx.hollr-api.fly.dev`.
 
 **Lesson:** When you rename a Fly.io app, the old `*.fly.dev` hostname disappears immediately. Update DNS before or simultaneously. Never assume a CNAME is stable across app renames.
-
----
-
-### 🔴 `howlr` directory — 18 versions of the wrong name
-
-**Symptom:** The workspace directory was named `howlr/` throughout the entire development session — a typo from the very first commit that was never caught.
-
-**Root cause:** The original project was named "howlr" (mishearing of "hollr"). The code and GitHub were correctly renamed to "hollr" early in development, but the local filesystem path `howlr/` was never corrected. It persisted in tool call logs, error messages, and mental model for dozens of sessions.
-
-**Fix:** `mv /workspace/howlr /workspace/hollr`. Grep-verified zero remaining occurrences in code files.
-
-**Lesson:** Typos in directory names compound. Fix them at the OS level immediately when discovered, not later.
 
 ---
 
