@@ -99,19 +99,20 @@ The project is deliberately free of framework overhead: Node.js, Express and SQL
 ## How it works
 
 ```mermaid
-flowchart LR
-    S["Sender's browser<br/><b>hollr.to/yourname</b>"]
-    API["hollr API<br/>Node + SQLite on Fly.io"]
-    FS[("Encrypted<br/>uploads")]
-    R["Resend<br/>(platform key or yours)"]
-    I["Your inbox"]
-    D["Decrypt locally<br/><b>hollr.to/pgp</b>"]
+flowchart TD
+    S["<b>Sender's browser</b><br/>hollr.to/yourname"]
+    API["<b>hollr API</b><br/>Node + SQLite on Fly.io"]
+    FS[("Encrypted uploads<br/>AES-256-GCM, key not stored")]
+    R["<b>Resend</b><br/>platform key or yours"]
+    I["<b>Your inbox</b>"]
+    D["<b>hollr.to/pgp</b><br/>decrypt in your browser"]
 
-    S -- "message, PGP-encrypted in the browser<br/>when you have a key" --> API
-    S -- "voice / files over TLS" --> API
-    API -- "AES-256-GCM on arrival<br/>key not stored" --> FS
-    API -- "notification email" --> R --> I
-    I -- "your private key never leaves you" --> D
+    S -->|"message, PGP-encrypted in the browser<br/>when you have a key"| API
+    S -->|"voice and files over TLS"| API
+    API --> FS
+    API -->|"notification email"| R
+    R --> I
+    I -->|"your private key never leaves you"| D
 ```
 
 **As the owner:** sign in with a magic link, pick `hollr.to/yourname`, add a notification email, and optionally a PGP public key and your own Resend key. Share the link.
